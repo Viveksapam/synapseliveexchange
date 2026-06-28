@@ -1,0 +1,379 @@
+/* VeriSphere Restored Styles merged with V2 aesthetics */
+.verisphere-layout-grid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.verisphere-main-content, .verisphere-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.verisphere-post-card {
+  display: flex;
+  background: var(--glass-bg, rgba(15, 15, 20, 0.4));
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+  border-radius: 24px;
+  padding: 24px;
+  backdrop-filter: blur(16px);
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--v2-text-main, #ffffff);
+}
+
+.verisphere-post-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  border-color: rgba(255,255,255,0.15);
+}
+
+.verisphere-post-content {
+  flex: 1;
+}
+
+.verisphere-post-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--v2-text-main, #ffffff);
+  margin-bottom: 0.5rem;
+}
+
+.verisphere-post-title-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.verisphere-post-meta {
+  font-size: 0.85rem;
+  color: var(--v2-text-muted, #8b9bb4);
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.verisphere-post-preview {
+  color: var(--v2-text-muted, #8b9bb4);
+  line-height: 1.6;
+}
+
+.verisphere-sidebar-box {
+  background: var(--glass-bg, rgba(15, 15, 20, 0.4));
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+  border-radius: 24px;
+  padding: 24px;
+  backdrop-filter: blur(16px);
+}
+
+.verisphere-sidebar-box h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  color: var(--v2-text-main, #ffffff);
+}
+
+.verisphere-community-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.verisphere-community-list li {
+  margin-bottom: 0.75rem;
+}
+
+.community-link {
+  color: var(--v2-accent-3, #00f0ff);
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.community-link:hover {
+  text-decoration: underline;
+}
+
+.verisphere-btn-primary {
+  background: linear-gradient(135deg, var(--v2-accent-1, #3b82f6), var(--v2-accent-2, #8b5cf6));
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 100px;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: 'Space Grotesk', sans-serif;
+  transition: all 0.3s ease;
+}
+.verisphere-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+
+.verisphere-action-link, .verisphere-btn-outline {
+  color: var(--v2-text-main, #fff);
+  text-decoration: none;
+  background: var(--glass-bg, rgba(15, 15, 20, 0.4));
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+  padding: 8px 16px;
+  border-radius: 100px;
+  display: inline-block;
+  font-size: 0.85rem;
+  font-family: 'Space Grotesk', sans-serif;
+  transition: all 0.3s ease;
+}
+
+.verisphere-action-link:hover, .verisphere-btn-outline:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.verisphere-textarea, .verisphere-input {
+  width: 100%;
+  background: var(--glass-bg, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+  color: var(--v2-text-main, #ffffff);
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  font-family: 'Inter', sans-serif;
+  box-sizing: border-box;
+}
+.verisphere-textarea:focus, .verisphere-input:focus {
+  outline: none;
+  border-color: var(--v2-accent-1, #3b82f6);
+}
+
+/* Removed old hero classes */
+
+.verisphere-empty-state, .verisphere-loading {
+  text-align: center;
+  padding: 4rem;
+  color: var(--v2-text-muted, #8b9bb4);
+  background: var(--glass-bg, rgba(15, 15, 20, 0.4));
+  border-radius: 24px;
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+  font-size: 1.1rem;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   TABLET  ≤ 768px
+───────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+
+  /* Feed layout: sidebar below main */
+  .verisphere-layout-grid {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+    gap: 1.25rem;
+  }
+
+  /* Post cards: tighter padding, no hover lift */
+  .verisphere-post-card {
+    padding: 14px 16px;
+    gap: 0.875rem;
+    border-radius: 14px;
+  }
+  .verisphere-post-card:hover { transform: none; }
+
+  .verisphere-post-title  { font-size: 1.15rem; }
+
+  .verisphere-post-meta {
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  /* Vote column → compact horizontal strip */
+  .vs-post-votes {
+    flex-direction: row !important;
+    min-width: unset !important;
+    width: 100% !important;
+    gap: 0.75rem !important;
+    padding-top: 0 !important;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--glass-border);
+    justify-content: flex-start !important;
+  }
+
+  /* The verifiable sub-block inside vote column */
+  .vs-post-votes > div:last-child {
+    border-top: none !important;
+    padding-top: 0 !important;
+    width: auto !important;
+    flex-direction: row !important;
+    gap: 6px;
+  }
+
+  /* Make the whole post-card stack vertically */
+  .verisphere-post-card {
+    flex-direction: column !important;
+  }
+
+  /* Actions row: wrap tightly */
+  .vs-post-actions {
+    gap: 0.75rem !important;
+    flex-wrap: wrap !important;
+  }
+
+  /* Empty / loading states */
+  .verisphere-empty-state, .verisphere-loading {
+    padding: 2.5rem 1.25rem;
+    font-size: 0.95rem;
+  }
+
+  /* Profile banner */
+  .vs-profile-banner {
+    padding: 14px 16px !important;
+    padding-top: 50px !important;
+    gap: 12px !important;
+  }
+
+  /* Profile tabs: scrollable */
+  .vs-profile-tabs {
+    padding: 0 16px !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .vs-profile-tabs::-webkit-scrollbar { display: none; }
+
+  /* Profile tab content */
+  .vs-profile-content { padding: 16px !important; }
+
+  /* Profile grids: single column */
+  .vs-profile-grid { grid-template-columns: 1fr !important; }
+}
+
+.verisphere-emoji-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  padding: 6px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   MOBILE  ≤ 480px
+───────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+
+  /* Feed grid */
+  .verisphere-layout-grid {
+    padding: 0.625rem;
+    gap: 0.875rem;
+  }
+
+  /* Hide sidebar entirely on phone — save vertical space */
+  .verisphere-sidebar { display: none; }
+
+  /* Post card */
+  .verisphere-post-card {
+    padding: 12px;
+    border-radius: 12px;
+    flex-direction: column !important;
+    gap: 0;
+  }
+
+  /* Vote strip: show engagement + verifiable inline, compact */
+  .vs-post-votes {
+    flex-direction: row !important;
+    min-width: unset !important;
+    width: 100% !important;
+    padding: 0 0 10px 0 !important;
+    margin-bottom: 10px;
+    gap: 10px !important;
+    border-bottom: 1px solid var(--glass-border);
+    align-items: center !important;
+    justify-content: flex-start !important;
+  }
+
+  .vs-post-votes > div {
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 5px !important;
+  }
+
+  /* Hide the border-top separator inside votes on mobile */
+  .vs-post-votes > div:last-child {
+    border-top: none !important;
+    padding-top: 0 !important;
+    width: auto !important;
+    gap: 5px !important;
+  }
+
+  .verisphere-post-title  { font-size: 1rem; }
+
+  .verisphere-post-preview {
+    font-size: 0.88rem;
+    /* Clamp preview to 3 lines on phone */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Actions: wrap, smaller gap */
+  .vs-post-actions {
+    gap: 0.5rem !important;
+    margin-top: 0.5rem;
+  }
+
+  /* Reactions wrap */
+  .verisphere-reacts {
+    gap: 0.3rem !important;
+    flex-wrap: wrap !important;
+  }
+
+  /* CreatePost chips: 2-column grid (fills width evenly) */
+  .vs-create-chips {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  /* Empty / loading */
+  .verisphere-empty-state, .verisphere-loading {
+    padding: 1.75rem 1rem;
+    font-size: 0.88rem;
+    border-radius: 12px;
+  }
+
+  /* Nav */
+  .v2-nav { padding: 12px 14px; }
+  .v2-nav-btn.secondary { display: none; }
+
+  /* Profile banner: compact stack */
+  .vs-profile-banner {
+    padding: 12px 14px !important;
+    padding-top: 46px !important;
+    gap: 10px !important;
+    flex-wrap: wrap;
+  }
+
+  /* Profile tabs */
+  .vs-profile-tabs { padding: 0 10px !important; }
+
+  /* Profile content */
+  .vs-profile-content { padding: 10px !important; }
+
+  /* Footer */
+  .v2-footer {
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px 14px;
+    text-align: center;
+  }
+
+  .verisphere-emoji-picker-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 6px;
+    padding: 4px;
+  }
+}
+
