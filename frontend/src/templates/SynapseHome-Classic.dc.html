@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet">
+<style>
+  @keyframes ath2-marquee { from { transform: translate3d(0,0,0); } to { transform: translate3d(-50%,0,0); } }
+</style>
+</helmet>
+
+<div style="background:#fbf9f6; color:#1b1c1a; font-family:'EB Garamond',Georgia,serif; font-size:18px; line-height:1.6; min-height:100vh; -webkit-font-smoothing:antialiased;">
+
+  <!-- Utility bar -->
+  <div style="background:#1b1c1a; color:#cdbfa8; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.18em; text-transform:uppercase; display:flex; justify-content:space-between; align-items:center; padding:8px 32px;">
+    <span>Synapse Live Exchange — Release v4.02</span>
+    <span style="color:#7b9bbd;">● Open to opportunities</span>
+  </div>
+
+  <!-- Nav -->
+  <header style="position:sticky; top:0; z-index:50; background:rgba(251,249,246,0.92); backdrop-filter:saturate(120%) blur(6px); border-bottom:1px solid #d2c4b4;">
+    <nav style="display:flex; justify-content:space-between; align-items:center; max-width:1260px; margin:0 auto; padding:18px 32px;">
+      <div style="display:flex; align-items:center; gap:44px;">
+        <a href="#" style="font-weight:700; font-size:22px; text-transform:uppercase; letter-spacing:0.06em; color:#1b1c1a; text-decoration:none;">Synapse&nbsp;LE</a>
+        <ul style="display:flex; align-items:center; gap:28px; list-style:none; margin:0; padding:0;">
+          <li><a href="#projects" style="color:#4f4539; text-decoration:none; font-size:16px;">Verisphere</a></li>
+          <li><a href="#spotlight" style="color:#4f4539; text-decoration:none; font-size:16px;">Spotlight</a></li>
+          <li><a href="#merch" style="color:#4f4539; text-decoration:none; font-size:16px;">Merchandise</a></li>
+        </ul>
+      </div>
+      <div style="display:flex; align-items:center; gap:18px;">
+        <div style="display:flex; align-items:center; gap:8px; border:1px solid #d2c4b4; padding:7px 12px; background:#f5f3f0;">
+          <span style="color:#a8997f; font-family:'JetBrains Mono',monospace; font-size:12px;">⌕</span>
+          <input placeholder="SEARCH ARCHIVE" style="background:transparent; border:none; outline:none; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.08em; color:#1b1c1a; width:130px; text-transform:uppercase;" />
+        </div>
+        <button style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#4f4539; background:transparent; border:1px solid #d2c4b4; padding:9px 14px; cursor:pointer;" style-hover="background:#1b1c1a; color:#fbf9f6; border-color:#1b1c1a;">Apps ▾</button>
+        <button style="background:#7b581b; color:#fff; border:none; padding:11px 22px; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; cursor:pointer;" style-hover="background:#1b1c1a;">Log&nbsp;in</button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Hero -->
+  <section style="max-width:1260px; margin:0 auto; padding:96px 32px 64px;">
+    <p style="font-family:'JetBrains Mono',monospace; font-size:12px; color:#7b581b; text-transform:uppercase; letter-spacing:0.34em; margin:0 0 28px;">Synapse Live Exchange — v4.02</p>
+    <h1 style="font-size:clamp(2.6rem,6vw,4.6rem); font-weight:500; line-height:1.08; max-width:18ch; margin:0; letter-spacing:-0.01em;">Designing virtual spaces for <em style="font-style:italic; color:#7b581b;">accessibility</em> and shared discovery.</h1>
+
+    <div style="display:grid; grid-template-columns:1.5fr 1px 1fr; gap:48px; align-items:start; margin-top:64px; padding-top:40px; border-top:1px solid #d2c4b4;">
+      <div>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; color:#a8997f; text-transform:uppercase; letter-spacing:0.14em; display:block; margin-bottom:10px;">What it's for</span>
+        <p style="font-style:italic; color:#4f4539; margin:0; font-size:1.05rem;">One accessible home for verifiable discussion, credentials and spatial learning — grounded in real research and real sources you can check.</p>
+      </div>
+      <div style="background:#d2c4b4; width:1px; height:100%;"></div>
+      <div>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; color:#a8997f; text-transform:uppercase; letter-spacing:0.14em; display:block; margin-bottom:10px;">At a glance</span>
+        <p style="font-family:'JetBrains Mono',monospace; font-size:13px; color:#0060ac; margin:0;">04 live applications</p>
+        <p style="font-family:'JetBrains Mono',monospace; font-size:13px; color:#1b1c1a; margin:6px 0 0;">Accessible to WCAG 2.1 AA</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Capabilities marquee -->
+  <section style="background:#f5f3f0; border-top:1px solid #d2c4b4; border-bottom:1px solid #d2c4b4; overflow:hidden; padding:30px 0; position:relative;">
+    <div style="position:absolute; inset:0 auto 0 0; width:120px; background:linear-gradient(to right,#f5f3f0,transparent); z-index:2; pointer-events:none;"></div>
+    <div style="position:absolute; inset:0 0 0 auto; width:120px; background:linear-gradient(to left,#f5f3f0,transparent); z-index:2; pointer-events:none;"></div>
+    <div style="display:flex; width:max-content; animation:ath2-marquee 38s linear infinite; align-items:center;">
+      <sc-for list="{{ marquee }}" as="cap" hint-placeholder-count="12">
+        <div style="display:flex; align-items:center; gap:16px; padding-right:44px; margin-right:44px; border-right:1px solid #d2c4b4;">
+          <span style="color:#7b581b; font-family:'JetBrains Mono',monospace; font-size:13px;">✦</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; white-space:nowrap;">{{ cap }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- Projects -->
+  <section id="projects" style="max-width:1260px; margin:0 auto; padding:88px 32px; display:grid; grid-template-columns:240px 1fr; gap:56px;">
+    <aside>
+      <div style="position:sticky; top:120px;">
+        <h3 style="font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; color:#a8997f; text-transform:uppercase; letter-spacing:0.14em; margin:0 0 22px;">Index</h3>
+        <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column;">
+          <sc-for list="{{ indices }}" as="ix" hint-placeholder-count="4">
+            <li style="display:flex; justify-content:space-between; align-items:center; padding:13px 0; border-top:1px solid #d2c4b4; cursor:pointer;">
+              <span style="font-family:'JetBrains Mono',monospace; font-size:12px; color:#4f4539; letter-spacing:0.04em;">{{ ix.name }}</span>
+              <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#a8997f;">{{ ix.code }}</span>
+            </li>
+          </sc-for>
+        </ul>
+        <div style="margin-top:48px; padding:24px; background:#efeeeb; border:1px solid #d2c4b4;">
+          <div style="font-family:'JetBrains Mono',monospace; font-size:18px; color:#7b581b; margin-bottom:14px;">❝</div>
+          <p style="font-style:italic; font-size:0.98rem; margin:0; color:#1b1c1a;">Built for discourse you can verify — where every claim carries its source.</p>
+        </div>
+      </div>
+    </aside>
+
+    <div style="display:flex; flex-direction:column;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:8px;">
+        <h2 style="font-size:2rem; font-weight:600; margin:0;">Projects</h2>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#a8997f; text-transform:uppercase; letter-spacing:0.12em;">What I'm building / 2025</span>
+      </div>
+      <sc-for list="{{ projects }}" as="p" hint-placeholder-count="3">
+        <article style="display:grid; grid-template-columns:1fr 300px; gap:40px; align-items:center; padding:44px 0; border-top:1px solid #d2c4b4;">
+          <div>
+            <span style="font-family:'JetBrains Mono',monospace; font-size:12px; color:#0060ac; letter-spacing:0.08em;">{{ p.n }} — {{ p.kicker }}</span>
+            <h3 style="font-size:1.7rem; font-weight:600; line-height:1.25; margin:14px 0 16px;">{{ p.name }}</h3>
+            <p style="color:#4f4539; margin:0 0 22px; max-width:48ch;">{{ p.desc }}</p>
+            <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:24px;">
+              <sc-for list="{{ p.tags }}" as="t" hint-placeholder-count="3">
+                <span style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; background:#efeeeb; color:#7b581b; border:1px solid #d2c4b4; padding:3px 9px;">{{ t }}</span>
+              </sc-for>
+            </div>
+            <a href="#" style="font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.12em; color:#7b581b; text-decoration:none; border-bottom:1px solid #7b581b; padding-bottom:3px;">{{ p.cta }} →</a>
+          </div>
+          <div style="aspect-ratio:4/5; border:1px solid #d2c4b4; position:relative; overflow:hidden; background:{{ p.plateBg }};">
+            <div style="position:absolute; inset:0; background-image:repeating-linear-gradient(0deg,rgba(123,88,27,0.07) 0 1px,transparent 1px 34px),repeating-linear-gradient(90deg,rgba(123,88,27,0.07) 0 1px,transparent 1px 34px);"></div>
+            <div style="position:absolute; top:54px; left:40px; width:128px; height:128px; border:1px solid rgba(123,88,27,0.45); border-radius:50%;"></div>
+            <div style="position:absolute; top:104px; left:92px; width:92px; height:92px; border:1px solid rgba(0,96,172,0.45);"></div>
+            <span style="position:absolute; right:2px; bottom:-30px; font-family:'EB Garamond',serif; font-weight:600; font-size:170px; line-height:1; color:rgba(27,28,26,0.08);">{{ p.n }}</span>
+            <span style="position:absolute; top:12px; left:12px; background:#7b581b; color:#fff; font-family:'JetBrains Mono',monospace; font-size:9px; font-weight:700; letter-spacing:0.1em; padding:3px 9px;">FIG. {{ p.n }}</span>
+            <span style="position:absolute; top:14px; right:14px; font-family:'JetBrains Mono',monospace; font-size:9px; color:#8a7a5f; letter-spacing:0.1em; text-transform:uppercase;">{{ p.kicker }}</span>
+            <span style="position:absolute; bottom:14px; left:14px; font-family:'JetBrains Mono',monospace; font-size:10px; color:#8a7a5f; letter-spacing:0.08em;">{{ p.date }}</span>
+          </div>
+        </article>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- Contributions / Blog -->
+  <section style="background:#efeeeb; border-top:1px solid #d2c4b4; padding:88px 32px;">
+    <div style="max-width:1260px; margin:0 auto;">
+      <div style="margin-bottom:44px;">
+        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#7b581b; text-transform:uppercase; letter-spacing:0.16em;">Writing</span>
+        <h2 style="font-size:2.2rem; font-weight:600; margin:10px 0 0;">Recent Contributions</h2>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:36px;">
+        <sc-for list="{{ blogs }}" as="b" hint-placeholder-count="3">
+          <article style="cursor:pointer;">
+            <div style="aspect-ratio:16/10; border:1px solid #d2c4b4; background-image:repeating-linear-gradient(135deg,#e9e2d6,#e9e2d6 9px,#ded4c3 9px,#ded4c3 10px); margin-bottom:20px;"></div>
+            <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#a8997f; text-transform:uppercase; letter-spacing:0.08em;">{{ b.cat }} // {{ b.read }} Min Read</span>
+            <h3 style="font-size:1.25rem; font-weight:700; line-height:1.35; margin:10px 0 12px;">{{ b.title }}</h3>
+            <p style="font-size:0.95rem; color:#4f4539; margin:0;">{{ b.summary }}</p>
+          </article>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- Spotlight -->
+  <section id="spotlight" style="background:#0e0d0b; border-top:1px solid #d2c4b4; padding:64px 32px; position:relative;">
+    <div style="max-width:1260px; margin:0 auto;">
+      <div style="display:flex; align-items:flex-end; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:24px; margin-bottom:36px;">
+        <div>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; letter-spacing:0.16em; color:#c79a4e; text-transform:uppercase;">// Media Hub</span>
+          <h2 style="font-size:clamp(28px,4vw,40px); font-weight:700; color:#f5f0e8; margin:8px 0 0; letter-spacing:-0.02em;">Featured Spotlights</h2>
+        </div>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:rgba(255,255,255,0.35); letter-spacing:0.1em;">{{ spotActiveNo }} / 04</span>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 320px; gap:24px; align-items:start;">
+        <div>
+          <div style="aspect-ratio:16/9; background:#000; position:relative; box-shadow:0 0 0 1px rgba(199,154,78,0.35), 0 30px 70px rgba(0,0,0,0.6); background-image:radial-gradient(circle at 50% 45%, #2a2620, #0b0a08); display:flex; align-items:center; justify-content:center;">
+            <div style="width:74px; height:74px; border:1px solid rgba(199,154,78,0.6); display:flex; align-items:center; justify-content:center; color:#c79a4e; font-size:22px;">▶</div>
+            <span style="position:absolute; bottom:16px; left:16px; font-family:'JetBrains Mono',monospace; font-size:11px; color:rgba(245,240,232,0.7); letter-spacing:0.1em;">{{ spotActiveTag }}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 2px 0;">
+            <div>
+              <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#c79a4e; letter-spacing:0.14em;">NOW PLAYING</span>
+              <h3 style="color:#f5f0e8; font-size:1.4rem; font-weight:600; margin:6px 0 0;">{{ spotActiveTitle }}</h3>
+            </div>
+            <span style="font-family:'JetBrains Mono',monospace; font-size:12px; color:rgba(255,255,255,0.4);">{{ spotActiveDur }}</span>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <sc-for list="{{ spotlight }}" as="v" hint-placeholder-count="4">
+            <div onClick="{{ v.select }}" style="{{ v.rowStyle }}">
+              <div style="width:96px; aspect-ratio:16/9; flex:none; background-image:radial-gradient(circle at 50% 40%, #2a2620, #0b0a08); position:relative; display:flex; align-items:flex-end; padding:6px;">
+                <span style="font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(245,240,232,0.6);">{{ v.n }}</span>
+              </div>
+              <div style="min-width:0;">
+                <span style="font-family:'JetBrains Mono',monospace; font-size:9px; color:#c79a4e; letter-spacing:0.12em;">LOG {{ v.n }} · {{ v.tag }}</span>
+                <p style="color:#f5f0e8; font-size:0.95rem; margin:5px 0 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ v.title }}</p>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Merchandise -->
+  <section id="merch" style="background:#fbf9f6; border-top:1px solid #d2c4b4; padding:88px 32px;">
+    <div style="max-width:1260px; margin:0 auto;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:44px;">
+        <div>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#7b581b; text-transform:uppercase; letter-spacing:0.16em;">The Shop</span>
+          <h2 style="font-size:2.2rem; font-weight:600; margin:10px 0 0;">SLE Merchandise</h2>
+        </div>
+        <a href="#" style="font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.12em; color:#1b1c1a; border:1px solid #1b1c1a; padding:11px 18px; text-decoration:none;">Browse Full Shop →</a>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:32px;">
+        <sc-for list="{{ merch }}" as="m" hint-placeholder-count="3">
+          <div style="background:#f5f3f0; border:1px solid #d2c4b4; cursor:pointer;">
+            <div style="aspect-ratio:4/3; border-bottom:1px solid #d2c4b4; background:#1b1a17; position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+              <div style="position:absolute; inset:0; background-image:radial-gradient(circle at 50% 42%, rgba(216,162,74,0.18), transparent 62%);"></div>
+              <span style="font-family:'Material Symbols Outlined'; font-size:72px; color:#dfb26c; position:relative; line-height:1;">{{ m.icon }}</span>
+              <span style="position:absolute; bottom:12px; left:12px; background:rgba(27,28,26,0.85); color:#dfb26c; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; padding:4px 10px;">₹{{ m.price }}</span>
+            </div>
+            <div style="padding:22px;">
+              <h3 style="font-size:1.2rem; font-weight:600; margin:0 0 8px;">{{ m.name }}</h3>
+              <p style="font-size:0.9rem; color:#4f4539; margin:0 0 16px;">{{ m.desc }}</p>
+              <span style="font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#7b581b;">Inspect Item →</span>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer style="border-top:1px solid #d2c4b4; background:#f5f3f0; padding:64px 32px 40px;">
+    <div style="max-width:1260px; margin:0 auto;">
+      <div style="display:grid; grid-template-columns:1fr 1.2fr; gap:48px; align-items:start; padding-bottom:40px; border-bottom:1px solid #d2c4b4;">
+        <div>
+          <div style="font-weight:700; font-size:1.4rem; text-transform:uppercase; letter-spacing:0.05em;">Synapse LE</div>
+          <p style="font-size:1.02rem; font-style:italic; color:#4f4539; margin:14px 0 0; max-width:34ch;">Let's build something verifiable together. Open to roles, collaborations and conversation.</p>
+        </div>
+        <div>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; color:#a8997f; text-transform:uppercase; letter-spacing:0.14em; display:block; margin-bottom:18px;">Connect — Correspondence</span>
+          <div style="display:grid; grid-template-columns:1fr; gap:0;">
+            <a href="https://www.linkedin.com/in/sapam-singh/" target="_blank" rel="noreferrer" style="display:flex; justify-content:space-between; align-items:center; padding:16px 0; border-top:1px solid #d2c4b4; text-decoration:none; color:#1b1c1a;" style-hover="color:#7b581b;">
+              <span style="display:flex; align-items:center; gap:14px;"><span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#a8997f;">01</span><span style="font-family:'EB Garamond',serif; font-size:1.25rem;">LinkedIn</span></span>
+              <span style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.04em; color:#4f4539;">/in/sapam-singh ↗</span>
+            </a>
+            <a href="https://github.com/Viveksapam" target="_blank" rel="noreferrer" style="display:flex; justify-content:space-between; align-items:center; padding:16px 0; border-top:1px solid #d2c4b4; text-decoration:none; color:#1b1c1a;" style-hover="color:#7b581b;">
+              <span style="display:flex; align-items:center; gap:14px;"><span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#a8997f;">02</span><span style="font-family:'EB Garamond',serif; font-size:1.25rem;">GitHub</span></span>
+              <span style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.04em; color:#4f4539;">/Viveksapam ↗</span>
+            </a>
+            <a href="#" style="display:flex; justify-content:space-between; align-items:center; padding:16px 0; border-top:1px solid #d2c4b4; border-bottom:1px solid #d2c4b4; text-decoration:none; color:#1b1c1a;" style-hover="color:#7b581b;">
+              <span style="display:flex; align-items:center; gap:14px;"><span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#a8997f;">03</span><span style="font-family:'EB Garamond',serif; font-size:1.25rem;">Email</span></span>
+              <span style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.04em; color:#4f4539;">Viveksapamofficial@outlook.com ↗</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:24px; flex-wrap:wrap; padding-top:24px;">
+        <p style="font-size:0.85rem; color:#4f4539; margin:0;">© 2026 Synapse LE. Verifiable by Design.</p>
+        <div style="display:flex; gap:24px; flex-wrap:wrap;">
+          <a href="#" style="font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#4f4539; text-decoration:underline;">Ethics Protocol</a>
+          <a href="#" style="font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#4f4539; text-decoration:underline;">Assessments</a>
+          <a href="#" style="font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#4f4539; text-decoration:underline;">Classroom Map</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { active: 0 };
+  renderVals() {
+    const marquee = ['Frontend Architecture & React','UI Engineering & Styling','Backend Development & FastAPI','Learning Experience Design','State Management','APIs & Data Syncing'];
+    const indices = [
+      { name:'VERISPHERE', code:'001' },
+      { name:'ASSESSMENTS', code:'042' },
+      { name:'SPOTLIGHT', code:'109' },
+      { name:'MERCHANDISE', code:'215' },
+    ];
+    const projects = [
+      { n:'01', kicker:'TRUST-BASED DISCOURSE', name:'Verisphere', desc:'A community platform for verifiable, source-backed discussion — where every claim carries its provenance and every voice is accountable.', tags:['React','FastAPI','PostgreSQL'], cta:'Experience Verisphere', date:'OCT 24, 2025', plateBg:'radial-gradient(circle at 76% 24%, rgba(123,88,27,0.18), transparent 55%), #f1ece2' },
+      { n:'02', kicker:'VERIFIABLE LEARNING', name:'Credential Assessment System', desc:'Issue, store and verify academic credentials with tamper-evident records and instant institutional lookup.', tags:['React','JWT','SQLite'], cta:'Open CAS', date:'SEP 12, 2025', plateBg:'radial-gradient(circle at 24% 32%, rgba(0,96,172,0.16), transparent 55%), #efeae0' },
+      { n:'03', kicker:'CLASSROOM MAP', name:'Spatial Learning Environment', desc:'An interactive map that turns a course into a navigable space — rooms, paths and shared discovery.', tags:['Three.js','R3F','WebGL'], cta:'Enter the Map', date:'AUG 03, 2025', plateBg:'radial-gradient(circle at 52% 76%, rgba(123,88,27,0.18), transparent 58%), #f1ece2' },
+    ];
+    const blogs = [
+      { cat:'Discovery', read:'12', title:'On the Architecture of Trust in Digital Discourse', summary:'Why verifiability must be a first-class design primitive, not a moderation afterthought.' },
+      { cat:'Ethics', read:'08', title:'Verifiability as a Design Principle', summary:'Provenance, citation and consent — building social spaces that reward rigor over reach.' },
+      { cat:'Discovery', read:'12', title:'What Verifiable Discourse Actually Requires', summary:'Notes on building social spaces that reward sources over noise.' },
+    ];
+    const merch = [
+      { name:'Dotted Field Notebook', desc:'120 pages of dotted paper for lecture notes, proofs and marginalia.', price:'249', icon:'menu_book' },
+      { name:'Vinyl Sticker Pack', desc:'Six die-cut, weatherproof stickers for laptops, bottles and notebooks.', price:'149', icon:'sticky_note_2' },
+      { name:'Insulated Steel Bottle', desc:'750ml double-walled flask — from lecture halls to late-night labs.', price:'449', icon:'water_bottle' },
+    ];
+    const spotData = [
+      { n:'01', tag:'KEYNOTE', title:'Designing for Verifiability', dur:'24:10' },
+      { n:'02', tag:'SESSION', title:'Inside the Credential Graph', dur:'18:42' },
+      { n:'03', tag:'WORKSHOP', title:'Spatial Learning, Live', dur:'31:05' },
+      { n:'04', tag:'PANEL', title:'Community & Trust at Scale', dur:'27:33' },
+    ];
+    const active = this.state.active;
+    const spotlight = spotData.map((v, i) => ({
+      ...v,
+      select: () => this.setState({ active: i }),
+      rowStyle: 'display:flex; gap:12px; align-items:center; padding:8px; cursor:pointer; border:1px solid ' + (i === active ? 'rgba(199,154,78,0.6)' : 'rgba(255,255,255,0.07)') + '; background:' + (i === active ? 'rgba(199,154,78,0.08)' : 'transparent') + ';',
+    }));
+    const a = spotData[active];
+    return {
+      marquee: [...marquee, ...marquee], indices, projects, blogs, merch, spotlight,
+      spotActiveNo: a.n, spotActiveTag: a.tag, spotActiveTitle: a.title, spotActiveDur: a.dur,
+    };
+  }
+}
+</script>
+</body>
+</html>
