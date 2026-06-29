@@ -9,7 +9,6 @@ const ContributionsSection = ({ arrBlogsState }) => {
     <section className="ath-blog-section ath-reveal" id="blog">
       <div className="ath-blog-container">
         <div className="ath-blog-header-row" style={{ marginBottom: '40px' }}>
-          <span className="ath-section-eyebrow">The Marginalia</span>
           <h2 className="ath-section-title">Recent Contributions</h2>
         </div>
 

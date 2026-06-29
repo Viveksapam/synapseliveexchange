@@ -38,9 +38,9 @@ const ProjectsDirectory = ({ boolIsProjectsLoadingState, arrFilteredProjectsStat
           </ul>
           
           <div className="ath-sidebar-quote-box">
-            <span className="material-symbols-outlined text-primary block mb-4" style={{ fontSize: '24px' }}>history_edu</span>
+            <span className="material-symbols-outlined text-primary block mb-4" style={{ fontSize: '24px' }}>verified_user</span>
             <p className="ath-quote-text">
-              "The digital library must not merely host information, but curate the silence between ideas."
+              "Built for discourse you can verify — where every claim carries its source."
             </p>
           </div>
         </div>
@@ -70,7 +70,7 @@ const ProjectsDirectory = ({ boolIsProjectsLoadingState, arrFilteredProjectsStat
           arrFilteredProjectsState.map((project, idx) => {
             const isEven = idx % 2 === 0;
             const nameLower = (project.strName || '').toLowerCase();
-            const techStack = project.strTechStack ? project.strTechStack.split(',') : [];
+            const techStack = project.strTechStack ? project.strTechStack.split(',').map(t => t.trim()) : [];
             const categoryLabel = `PROJECT 0${idx + 1}`;
             const publishedDate = project.datePublished || "OCT 24, 2024";
 
@@ -96,12 +96,12 @@ const ProjectsDirectory = ({ boolIsProjectsLoadingState, arrFilteredProjectsStat
                   <div className="ath-article-tags">
                     {techStack.map((tech, i) => (
                       <span key={i} className="ath-article-tag">
-                        {tech.trim()}
+                        {tech}
                       </span>
                     ))}
                   </div>
 
-                  <div className="flex gap-6 items-center">
+                  <div style={{ display: 'flex', gap: '24px', alignItems: 'center', marginTop: '20px' }}>
                     <Link
                       to={nameLower.includes('credential') || nameLower.includes('assessment') ? '/credentials' : '/verisphere'}
                       className="ath-article-link"
@@ -120,7 +120,7 @@ const ProjectsDirectory = ({ boolIsProjectsLoadingState, arrFilteredProjectsStat
                         style={{ color: 'var(--ath-text-muted)' }}
                       >
                         CODE
-                        <span className="material-symbols-outlined text-sm">code</span>
+                        <span className="material-symbols-outlined text-sm">open_in_new</span>
                       </a>
                     )}
                   </div>

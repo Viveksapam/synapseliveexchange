@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { legacyContactLinks } from '../../../data/legacyLinks';
 
 const HomeFooter = () => {
   return (
@@ -8,8 +9,19 @@ const HomeFooter = () => {
         <div className="ath-footer-brand-box">
           <span className="ath-footer-brand">Synapse LE</span>
           <p className="ath-footer-copyright">
-            © {new Date().getFullYear()} Synapse Editorial. Technical Rigor. Historical Weight.
+            © {new Date().getFullYear()} Synapse LE. Verifiable by Design.
           </p>
+          <div className="ath-footer-connect" style={{ display: 'flex', gap: '16px', marginTop: '12px' }}>
+            <a className="ath-footer-link" href={legacyContactLinks.linkedin} target="_blank" rel="noreferrer">
+              LinkedIn
+            </a>
+            <a className="ath-footer-link" href={legacyContactLinks.github} target="_blank" rel="noreferrer">
+              GitHub
+            </a>
+            <a className="ath-footer-link" href={`mailto:${legacyContactLinks.email}`}>
+              Email
+            </a>
+          </div>
         </div>
         
         <div className="ath-footer-links">

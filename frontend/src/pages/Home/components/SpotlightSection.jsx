@@ -1,31 +1,6 @@
-import React, { useState } from 'react';
-
-const hardcodedVideos = [
-  {
-    id: 101,
-    strTitle: "Miley Cyrus - The Climb",
-    strYoutubeEmbedUrl: "https://www.youtube.com/embed/oMeSf6d4Xrg",
-    strDescription: "Official Music Video for The Climb by Miley Cyrus"
-  },
-  {
-    id: 102,
-    strTitle: "Adele - Hello",
-    strYoutubeEmbedUrl: "https://www.youtube.com/embed/YQHsXMglC9A",
-    strDescription: "Official Music Video for Hello by Adele"
-  },
-  {
-    id: 103,
-    strTitle: "Clean Bandit - Rockabye",
-    strYoutubeEmbedUrl: "https://www.youtube.com/embed/papuvlVeZg8",
-    strDescription: "Official Music Video for Rockabye by Clean Bandit"
-  },
-  {
-    id: 104,
-    strTitle: "Jessie J - Flashlight",
-    strYoutubeEmbedUrl: "https://www.youtube.com/embed/D-NvQ6VJYtE",
-    strDescription: "Official Music Video for Flashlight by Jessie J"
-  }
-];
+import React, { useState, useEffect } from 'react';
+import { fetchVideoList } from '../../../api/portfolioApi';
+import { legacyVideos } from '../../../data/legacyLinks';
 
 const extractYoutubeId = (url) => {
   if (!url) return null;
@@ -37,8 +12,23 @@ const extractYoutubeId = (url) => {
 };
 
 const SpotlightSection = () => {
-  const [objActiveVideoState, setObjActiveVideoState] = useState(hardcodedVideos[0]);
+  // Start from the preserved legacy links so the section renders instantly,
+  // then swap to the DB-backed list once it loads.
+  const [arrVideosState, setArrVideosState] = useState(legacyVideos);
+  const [objActiveVideoState, setObjActiveVideoState] = useState(legacyVideos[0]);
   const [boolIsVideoPlayingState, setBoolIsVideoPlayingState] = useState(false);
+
+  useEffect(() => {
+    const loadVideos = async () => {
+      const res = await fetchVideoList();
+      if (res.data && res.data.length > 0) {
+        setArrVideosState(res.data);
+        setObjActiveVideoState(res.data[0]);
+        setBoolIsVideoPlayingState(false);
+      }
+    };
+    loadVideos();
+  }, []);
 
   return (
     <section className="ath-video-section ath-reveal" id="video">
@@ -49,7 +39,7 @@ const SpotlightSection = () => {
         </div>
         <div className="ath-video-header-right">
           <span className="ath-video-count">
-            {hardcodedVideos.indexOf(objActiveVideoState) + 1} / {hardcodedVideos.length}
+            {arrVideosState.indexOf(objActiveVideoState) + 1} / {arrVideosState.length}
           </span>
         </div>
       </div>
@@ -85,7 +75,7 @@ const SpotlightSection = () => {
 
         <div className="ath-filmstrip-wrapper">
           <div className="ath-filmstrip">
-            {hardcodedVideos.map((video, idx) => {
+            {arrVideosState.map((video, idx) => {
               const isActive = objActiveVideoState.id === video.id;
               const videoId = extractYoutubeId(video.strYoutubeEmbedUrl);
               const thumbUrl = videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : '';

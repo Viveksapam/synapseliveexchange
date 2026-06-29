@@ -4,24 +4,24 @@ import PropTypes from 'prop-types';
 const HomeHero = ({ boolAnimationsReadyState }) => {
   return (
     <section className="ath-hero" id="home">
-      <p className={`ath-hero-volume ${boolAnimationsReadyState ? 'ath-fade-in-up' : 'ath-pre-animate'}`}> RELEASE .v4.02 — Scholarly Home</p>
+      <p className={`ath-hero-volume ${boolAnimationsReadyState ? 'ath-fade-in-up' : 'ath-pre-animate'}`}> SYNAPSE LIVE EXCHANGE — V4.02</p>
       <h1 className={`ath-hero-title ${boolAnimationsReadyState ? 'ath-fade-in-up' : 'ath-pre-animate'}`}>
         Designing virtual spaces for accessibility and shared discovery.
       </h1>
       
       <div className={`ath-hero-meta ${boolAnimationsReadyState ? 'ath-fade-in-up' : 'ath-pre-animate'}`}>
         <div className="ath-hero-meta-item">
-          <span className="ath-meta-label">Primary Objective</span>
+          <span className="ath-meta-label">What It's For</span>
           <p className="ath-meta-desc">
-            To synthesize physical architectural principles with the fluid dynamics of digital scholarly environments.
+            One accessible home for verifiable discussion, credentials and spatial learning — grounded in real research and real sources you can check.
           </p>
         </div>
         
         <div className="ath-divider-vertical"></div>
         
         <div className="ath-hero-meta-item">
-          <span className="ath-meta-label">Protocol Status</span>
-          <p className="ath-meta-mono">ACTIVE_STREAM_V4.02</p>
+          <span className="ath-meta-label">At A Glance</span>
+          <p className="ath-meta-mono">04 LIVE APPS · WCAG 2.1 AA</p>
         </div>
       </div>
     </section>

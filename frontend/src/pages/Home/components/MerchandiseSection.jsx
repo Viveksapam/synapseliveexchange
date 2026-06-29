@@ -8,7 +8,7 @@ const MerchandiseSection = ({ arrProductsState, onSelectProduct }) => {
       <div className="ath-merch-container">
         <div className="ath-merch-header">
           <div>
-            <span className="ath-section-eyebrow">The Marginalia Shop</span>
+            <span className="ath-section-eyebrow">The Shop</span>
             <h2 className="ath-section-title">SLE Merchandise</h2>
           </div>
           <Link to="/shop" className="ath-btn-outline">
