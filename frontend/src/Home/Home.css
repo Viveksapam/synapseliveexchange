@@ -192,7 +192,7 @@
   display: none;
   grid-template-columns: repeat(2, 1fr);
   gap: 32px;
-  min-width: 520px;
+  min-width: min(520px, 90vw);
   z-index: 1001;
   text-align: left;
   animation: athFadeIn 0.2s ease;
@@ -452,6 +452,22 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 48px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 767px) {
+  .ath-grid-section {
+    padding: 48px 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  .ath-sidebar {
+    display: none;
+  }
+  .ath-main-content {
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 @media (min-width: 768px) {
@@ -538,10 +554,52 @@
 /* Editorial rows */
 .ath-article-row {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 40px;
   border-bottom: 1px solid var(--ath-border);
   padding-bottom: 64px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Mobile: stack project rows into a single clean column */
+@media (max-width: 767px) {
+  .ath-main-content {
+    gap: 48px;
+    width: 100%;
+    min-width: 0;
+  }
+  .ath-article-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+    padding: 0 0 40px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .ath-article-img-wrapper {
+    width: 100%;
+    max-width: 100%;
+    aspect-ratio: 4/3;
+    box-sizing: border-box;
+  }
+  .ath-article-body {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .ath-article-title {
+    font-size: 1.3rem;
+    margin-bottom: 16px;
+  }
+  .ath-article-desc {
+    font-size: 0.95rem;
+    margin-bottom: 24px;
+  }
+  .ath-article-tags {
+    flex-wrap: wrap;
+  }
 }
 
 @media (min-width: 1024px) {
@@ -1775,6 +1833,17 @@
   to {
     opacity: 1;
     transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (max-width: 767px) {
+  .ath-reveal .ath-article-row .ath-article-img-wrapper,
+  .ath-reveal .ath-article-row .ath-article-body,
+  .ath-reveal.ath-reveal-visible .ath-article-row .ath-article-img-wrapper,
+  .ath-reveal.ath-reveal-visible .ath-article-row .ath-article-body,
+  .ath-reveal.ath-reveal-visible .ath-article-row:nth-child(1) .ath-article-img-wrapper,
+  .ath-reveal.ath-reveal-visible .ath-article-row:nth-child(1) .ath-article-body {
+    animation-name: slideUpLarge !important;
   }
 }
 

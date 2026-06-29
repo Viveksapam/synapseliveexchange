@@ -15,6 +15,7 @@ const MediaEmbed = ({ strMediaUrl, numMaxImageHeight = 315, numIframeHeight = 35
           src={strMediaUrl}
           alt="Post media"
           style={{ width: '100%', maxHeight: `${numMaxImageHeight}px`, objectFit: 'cover', display: 'block' }}
+          onError={(e) => { e.currentTarget.parentElement.style.display = 'none'; }}
         />
       ) : (
         <iframe

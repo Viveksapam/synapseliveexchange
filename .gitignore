@@ -223,3 +223,6 @@ __marimo__/
 # Project directories
 src/projects/classroom
 src/projects/synapse_assessments
+
+# Claude Code
+.claude/
