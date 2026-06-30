@@ -82,9 +82,6 @@ const PostDetailPage = () => {
         <Link to="/verisphere/feed" className="verisphere-back-link inline-block" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--v2-text-main)', transition: 'transform 0.2s' }}>
           ←
         </Link>
-        <div style={{ fontSize: '0.8rem', color: 'var(--v2-text-muted)', letterSpacing: '1px', textTransform: 'uppercase' }}>
-          Dialogue Arena
-        </div>
       </div>
 
       <PostDetailHeader post={post.objPostState} reactions={reactions} />

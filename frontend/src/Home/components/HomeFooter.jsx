@@ -7,17 +7,10 @@ const HomeFooter = () => {
     <footer className="ath-footer">
       <div className="ath-footer-inner">
 
-        {/* Top: brand left, numbered contacts right */}
+        {/* Top: numbered contacts */}
         <div className="ath-footer-top">
-          <div className="ath-footer-brand-col">
-            <div className="ath-footer-brand">Synapse LE</div>
-            <p className="ath-footer-tagline">
-              Let&rsquo;s build something verifiable together. Open to roles, collaborations and conversation.
-            </p>
-          </div>
-
           <div className="ath-footer-contact-col">
-            <span className="ath-footer-contact-label">Connect — Correspondence</span>
+            <span className="ath-footer-contact-label">Connect</span>
             <div className="ath-footer-contact-list">
               <a
                 href={legacyContactLinks.linkedin}
@@ -60,7 +53,7 @@ const HomeFooter = () => {
         {/* Bottom bar: copyright left, nav links right */}
         <div className="ath-footer-bottom">
           <p className="ath-footer-copyright">
-            © {new Date().getFullYear()} Synapse LE. Verifiable by Design.
+            © {new Date().getFullYear()} Synapse LE.
           </p>
           <div className="ath-footer-nav-links">
             <Link className="ath-footer-nav-link" to="/verisphere">

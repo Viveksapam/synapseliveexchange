@@ -91,17 +91,17 @@ function VeriSphereApp({ onOpenLogin, authHook }) {
                 <button onClick={handleLogout} className="v2-nav-btn secondary" style={{ cursor: 'pointer' }}>Log Out</button>
             )}
           </div>
-          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+          <div className="hidden-desktop" style={{ gap: '16px', alignItems: 'center' }}>
             <button
                 onClick={() => setIsLightMode(!isLightMode)}
-                className="v2-nav-btn secondary hidden-desktop"
+                className="v2-nav-btn secondary"
                 style={{ padding: '8px', borderRadius: '50%', minWidth: 'auto', display: 'flex' }}
                 title="Toggle Theme"
             >
                 {isLightMode ? <Moon size={20} /> : <Sun size={20} />}
             </button>
             <button
-              className="ath-hamburger-menu hidden-desktop"
+              className="ath-hamburger-menu"
               onClick={() => setBoolIsMobileMenuOpen(!boolIsMobileMenuOpenState)}
               aria-label="Toggle menu"
             >

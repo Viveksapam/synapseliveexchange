@@ -30,7 +30,7 @@ function WelcomePage() {
         <ThreeVisual disableMouse />
       </div>
 
-      <div style={{
+      <div className="v2-welcome-content" style={{
         position: 'relative', zIndex: 1,
         display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center',
@@ -57,7 +57,7 @@ function WelcomePage() {
           The rational public square. Step into an AI-moderated arena where truth takes center stage, and arguments are weighed on their merits, not their volume.
         </p>
 
-        <div style={{
+        <div className="v2-welcome-features" style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
           gap: '1.2rem',
@@ -70,7 +70,7 @@ function WelcomePage() {
             { title: 'Fact-Checked', desc: 'Claims are automatically cross-referenced with verified sources in real-time.' },
             { title: 'Civil Discourse', desc: 'A protected environment where ideas battle, but personal attacks are filtered out.' },
           ].map(feature => (
-            <div key={feature.title} style={{
+            <div key={feature.title} className="v2-welcome-card" style={{
               background: 'var(--glass-bg)',
               border: '1px solid var(--glass-border)',
               borderRadius: '16px',

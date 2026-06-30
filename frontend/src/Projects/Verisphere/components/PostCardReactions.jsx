@@ -15,11 +15,12 @@ const PostCardReactions = ({ reactions, commentsCount, postId }) => {
   const { arrTopReactions, objUserReactedState, boolShowPickerState, setShowPicker, handleReact } = reactions;
 
   return (
-    <div className="vs-post-actions" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', position: 'relative' }}>
-      <div className="verisphere-reacts" style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-        {arrTopReactions.slice(0, 4).map(([strEmoji, numCount]) => (
+    <div className="vs-post-actions" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'nowrap', position: 'relative' }}>
+      <div className="verisphere-reacts" style={{ display: 'flex', gap: '0.4rem', flexWrap: 'nowrap' }}>
+        {arrTopReactions.slice(0, 5).map(([strEmoji, numCount]) => (
           <button
             key={strEmoji}
+            className="vs-react-btn"
             onClick={(e) => { e.stopPropagation(); handleReact(strEmoji); }}
             style={reactionButtonStyle(objUserReactedState[strEmoji])}
           >

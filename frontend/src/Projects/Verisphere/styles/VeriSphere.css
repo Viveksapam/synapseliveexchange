@@ -164,21 +164,21 @@ body.v2-light-mode {
 
 /* Responsive utilities */
 .hidden-mobile {
-  display: block !important;
+  display: flex !important;
 }
 
 .hidden-desktop {
   display: none !important;
 }
 
-/* Hamburger Menu */
-.ath-hamburger-menu {
+/* Hamburger Menu (scoped to Verisphere nav so it never leaks to home) */
+.v2-nav .ath-hamburger-menu {
   background: transparent;
   border: none;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
   padding: 8px;
   width: 32px;
   height: 32px;
@@ -186,16 +186,13 @@ body.v2-light-mode {
   align-items: center;
 }
 
-.ath-hamburger-menu span {
-  width: 20px;
-  height: 2px;
-  background-color: var(--v2-accent-1);
+.v2-nav .ath-hamburger-menu span {
+  width: 24px;
+  height: 2.5px;
+  background-color: var(--v2-text-main);
   transition: all 0.3s ease;
   display: block;
-}
-
-.ath-hamburger-menu:hover span {
-  background-color: var(--v2-accent-1);
+  border-radius: 1px;
 }
 
 /* Mobile Menu for Verisphere */
@@ -475,15 +472,57 @@ body.v2-light-mode {
 }
 
 @media (max-width: 768px) {
-  .v2-nav { padding: 20px; }
+  .v2-nav { padding: 16px 20px; }
   .hidden-mobile { display: none !important; }
-  .hidden-desktop { display: block !important; }
+  .hidden-desktop { display: flex !important; }
   .v2-nav-btn.secondary { display: none; }
   .v2-hero { padding: 100px 20px 40px; }
   .v2-hero-title { font-size: 2.5rem; }
   .v2-hero-actions { flex-direction: column; width: 100%; max-width: 300px; }
   .v2-features { padding: 60px 20px; }
   .v2-footer { flex-direction: column; gap: 16px; padding: 32px 20px; text-align: center; }
+
+  .verisphere-main {
+    padding-top: 70px !important;
+  }
+
+  /* Show only 2 emoji reactions on phone; keep Enter Dialogue on the same line */
+  .verisphere-reacts .vs-react-btn:nth-child(n+3) {
+    display: none !important;
+  }
+  .vs-post-actions {
+    gap: 0.4rem !important;
+  }
+
+  /* Welcome page: scale everything down so it all fits */
+  .v2-welcome-content {
+    padding: 1.25rem !important;
+    min-height: auto !important;
+    padding-top: 5rem !important;
+    padding-bottom: 3rem !important;
+  }
+  .v2-welcome-content h1 {
+    font-size: 1.6rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+  .v2-welcome-content > p {
+    font-size: 0.85rem !important;
+    margin-bottom: 1.5rem !important;
+  }
+  .v2-welcome-features {
+    gap: 0.75rem !important;
+    margin-bottom: 1.5rem !important;
+  }
+  .v2-welcome-card {
+    padding: 1rem !important;
+    border-radius: 12px !important;
+  }
+  .v2-welcome-card h3 {
+    font-size: 0.9rem !important;
+  }
+  .v2-welcome-card p {
+    font-size: 0.78rem !important;
+  }
 }
 
 .verisphere-comment-thread {

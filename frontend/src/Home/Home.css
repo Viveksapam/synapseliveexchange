@@ -296,7 +296,7 @@
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
   padding: 8px;
   width: 32px;
   height: 32px;
@@ -305,11 +305,12 @@
 }
 
 .ath-hamburger-menu span {
-  width: 20px;
-  height: 2px;
-  background-color: var(--ath-accent);
+  width: 24px;
+  height: 2.5px;
+  background-color: var(--ath-text-main);
   transition: all 0.3s ease;
   display: block;
+  border-radius: 1px;
 }
 
 .ath-hamburger-menu:hover span {
@@ -533,7 +534,7 @@
 
 @media (min-width: 768px) {
   .hidden-mobile {
-    display: block !important;
+    display: flex !important;
   }
   .hidden-desktop {
     display: none !important;
@@ -545,7 +546,7 @@
     display: none !important;
   }
   .hidden-desktop {
-    display: block !important;
+    display: flex !important;
   }
 }
 
@@ -1147,7 +1148,7 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 48px;
-  align-items: start;
+  align-items: center;
   padding-bottom: 40px;
   border-bottom: 1px solid var(--ath-border);
 }
@@ -1155,6 +1156,9 @@
 @media (min-width: 768px) {
   .ath-footer-top {
     grid-template-columns: 1fr 1.2fr;
+  }
+  .ath-footer-contact-col {
+    grid-column: 2;
   }
 }
 
@@ -1650,16 +1654,6 @@
 /* ==========================================================================
    Responsive Utilities (No-Tailwind Fallback)
    ========================================================================== */
-.hidden-mobile {
-  display: none !important;
-}
-
-@media (min-width: 768px) {
-  .hidden-mobile {
-    display: flex !important;
-  }
-}
-
 @media (max-width: 767px) {
   .ath-dropdown-container {
     display: none !important;
