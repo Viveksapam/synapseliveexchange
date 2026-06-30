@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { fetchPosts } from '../api/verisphereApi';
 import PostCard from '../components/PostCard';
 import CommunityList from '../components/CommunityList';
@@ -11,21 +11,21 @@ function HomePage({ authHook }) {
     const [boolIsLoadingState, setBoolIsLoadingState] = useState(true);
     const { trackEvent } = useActivityTracker();
 
-    useEffect(() => {
-        const loadPosts = async () => {
-            try {
-                const data = await fetchPosts();
-                setArrPostsState(data);
-            } catch (error) {
-                console.error("Error fetching posts:", error);
-            } finally {
-                setBoolIsLoadingState(false);
-            }
-        };
+    const loadPosts = useCallback(async () => {
+        try {
+            const data = await fetchPosts();
+            setArrPostsState(data);
+        } catch (error) {
+            console.error("Error fetching posts:", error);
+        } finally {
+            setBoolIsLoadingState(false);
+        }
+    }, []);
 
+    useEffect(() => {
         loadPosts();
         trackEvent('verisphere_home_view');
-    }, []);
+    }, [loadPosts, trackEvent]);
 
     if (boolIsLoadingState) return (
         <div className="verisphere-loading">
