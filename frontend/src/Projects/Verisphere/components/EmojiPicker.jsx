@@ -12,7 +12,7 @@ const EmojiPicker = ({ arrTopReactions, objUserReacted, onReact }) => (
     onClick={(e) => e.stopPropagation()}
     className="verisphere-emoji-picker-grid"
     style={{
-      position: 'absolute', bottom: '100%', left: 0, marginBottom: '8px',
+      position: 'absolute', bottom: '100%', left: 0, marginBottom: '0px',
       background: 'var(--glass-bg)', backdropFilter: 'blur(10px)',
       border: '1px solid var(--glass-border)', borderRadius: '12px',
       zIndex: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.5)', minWidth: '170px',
