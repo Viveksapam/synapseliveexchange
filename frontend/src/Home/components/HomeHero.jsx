@@ -26,8 +26,10 @@ const HomeHero = ({ boolAnimationsReadyState }) => {
               e.preventDefault();
               document.querySelector('.ath-footer')?.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="ath-hero-cta-link"
-            style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: '100%', fontSize: '1.1rem', fontWeight: '600', letterSpacing: '0.05em', cursor: 'pointer' }}
+            className="ath-meta-desc"
+            style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: '100%', cursor: 'pointer', transition: 'opacity 0.3s ease' }}
+            onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
+            onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
           >
             Say Hello →
           </a>
