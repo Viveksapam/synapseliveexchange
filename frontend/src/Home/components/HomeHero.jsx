@@ -29,7 +29,7 @@ const HomeHero = ({ boolAnimationsReadyState }) => {
             className="ath-hero-cta-link"
             style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: '100%', fontSize: '1.1rem', fontWeight: '600', letterSpacing: '0.05em', cursor: 'pointer' }}
           >
-            Get in Touch →
+            Say Hello →
           </a>
         </div>
       </div>
