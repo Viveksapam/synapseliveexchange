@@ -1,6 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers import verisphere, portfolio, project, auth, activity
+from database import engine
+from models import blog_models, portfolio_models, user_models
+
+blog_models.Base.metadata.create_all(bind=engine)
+portfolio_models.Base.metadata.create_all(bind=engine)
+user_models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Synapse API")
 
