@@ -16,10 +16,10 @@ const PostDetailPage = () => {
   const post = usePostDetail(id, strTokenState, boolIsLoggedInState);
   const [numWindowWidth, setNumWindowWidth] = React.useState(window.innerWidth);
 
-  React.useEffect(() => {
-    window.scrollTo(0, 0);
-    const timer = setTimeout(() => window.scrollTo(0, 0), 0);
-    return () => clearTimeout(timer);
+  React.useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   }, [id]);
 
   React.useEffect(() => {
