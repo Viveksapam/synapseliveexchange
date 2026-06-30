@@ -13,10 +13,6 @@ const PostDetailComments = ({ post, boolIsLoggedIn, commentForm, replyState, onA
 
   return (
     <div className="verisphere-comments-section" style={{ marginTop: '1.5rem' }}>
-      <h3 style={{ color: 'var(--v2-text-main)', borderBottom: '1px solid var(--glass-border)', paddingBottom: '0.75rem', marginBottom: '1rem' }}>
-        Rational Dialogues ({arrComments.length})
-      </h3>
-
       {arrComments.length === 0 ? (
         <p className="verisphere-empty-comments">No arguments presented yet.</p>
       ) : (
