@@ -6,10 +6,21 @@ from sqlalchemy.orm import Session, joinedload
 import json
 import datetime
 
+def count_all_comments_for_blog(db: Session, blog_id: int):
+    """Count all comments including replies for a blog"""
+    all_comments = db.query(BlogCommentModel).filter(BlogCommentModel.blog_id == blog_id).all()
+    return len(all_comments)
+
 def get_blogs(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(BlogModel)\
+    blogs = db.query(BlogModel)\
              .options(joinedload(BlogModel.author), joinedload(BlogModel.community), joinedload(BlogModel.ai_analysis))\
              .offset(skip).limit(limit).all()
+
+    # Update comments_count to include replies
+    for blog in blogs:
+        blog.comments_count = count_all_comments_for_blog(db, blog.id)
+
+    return blogs
 
 def get_blog_by_id(db: Session, blog_id: int):
     return db.query(BlogModel).filter(BlogModel.id == blog_id).first()

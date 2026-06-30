@@ -6,6 +6,7 @@ import { usePostDetail } from '../hooks/usePostDetail';
 import PostDetailHeader from '../components/PostDetailHeader';
 import PostDetailSources from '../components/PostDetailSources';
 import PostDetailContext from '../components/PostDetailContext';
+import { countAllComments } from '../utils/commentCounter';
 import '../styles/VeriSphere.css';
 
 const PostDetailPage = () => {
@@ -76,7 +77,7 @@ const PostDetailPage = () => {
           className="verisphere-btn-outline"
           style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '10px 20px', fontSize: '0.95rem', textDecoration: 'none' }}
         >
-          View Discussion ({post.objPostState.comments ? post.objPostState.comments.length : 0} comments)
+          View Discussion ({countAllComments(post.objPostState.comments)} comments)
         </Link>
       </div>
     </div>

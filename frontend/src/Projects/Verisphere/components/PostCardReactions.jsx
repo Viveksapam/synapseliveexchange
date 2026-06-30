@@ -52,7 +52,7 @@ const PostCardReactions = ({ reactions, commentsCount, postId }) => {
         className="verisphere-action-link"
         style={{ marginLeft: 'auto', whiteSpace: 'nowrap' }}
       >
-        Enter Dialogue ({commentsCount})
+        {commentsCount} comments
       </Link>
     </div>
   );

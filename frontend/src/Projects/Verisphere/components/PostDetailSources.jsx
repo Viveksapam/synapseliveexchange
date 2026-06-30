@@ -41,7 +41,7 @@ const PostDetailSources = ({ post, sourceForm, onSourceSubmit, onToggleAdd }) =>
             className="verisphere-textarea"
             style={{ height: '60px', fontSize: '0.85rem', marginBottom: '0.5rem' }}
           />
-          <button type="submit" disabled={boolIsSubmittingSourceState} className="verisphere-btn-primary" style={{ padding: '6px 16px', fontSize: '0.85rem' }}>
+          <button type="submit" disabled={boolIsSubmittingSourceState} className="verisphere-btn-outline" style={{ padding: '6px 16px', fontSize: '0.85rem', background: 'rgba(128, 128, 128, 0.15)', color: 'var(--v2-text-main)', borderColor: 'var(--glass-border)' }}>
             {boolIsSubmittingSourceState ? 'Submitting...' : 'Submit Source'}
           </button>
         </form>

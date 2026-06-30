@@ -33,18 +33,7 @@ export const fetchPosts = async (numCommunityId = null) => {
     const arrBlogs = await objResponse.json();
     let arrPosts = arrBlogs.map(mapBlogToPost);
 
-    await Promise.all(arrPosts.map(async (objPost) => {
-      try {
-        const commentsRes = await fetch(`${API_BASE}/verisphere/blogs/${blogIdFromString(objPost.id)}/comments/`, { headers: noCacheHeaders });
-        if (commentsRes.ok) {
-          const arrComments = await commentsRes.json();
-          objPost.comments_count = arrComments.length;
-        }
-      } catch (objErr) {
-        console.error(`Failed to fetch comment count for post ${objPost.id}:`, objErr);
-      }
-    }));
-
+    // comments_count from API already includes all comments + replies
     arrPosts.sort((a, b) => b.numUpvotes - a.numUpvotes);
     if (numCommunityId) {
       arrPosts = arrPosts.filter(
@@ -107,11 +96,30 @@ export const fetchPostDetail = async (idOrString) => {
     const objPost = mapBlogToPost(objBlog);
     objPost.comments = arrComments;
     objPost.comments_count = arrComments.length;
+
+    // Load sources for this post
+    try {
+      const sourcesResponse = await fetch(`${API_BASE}/verisphere/blogs/${numBlogId}/contexts/`, { headers: noCacheHeaders });
+      const arrContexts = sourcesResponse.ok ? await sourcesResponse.json() : [];
+
+      // Load sources for each context
+      const allSources = [];
+      for (const context of arrContexts) {
+        const sourcesRes = await fetch(`${API_BASE}/verisphere/contexts/${context.id}/sources/`, { headers: noCacheHeaders });
+        const sources = sourcesRes.ok ? await sourcesRes.json() : [];
+        allSources.push(...sources);
+      }
+      objPost.sources = allSources;
+    } catch {
+      objPost.sources = [];
+    }
+
     return objPost;
   } catch {
     const objPost = mapBlogToPost(objBlog);
     objPost.comments = [];
     objPost.comments_count = 0;
+    objPost.sources = [];
     return objPost;
   }
 };
