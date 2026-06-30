@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from database import get_db
 from crud import crud_blog, crud_portfolio
-from schemas.blog_schemas import BlogResponse, BlogCommentResponse, BlogCommentCreate, BlogSourceResponse, BlogSourceCreate, CommentAnalysisResponse, CommentAnalysisCreate, BlogContextResponse, BlogContextCreate
+from schemas.blog_schemas import BlogResponse, BlogCommentResponse, BlogCommentCreate, BlogSourceResponse, BlogSourceCreate, CommentAnalysisResponse, CommentAnalysisCreate, BlogContextResponse, BlogContextCreate, BlogAuditCollectionResponse
 from schemas.portfolio_schemas import VideoResponse
 
 router = APIRouter(prefix="/api/verisphere", tags=["Verisphere"])
@@ -132,6 +132,37 @@ def delete_source(source_id: int, db: Session = Depends(get_db)):
     if not success:
         raise HTTPException(status_code=404, detail="Source not found")
     return {"message": "Source deleted successfully"}
+
+@router.post("/blogs/{blog_id}/audit/collect/", response_model=BlogAuditCollectionResponse)
+def collect_audit_data(blog_id: int, db: Session = Depends(get_db)):
+    blog = crud_blog.get_blog_by_id(db, blog_id)
+    if not blog:
+        raise HTTPException(status_code=404, detail="Blog not found")
+    collection = crud_blog.create_audit_collection(db, blog_id)
+    if not collection:
+        raise HTTPException(status_code=400, detail="Failed to create collection")
+    return collection
+
+@router.get("/audit/collections/{collection_id}/", response_model=BlogAuditCollectionResponse)
+def get_audit_collection(collection_id: int, db: Session = Depends(get_db)):
+    collection = crud_blog.get_audit_collection(db, collection_id)
+    if not collection:
+        raise HTTPException(status_code=404, detail="Collection not found")
+    return collection
+
+@router.get("/blogs/{blog_id}/audit/collections/", response_model=List[BlogAuditCollectionResponse])
+def get_blog_audit_collections(blog_id: int, db: Session = Depends(get_db)):
+    blog = crud_blog.get_blog_by_id(db, blog_id)
+    if not blog:
+        raise HTTPException(status_code=404, detail="Blog not found")
+    return crud_blog.get_blog_audit_collections(db, blog_id)
+
+@router.post("/audit/collections/{collection_id}/llm-response/")
+def set_llm_response(collection_id: int, llm_response: dict, db: Session = Depends(get_db)):
+    collection = crud_blog.update_audit_collection_response(db, collection_id, llm_response)
+    if not collection:
+        raise HTTPException(status_code=404, detail="Collection not found")
+    return {"message": "LLM response stored", "status": collection.status}
 
 @router.get("/blogs/{blog_id}/comments/{comment_id}/replies/", response_model=List[BlogCommentResponse])
 def get_replies(blog_id: int, comment_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):

@@ -102,8 +102,6 @@ class PostReactionModel(Base):
     emoji = Column(String(50), index=True)
 
     post = relationship("BlogModel")
-    # Using string for relationship to avoid circular imports if user_models isn't imported here
-    user = relationship("UserModel", primaryjoin="PostReactionModel.user_id == foreign(UserModel.id)")
 
 class BlogContextModel(Base):
     __tablename__ = "blog_blogcontextmodel"
@@ -128,3 +126,23 @@ class BlogSourceModel(Base):
     dtCreatedAt = Column(DateTime, default=datetime.datetime.utcnow)
 
     context = relationship("BlogContextModel", back_populates="sources")
+
+class BlogAuditCollectionModel(Base):
+    __tablename__ = "blog_auditcollectionmodel"
+
+    id = Column(Integer, primary_key=True, index=True)
+    blog_id = Column(Integer, ForeignKey("blog_blogmodel.id", ondelete="CASCADE"), index=True)
+
+    comment_ids = Column(Text)
+    source_ids = Column(Text)
+    context_ids = Column(Text)
+
+    collected_data = Column(Text)
+    llm_response = Column(Text, nullable=True)
+
+    status = Column(String(50), default="pending")
+    error_message = Column(Text, nullable=True)
+    collected_at = Column(DateTime, default=datetime.datetime.utcnow)
+    processed_at = Column(DateTime, nullable=True)
+
+    blog = relationship("BlogModel")

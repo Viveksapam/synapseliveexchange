@@ -3,6 +3,8 @@ from models.blog_models import BlogModel, BlogCommentModel
 from schemas.blog_schemas import BlogCommentCreate
 
 from sqlalchemy.orm import Session, joinedload
+import json
+import datetime
 
 def get_blogs(db: Session, skip: int = 0, limit: int = 100):
     return db.query(BlogModel)\
@@ -81,6 +83,102 @@ def delete_comment_analysis(db: Session, comment_id: int):
         db.commit()
         return True
     return False
+
+def create_audit_collection(db: Session, blog_id: int):
+    from models.blog_models import BlogAuditCollectionModel
+
+    blog = get_blog_by_id(db, blog_id)
+    if not blog:
+        return None
+
+    comments = get_blog_comments(db, blog_id, skip=0, limit=1000)
+    contexts = get_blog_contexts(db, blog_id)
+
+    source_ids = []
+    for context in contexts:
+        sources = get_context_sources(db, context.id)
+        source_ids.extend([s.id for s in sources])
+
+    collected_data = {
+        "blog": {
+            "id": blog.id,
+            "strTitle": blog.strTitle,
+            "strSummary": blog.strSummary,
+            "strContent": blog.strContent,
+            "strThemeColor": blog.strThemeColor,
+            "datePublished": str(blog.datePublished),
+            "numUpvotes": blog.numUpvotes,
+            "strAuthorUsername": blog.strAuthorUsername,
+            "strCommunityName": blog.strCommunityName
+        },
+        "contexts": [
+            {
+                "id": c.id,
+                "strTitle": c.strTitle,
+                "strDescription": c.strDescription,
+                "dtCreatedAt": str(c.dtCreatedAt)
+            }
+            for c in contexts
+        ],
+        "sources": [
+            {
+                "id": s.id,
+                "context_id": s.context_id,
+                "strTitle": s.strTitle,
+                "strUrl": s.strUrl,
+                "strAuthor": s.strAuthor,
+                "dtCreatedAt": str(s.dtCreatedAt)
+            }
+            for context in contexts
+            for s in get_context_sources(db, context.id)
+        ],
+        "comments": [
+            {
+                "id": c.id,
+                "blog_id": c.blog_id,
+                "parent_comment_id": c.parent_comment_id,
+                "strAuthor": c.strAuthor,
+                "strContent": c.strContent,
+                "datePosted": str(c.datePosted)
+            }
+            for c in comments
+        ]
+    }
+
+    comment_ids = [c.id for c in comments]
+
+    collection = BlogAuditCollectionModel(
+        blog_id=blog_id,
+        collected_data=json.dumps(collected_data),
+        comment_ids=json.dumps(comment_ids),
+        source_ids=json.dumps(source_ids),
+        context_ids=json.dumps([c.id for c in contexts]),
+        status="pending"
+    )
+    db.add(collection)
+    db.commit()
+    db.refresh(collection)
+    return collection
+
+def get_audit_collection(db: Session, collection_id: int):
+    from models.blog_models import BlogAuditCollectionModel
+    return db.query(BlogAuditCollectionModel).filter(BlogAuditCollectionModel.id == collection_id).first()
+
+def update_audit_collection_response(db: Session, collection_id: int, llm_response: dict):
+    from models.blog_models import BlogAuditCollectionModel
+    collection = db.query(BlogAuditCollectionModel).filter(BlogAuditCollectionModel.id == collection_id).first()
+    if collection:
+        collection.llm_response = json.dumps(llm_response)
+        collection.status = "processed"
+        collection.processed_at = datetime.datetime.utcnow()
+        db.commit()
+        db.refresh(collection)
+        return collection
+    return None
+
+def get_blog_audit_collections(db: Session, blog_id: int):
+    from models.blog_models import BlogAuditCollectionModel
+    return db.query(BlogAuditCollectionModel).filter(BlogAuditCollectionModel.blog_id == blog_id).all()
 
 def get_featured_blogs(db: Session, skip: int = 0, limit: int = 100):
     from models.blog_models import FeaturedBlogModel, BlogModel

@@ -64,6 +64,22 @@ class BlogContextResponse(BlogContextBase):
     class Config:
         orm_mode = True
 
+class BlogAuditCollectionResponse(BaseModel):
+    id: int
+    blog_id: int
+    comment_ids: Optional[str] = None
+    source_ids: Optional[str] = None
+    context_ids: Optional[str] = None
+    collected_data: Optional[str] = None
+    llm_response: Optional[str] = None
+    status: str
+    error_message: Optional[str] = None
+    collected_at: datetime
+    processed_at: Optional[datetime] = None
+
+    class Config:
+        orm_mode = True
+
 class BlogResponse(BaseModel):
     id: int
     strTitle: str
