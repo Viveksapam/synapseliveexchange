@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import EmojiPicker from './EmojiPicker';
 
 const reactionButtonStyle = (boolActive) => ({
   background: boolActive ? 'rgba(88, 166, 255, 0.15)' : 'var(--glass-bg)',
@@ -16,7 +17,7 @@ const PostCardReactions = ({ reactions, commentsCount, postId }) => {
 
   return (
     <div className="vs-post-actions" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'nowrap', position: 'relative' }}>
-      <div className="verisphere-reacts" style={{ display: 'flex', gap: '0.4rem', flexWrap: 'nowrap' }}>
+      <div className="verisphere-reacts" style={{ display: 'flex', gap: '0.4rem', flexWrap: 'nowrap', position: 'relative' }}>
         {arrTopReactions.slice(0, window.innerWidth < 768 ? 2 : 5).map(([strEmoji, numCount]) => (
           <button
             key={strEmoji}
@@ -32,10 +33,17 @@ const PostCardReactions = ({ reactions, commentsCount, postId }) => {
           style={{
             background: 'transparent', border: '1px dashed var(--glass-border)', borderRadius: '12px',
             cursor: 'pointer', fontSize: '0.9rem', padding: '2px 8px',
-            color: 'var(--v2-text-muted)', display: 'flex', alignItems: 'center', transition: 'all 0.2s',
+            color: 'var(--v2-text-muted)', display: 'flex', alignItems: 'center', transition: 'all 0.2s', position: 'relative',
           }}
         >
           {boolShowPickerState ? '-' : '+'}
+          {boolShowPickerState && (
+            <EmojiPicker
+              arrTopReactions={arrTopReactions}
+              objUserReacted={objUserReactedState}
+              onReact={handleReact}
+            />
+          )}
         </button>
       </div>
 

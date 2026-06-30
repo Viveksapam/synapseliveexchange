@@ -4,7 +4,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { postToggleFeatured } from '../api/verisphereApi';
 import { useReactions } from '../hooks/useReactions';
 import MediaEmbed from './MediaEmbed';
-import EmojiPicker from './EmojiPicker';
 import PostCardReactions from './PostCardReactions';
 
 const getVerifiableColor = (strVerifiable) => {
@@ -82,14 +81,6 @@ const PostCard = ({ objPost, authHook }) => {
         </p>
 
         <PostCardReactions reactions={reactions} commentsCount={objPost.comments_count || 0} postId={objPost.id} />
-
-        {reactions.boolShowPickerState && (
-          <EmojiPicker
-            arrTopReactions={reactions.arrTopReactions}
-            objUserReacted={reactions.objUserReactedState}
-            onReact={reactions.handleReact}
-          />
-        )}
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
           <span style={{ fontSize: '0.82rem', color: 'var(--v2-text-muted)', whiteSpace: 'nowrap' }}>
