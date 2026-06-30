@@ -26,15 +26,8 @@ const PostCard = ({ objPost, authHook }) => {
 
   const strScoreColor = getVerifiableColor(boolIsAnalyzed ? objMetrics.verifiable : null);
 
-  const scrollToTop = () => {
-    const el = document.querySelector('.v2-content-scroll');
-    if (el) el.scrollTop = 0;
-    window.scrollTo(0, 0);
-  };
-
   const handleCardClick = (e) => {
     if (e.target.closest('a') || e.target.closest('button') || e.target.closest('iframe')) return;
-    scrollToTop();
     navigate(`/verisphere/post/${objPost.id}`);
   };
 
@@ -77,7 +70,7 @@ const PostCard = ({ objPost, authHook }) => {
           )}
         </div>
 
-        <Link to={`/verisphere/post/${objPost.id}`} className="verisphere-post-title-link" onClick={scrollToTop}>
+        <Link to={`/verisphere/post/${objPost.id}`} className="verisphere-post-title-link">
           <h3 className="verisphere-post-title">{objPost.strTitle}</h3>
         </Link>
 
@@ -93,7 +86,7 @@ const PostCard = ({ objPost, authHook }) => {
           <span style={{ fontSize: '0.82rem', color: 'var(--v2-text-muted)', whiteSpace: 'nowrap' }}>
             📚 {objPost.sources ? objPost.sources.length : 0} Sources
           </span>
-          <Link to={`/verisphere/post/${objPost.id}`} className="verisphere-btn-outline" style={{ padding: '2px 8px', fontSize: '0.75rem', whiteSpace: 'nowrap' }} onClick={scrollToTop}>
+          <Link to={`/verisphere/post/${objPost.id}`} className="verisphere-btn-outline" style={{ padding: '2px 8px', fontSize: '0.75rem', whiteSpace: 'nowrap' }}>
             + Add Source
           </Link>
         </div>

@@ -34,10 +34,8 @@ body.v2-light-mode {
   background-color: var(--v2-bg);
   color: var(--v2-text-main);
   font-family: 'Inter', -apple-system, sans-serif;
-  width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
   position: relative;
-  overflow: hidden;
   margin: 0;
   padding: 0;
   user-select: none;
@@ -52,32 +50,29 @@ body.v2-light-mode {
   width: 100vw;
   height: 100vh;
   z-index: 0;
-  pointer-events: auto; /* Let it receive mouse moves */
+  pointer-events: auto;
 }
 
-/* Foreground scroll container */
+/* Foreground content — scrolls via window (no custom container) */
 .v2-content-scroll {
-  position: absolute;
-  top: 0;
-  left: 0;
+  position: relative;
   width: 100%;
-  height: 100%;
   z-index: 10;
-  overflow-y: auto;
   overflow-x: hidden;
-  scroll-behavior: smooth;
-  /* Scrollbar styling */
+}
+
+body.v2-active {
   scrollbar-width: thin;
   scrollbar-color: var(--v2-text-muted) transparent;
 }
 
-.v2-content-scroll::-webkit-scrollbar {
+body.v2-active::-webkit-scrollbar {
   width: 6px;
 }
-.v2-content-scroll::-webkit-scrollbar-track {
+body.v2-active::-webkit-scrollbar-track {
   background: transparent;
 }
-.v2-content-scroll::-webkit-scrollbar-thumb {
+body.v2-active::-webkit-scrollbar-thumb {
   background: var(--v2-text-muted);
   border-radius: 10px;
 }

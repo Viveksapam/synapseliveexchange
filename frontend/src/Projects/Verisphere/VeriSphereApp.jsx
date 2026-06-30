@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Sun, Moon } from 'lucide-react';
 import WelcomePage from './pages/WelcomePage';
@@ -13,7 +13,6 @@ import SEO from '../../components/SEO';
 function VeriSphereApp({ onOpenLogin, authHook }) {
   const { boolIsLoggedInState, handleLogout } = authHook || { boolIsLoggedInState: false, handleLogout: () => {} };
   const location = useLocation();
-  const scrollRef = useRef(null);
 
   // Default to dark mode for welcome screen, light mode for feed
   const isWelcomeScreen = location.pathname === '/verisphere' || location.pathname === '/verisphere/' || location.pathname === '/';
@@ -59,7 +58,7 @@ function VeriSphereApp({ onOpenLogin, authHook }) {
     <div className="v2-wrapper">
       <SEO title="VeriSphere" icon="/verisphere.svg" />
       {/* Scrollable Content Overlay from V2 */}
-      <div className="v2-content-scroll" key={location.pathname} ref={scrollRef}>
+      <div className="v2-content-scroll">
         
         {/* Navigation redesigned using V2 styles */}
         <nav className="v2-nav">

@@ -15,11 +15,6 @@ const PostDetailPage = () => {
   const reactions = useReactions(id);
   const post = usePostDetail(id, strTokenState, boolIsLoggedInState);
   const [numWindowWidth, setNumWindowWidth] = React.useState(window.innerWidth);
-  const topRef = React.useRef(null);
-
-  React.useLayoutEffect(() => {
-    topRef.current?.scrollIntoView({ behavior: 'instant', block: 'start' });
-  }, [id]);
 
   React.useEffect(() => {
     const handleResize = () => setNumWindowWidth(window.innerWidth);
@@ -77,7 +72,7 @@ const PostDetailPage = () => {
   if (!post.objPostState) return <div className="verisphere-empty-state">Post not found.</div>;
 
   return (
-    <div ref={topRef} className="verisphere-post-detail" style={{
+    <div className="verisphere-post-detail" style={{
       maxWidth: 'none', margin: '2rem auto -1px auto', padding: '2.5rem 1.5rem 2rem 1.5rem',
       background: 'var(--glass-bg)', borderRadius: '24px 24px 0 0',
       boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)',
