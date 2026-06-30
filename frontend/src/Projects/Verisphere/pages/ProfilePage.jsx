@@ -56,6 +56,14 @@ const ProfilePage = ({ authHook }) => {
     }
   };
 
+  const handlePostCreated = () => {
+    setBoolIsLoadingPostsState(true);
+    fetchPosts()
+      .then((arrPosts) => setArrUserPostsState(arrPosts.filter((p) => p.strAuthorUsername === objUserState.username)))
+      .catch((objErr) => console.error('Failed to refresh posts', objErr))
+      .finally(() => setBoolIsLoadingPostsState(false));
+  };
+
   if (!boolIsLoggedInState || !objUserState) {
     return (
       <div style={{ textAlign: 'center', padding: '80px 20px', color: 'var(--v2-text-main)' }}>
@@ -110,7 +118,7 @@ const ProfilePage = ({ authHook }) => {
           />
         )}
         {strActiveTabState === 'Activity' && (
-          <ProfileActivity arrPosts={arrUserPostsState} boolIsLoading={boolIsLoadingPostsState} />
+          <ProfileActivity arrPosts={arrUserPostsState} boolIsLoading={boolIsLoadingPostsState} onPostCreated={handlePostCreated} />
         )}
         {strActiveTabState === 'Settings' && (
           <div style={profileCardStyle}>

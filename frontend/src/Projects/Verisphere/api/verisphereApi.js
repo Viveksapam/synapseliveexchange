@@ -66,7 +66,13 @@ export const fetchPostDetail = async (idOrString) => {
   const arrBlogs = await objResponse.json();
   const objBlog = arrBlogs.find((b) => b.id === numBlogId);
   if (!objBlog) throw new Error('Post not found');
-  return { ...mapBlogToPost(objBlog), comments: mockComments };
+  try {
+    const commentsResponse = await fetch(`${API_BASE}/verisphere/blogs/${numBlogId}/comments/`, { headers: noCacheHeaders });
+    const arrComments = commentsResponse.ok ? await commentsResponse.json() : [];
+    return { ...mapBlogToPost(objBlog), comments: arrComments };
+  } catch {
+    return { ...mapBlogToPost(objBlog), comments: [] };
+  }
 };
 
 export const postCreatePost = async (objPostData) => ({
@@ -82,13 +88,27 @@ export const postCreateSource = async (numPostId, objSourceData) => ({
 });
 
 export const postCreateComment = async (numPostId, objCommentData) => {
-  const objNew = {
-    id: Date.now(), ...objCommentData,
-    author_name: 'CurrentUser',
-    created_at: new Date().toISOString(), score: 0,
-  };
-  mockComments.push(objNew);
-  return objNew;
+  const numBlogId = blogIdFromString(numPostId);
+  try {
+    if (objCommentData.objParent) {
+      const objResponse = await fetch(`${API_BASE}/verisphere/blogs/${numBlogId}/comments/${objCommentData.objParent}/replies/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ strContent: objCommentData.strContent, strAuthor: 'CurrentUser' }),
+      });
+      if (objResponse.ok) return await objResponse.json();
+    } else {
+      const objResponse = await fetch(`${API_BASE}/verisphere/blogs/${numBlogId}/comments/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ strContent: objCommentData.strContent, strAuthor: 'CurrentUser' }),
+      });
+      if (objResponse.ok) return await objResponse.json();
+    }
+  } catch (objErr) {
+    console.error('Failed to create comment:', objErr);
+  }
+  return null;
 };
 
 export const postVote = async () => ({ success: true });
@@ -120,4 +140,13 @@ export const postToggleReaction = async (numPostId, strEmoji) => {
 };
 
 export const postAnalyzeContext = async () => ({ summary: 'Mock AI analysis of the post context.' });
-export const postAnalyzeComment = async () => ({ analysis: 'Mock AI analysis of the comment logic.', is_fallacy: false });
+
+export const postAnalyzeComment = async (numCommentId) => {
+  try {
+    const objResponse = await fetch(`${API_BASE}/comments/${numCommentId}/analysis/`, { headers: noCacheHeaders });
+    if (objResponse.ok) return await objResponse.json();
+  } catch (objErr) {
+    console.error('Failed to analyze comment:', objErr);
+  }
+  return { strAiAnalysis: 'Analysis unavailable', dictAiMetrics: {} };
+};

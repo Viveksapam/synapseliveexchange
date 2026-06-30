@@ -1,11 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import PostCard from './PostCard';
+import CreatePostForm from './CreatePostForm';
 import { profileCardStyle, profileLabelStyle } from './ProfileStyles';
 
-const ProfileActivity = ({ arrPosts, boolIsLoading }) => (
+const ProfileActivity = ({ arrPosts, boolIsLoading, onPostCreated }) => (
   <div className="vs-profile-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 240px', gap: '20px' }}>
     <div>
+      <CreatePostForm onPostCreated={onPostCreated} />
       <p style={{ ...profileLabelStyle, margin: '0 0 16px' }}>Your Posts</p>
       {boolIsLoading ? (
         <div className="verisphere-empty-state">Loading…</div>
@@ -36,6 +38,7 @@ const ProfileActivity = ({ arrPosts, boolIsLoading }) => (
 ProfileActivity.propTypes = {
   arrPosts: PropTypes.array.isRequired,
   boolIsLoading: PropTypes.bool.isRequired,
+  onPostCreated: PropTypes.func,
 };
 
 export default ProfileActivity;

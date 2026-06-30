@@ -14,7 +14,7 @@ const writeToken = (strToken) => {
 };
 
 export const useAuth = () => {
-  const [strTokenState, setStrTokenState] = useState(readToken);
+  const [strTokenState, setStrTokenState] = useState(() => readToken());
   const [boolIsLoggedInState, setBoolIsLoggedInState] = useState(!!readToken());
   const [objUserState, setObjUserState] = useState(null);
 
