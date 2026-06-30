@@ -289,6 +289,73 @@
   background-color: var(--ath-border);
 }
 
+/* Hamburger Menu */
+.ath-hamburger-menu {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  width: 32px;
+  height: 32px;
+  justify-content: center;
+  align-items: center;
+}
+
+.ath-hamburger-menu span {
+  width: 20px;
+  height: 2px;
+  background-color: var(--ath-accent);
+  transition: all 0.3s ease;
+  display: block;
+}
+
+.ath-hamburger-menu:hover span {
+  background-color: var(--ath-accent);
+}
+
+/* Mobile Menu */
+.ath-mobile-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: var(--ath-bg-card);
+  border: 1px solid var(--ath-border);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  min-width: 200px;
+  z-index: 1000;
+  padding: 12px 0;
+}
+
+.ath-mobile-menu-link {
+  display: block;
+  width: 100%;
+  padding: 12px 20px;
+  background: transparent;
+  border: none;
+  text-align: left;
+  color: var(--ath-text-muted);
+  font-family: var(--font-ath-serif);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.ath-mobile-menu-link:hover {
+  background-color: var(--ath-bg-high);
+  color: var(--ath-accent);
+}
+
+.ath-mobile-menu-divider {
+  height: 1px;
+  background-color: var(--ath-border);
+  margin: 8px 0;
+}
+
 /* ==========================================================================
    Hero Section
    ========================================================================== */
@@ -453,6 +520,33 @@
   grid-template-columns: 1fr;
   gap: 48px;
   box-sizing: border-box;
+}
+
+/* Responsive nav utilities */
+.hidden-mobile {
+  display: none !important;
+}
+
+.hidden-desktop {
+  display: none !important;
+}
+
+@media (min-width: 768px) {
+  .hidden-mobile {
+    display: block !important;
+  }
+  .hidden-desktop {
+    display: none !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .hidden-mobile {
+    display: none !important;
+  }
+  .hidden-desktop {
+    display: block !important;
+  }
 }
 
 @media (max-width: 767px) {

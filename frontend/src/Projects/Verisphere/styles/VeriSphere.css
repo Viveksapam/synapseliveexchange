@@ -162,6 +162,82 @@ body.v2-light-mode {
   filter: brightness(1.1);
 }
 
+/* Responsive utilities */
+.hidden-mobile {
+  display: block !important;
+}
+
+.hidden-desktop {
+  display: none !important;
+}
+
+/* Hamburger Menu */
+.ath-hamburger-menu {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  width: 32px;
+  height: 32px;
+  justify-content: center;
+  align-items: center;
+}
+
+.ath-hamburger-menu span {
+  width: 20px;
+  height: 2px;
+  background-color: var(--v2-accent-1);
+  transition: all 0.3s ease;
+  display: block;
+}
+
+.ath-hamburger-menu:hover span {
+  background-color: var(--v2-accent-1);
+}
+
+/* Mobile Menu for Verisphere */
+.v2-mobile-menu {
+  position: fixed;
+  top: 70px;
+  right: 0;
+  background-color: var(--v2-bg-card);
+  border: 1px solid var(--glass-border);
+  border-top: none;
+  min-width: 200px;
+  z-index: 999;
+  padding: 12px 0;
+  backdrop-filter: blur(12px);
+}
+
+.v2-mobile-menu-link {
+  display: block;
+  width: 100%;
+  padding: 12px 20px;
+  background: transparent;
+  border: none;
+  text-align: left;
+  color: var(--v2-text-muted);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.v2-mobile-menu-link:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--v2-accent-1);
+}
+
+.ath-mobile-menu-divider {
+  height: 1px;
+  background-color: var(--glass-border);
+  margin: 8px 0;
+}
+
 /* Hero Section */
 .v2-hero {
   min-height: 100vh;
@@ -400,6 +476,8 @@ body.v2-light-mode {
 
 @media (max-width: 768px) {
   .v2-nav { padding: 20px; }
+  .hidden-mobile { display: none !important; }
+  .hidden-desktop { display: block !important; }
   .v2-nav-btn.secondary { display: none; }
   .v2-hero { padding: 100px 20px 40px; }
   .v2-hero-title { font-size: 2.5rem; }

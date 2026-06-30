@@ -5,6 +5,7 @@ import { ChevronDown } from 'lucide-react';
 
 const TopNavBar = ({ boolIsLoggedInState, onOpenLogin, handleLogout }) => {
   const [boolIsDarkModeState, setBoolIsDarkMode] = useState(false);
+  const [boolIsMobileMenuOpenState, setBoolIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const savedMode = localStorage.getItem('ath-dark-mode');
@@ -72,7 +73,17 @@ const TopNavBar = ({ boolIsLoggedInState, onOpenLogin, handleLogout }) => {
             {boolIsDarkModeState ? 'LIGHT' : 'DARK'}
           </button>
 
-          <div className="ath-dropdown-container">
+          <button
+            className="ath-hamburger-menu hidden-desktop"
+            onClick={() => setBoolIsMobileMenuOpen(!boolIsMobileMenuOpenState)}
+            aria-label="Toggle menu"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+
+          <div className={`ath-dropdown-container hidden-mobile ${boolIsMobileMenuOpenState ? 'open' : ''}`}>
             <button className="ath-dropdown-trigger">
               RELEASES <ChevronDown size={12} style={{ marginLeft: '4px' }} />
             </button>
@@ -101,21 +112,95 @@ const TopNavBar = ({ boolIsLoggedInState, onOpenLogin, handleLogout }) => {
           </div>
 
           {boolIsLoggedInState ? (
-            <button 
+            <button
               onClick={handleLogout}
-              className="ath-btn-login"
+              className="ath-btn-login hidden-mobile"
             >
               LOG OUT
             </button>
           ) : (
-            <button 
+            <button
               onClick={onOpenLogin}
-              className="ath-btn-login"
+              className="ath-btn-login hidden-mobile"
             >
               LOG IN
             </button>
           )}
         </div>
+
+        {boolIsMobileMenuOpenState && (
+          <div className="ath-mobile-menu">
+            <Link
+              to="/verisphere"
+              className="ath-mobile-menu-link"
+              onClick={() => setBoolIsMobileMenuOpen(false)}
+            >
+              Verisphere
+            </Link>
+            <a
+              href="#video"
+              className="ath-mobile-menu-link"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('video')?.scrollIntoView({ behavior: 'smooth' });
+                setBoolIsMobileMenuOpen(false);
+              }}
+            >
+              Spotlight
+            </a>
+            <a
+              href="#merchandise"
+              className="ath-mobile-menu-link"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('merchandise')?.scrollIntoView({ behavior: 'smooth' });
+                setBoolIsMobileMenuOpen(false);
+              }}
+            >
+              Merchandise
+            </a>
+            <div className="ath-mobile-menu-divider"></div>
+            <button
+              className="ath-mobile-menu-link"
+              onClick={() => {
+                setBoolIsMobileMenuOpen(false);
+                window.location.href = '/shop';
+              }}
+            >
+              Shop
+            </button>
+            <button
+              className="ath-mobile-menu-link"
+              onClick={() => {
+                setBoolIsMobileMenuOpen(false);
+                window.location.href = '/credentials';
+              }}
+            >
+              Credentials
+            </button>
+            {boolIsLoggedInState ? (
+              <button
+                onClick={() => {
+                  handleLogout();
+                  setBoolIsMobileMenuOpen(false);
+                }}
+                className="ath-mobile-menu-link"
+              >
+                LOG OUT
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  onOpenLogin();
+                  setBoolIsMobileMenuOpen(false);
+                }}
+                className="ath-mobile-menu-link"
+              >
+                LOG IN
+              </button>
+            )}
+          </div>
+        )}
       </nav>
     </header>
   );
