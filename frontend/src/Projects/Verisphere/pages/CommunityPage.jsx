@@ -48,7 +48,7 @@ function CommunityPage() {
         loadCommunityData();
     }, [id]);
 
-    if (boolIsLoadingState) return <div className="verisphere-loading">Loading forum truths...</div>;
+    if (boolIsLoadingState) return <div className="verisphere-loading">Loading Communities...</div>;
     if (!objCommunityState) return <div className="verisphere-empty-state">Forum not found.</div>;
 
     return (

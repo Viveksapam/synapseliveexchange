@@ -9,12 +9,14 @@ import '../styles/VeriSphere.css';
 function HomePage({ authHook }) {
     const [arrPostsState, setArrPostsState] = useState([]);
     const [boolIsLoadingState, setBoolIsLoadingState] = useState(true);
+    const [boolIsServerDownState, setBoolIsServerDownState] = useState(false);
     const { trackEvent } = useActivityTracker();
 
     const loadPosts = async () => {
         try {
             const data = await fetchPosts();
             setArrPostsState(data);
+            setBoolIsServerDownState(false);
         } catch (error) {
             console.error("Error fetching posts:", error);
         } finally {
@@ -23,13 +25,28 @@ function HomePage({ authHook }) {
     };
 
     useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            if (boolIsLoadingState) {
+                setBoolIsServerDownState(true);
+                setBoolIsLoadingState(false);
+            }
+        }, 120000);
+
         loadPosts();
         trackEvent('verisphere_home_view');
+
+        return () => clearTimeout(timeoutId);
     }, []);
+
+    if (boolIsServerDownState) return (
+        <div className="verisphere-loading">
+            Server down
+        </div>
+    );
 
     if (boolIsLoadingState) return (
         <div className="verisphere-loading">
-            Loading truths…
+            Attempting to connect to server…
         </div>
     );
 
