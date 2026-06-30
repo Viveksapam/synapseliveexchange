@@ -2222,12 +2222,11 @@
    Maintenance Block Page
    ========================================================================== */
 .ath-maintenance-wrapper {
-  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: var(--ath-bg);
-  padding: 24px;
+  padding: 40px 24px;
 }
 
 .ath-maintenance-container {
