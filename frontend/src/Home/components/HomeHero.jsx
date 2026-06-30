@@ -31,7 +31,7 @@ const HomeHero = ({ boolAnimationsReadyState }) => {
             onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
             onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
           >
-            Say Hello →
+            Say hello →
           </a>
         </div>
       </div>
