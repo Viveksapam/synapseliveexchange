@@ -590,15 +590,22 @@
     min-width: 0;
   }
   .ath-article-title {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     margin-bottom: 16px;
   }
   .ath-article-desc {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     margin-bottom: 24px;
+  }
+  .ath-article-published {
+    font-size: 11px;
+  }
+  .ath-article-link {
+    font-size: 9px;
   }
   .ath-article-tags {
     flex-wrap: wrap;
+    font-size: 9px;
   }
 }
 
@@ -1165,7 +1172,16 @@
 .ath-footer-nav-links {
   display: flex;
   gap: 24px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.ath-footer-nav-links::-webkit-scrollbar {
+  display: none;
 }
 
 .ath-footer-nav-link {
@@ -1357,21 +1373,31 @@
   position: relative;
   z-index: 1;
   overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(161,122,54,0.3) transparent;
+  scrollbar-width: none;
+}
+
+.ath-filmstrip::-webkit-scrollbar {
+  display: none;
 }
 
 @media (max-width: 768px) {
   .ath-video-stage {
     flex-direction: column;
   }
-  .ath-filmstrip {
-    flex: unset;
+  .ath-filmstrip-wrapper {
     width: 100%;
-    max-height: unset;
-    flex-direction: row;
     overflow-x: auto;
     overflow-y: hidden;
+    scrollbar-width: none;
+  }
+  .ath-filmstrip-wrapper::-webkit-scrollbar {
+    display: none;
+  }
+  .ath-filmstrip {
+    flex: unset;
+    width: max-content;
+    max-height: unset;
+    flex-direction: row;
     flex-wrap: nowrap;
     gap: 12px;
     padding-bottom: 8px;
