@@ -91,8 +91,6 @@ const TopNavBar = ({ boolIsLoggedInState, onOpenLogin, handleLogout }) => {
               <div className="ath-dropdown-column">
                 <h4>Home Designs</h4>
                 <a href="/" className="ath-nav-link">Classic</a>
-                <a href="/home-templates/blocker.html" target="_blank" rel="noreferrer">Editorial</a>
-                <a href="/home-templates/blocker.html" target="_blank" rel="noreferrer">Minimal</a>
               </div>
               <div className="ath-dropdown-column">
                 <h4>Verisphere</h4>
