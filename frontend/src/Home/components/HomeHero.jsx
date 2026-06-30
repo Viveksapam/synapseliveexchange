@@ -13,7 +13,7 @@ const HomeHero = ({ boolAnimationsReadyState }) => {
         <div className="ath-hero-meta-item">
           <span className="ath-meta-label">What It's For</span>
           <p className="ath-meta-desc">
-            One accessible home for verifiable discussion, credentials and spatial learning — grounded in real research and real sources you can check.
+            One accessible home for verifiable discussion, credentials and learning — grounded in research and sources you can check.
           </p>
         </div>
         
