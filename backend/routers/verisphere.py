@@ -4,6 +4,11 @@ from typing import List
 from database import get_db
 from crud import crud_blog, crud_portfolio
 from schemas.blog_schemas import BlogResponse, BlogCommentResponse, BlogCommentCreate, BlogSourceResponse, BlogSourceCreate, CommentAnalysisResponse, CommentAnalysisCreate, BlogContextResponse, BlogContextCreate, BlogAuditCollectionResponse
+from pydantic import BaseModel as PydanticBaseModel
+
+class RecentContributionPositionRequest(PydanticBaseModel):
+    featured_blog_id: int
+    position: int
 from schemas.portfolio_schemas import VideoResponse
 
 router = APIRouter(prefix="/api/verisphere", tags=["Verisphere"])
@@ -132,6 +137,30 @@ def delete_source(source_id: int, db: Session = Depends(get_db)):
     if not success:
         raise HTTPException(status_code=404, detail="Source not found")
     return {"message": "Source deleted successfully"}
+
+@router.get("/recent-contributions/")
+def get_recent_contributions(db: Session = Depends(get_db)):
+    contributions = crud_blog.get_recent_contributions(db)
+    return [{"id": c.id, "blog_id": c.featured_blog_id, "position": c.position, "added_at": c.added_at} for c in contributions]
+
+@router.post("/recent-contributions/")
+def add_recent_contribution(req: RecentContributionPositionRequest, db: Session = Depends(get_db), current_user: UserModel = Depends(get_current_admin_user)):
+    contribution = crud_blog.add_to_recent_contributions(db, req.featured_blog_id, req.position, current_user.id)
+    return {"id": contribution.id, "blog_id": contribution.featured_blog_id, "position": contribution.position}
+
+@router.put("/recent-contributions/{contribution_id}/position/")
+def update_contribution_position(contribution_id: int, position: int, db: Session = Depends(get_db), current_user: UserModel = Depends(get_current_admin_user)):
+    updated = crud_blog.update_contribution_position(db, contribution_id, position)
+    if not updated:
+        raise HTTPException(status_code=404, detail="Contribution not found")
+    return {"id": updated.id, "blog_id": updated.featured_blog_id, "position": updated.position}
+
+@router.delete("/recent-contributions/{contribution_id}/")
+def delete_recent_contribution(contribution_id: int, db: Session = Depends(get_db), current_user: UserModel = Depends(get_current_admin_user)):
+    success = crud_blog.remove_from_recent_contributions(db, contribution_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Contribution not found")
+    return {"message": "Contribution removed successfully"}
 
 @router.post("/blogs/{blog_id}/audit/collect/", response_model=BlogAuditCollectionResponse)
 def collect_audit_data(blog_id: int, db: Session = Depends(get_db)):

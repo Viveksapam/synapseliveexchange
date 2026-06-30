@@ -127,6 +127,17 @@ class BlogSourceModel(Base):
 
     context = relationship("BlogContextModel", back_populates="sources")
 
+class RecentContributionModel(Base):
+    __tablename__ = "blog_recentcontributionmodel"
+
+    id = Column(Integer, primary_key=True, index=True)
+    featured_blog_id = Column(Integer, ForeignKey("blog_featuredblogmodel.blog_id", ondelete="CASCADE"), index=True)
+    position = Column(Integer, unique=True)  # 1, 2, 3 for top 3
+    added_at = Column(DateTime, default=datetime.datetime.utcnow)
+    added_by_id = Column(BigInteger, ForeignKey("user_usermodel.id", ondelete="SET NULL"), nullable=True)
+
+    featured_blog = relationship("FeaturedBlogModel")
+
 class BlogAuditCollectionModel(Base):
     __tablename__ = "blog_auditcollectionmodel"
 

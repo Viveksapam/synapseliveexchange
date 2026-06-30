@@ -2,7 +2,7 @@ import apiClient from './apiClient';
 
 export const fetchBlogList = async () => {
   try {
-    const data = await apiClient.get('/verisphere/blogs/featured/');
+    const data = await apiClient.get('/verisphere/recent-contributions/');
     return { data, error: null };
   } catch (error) {
     return { data: null, error: error.message || "Failed to fetch blogs" };

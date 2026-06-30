@@ -180,6 +180,60 @@ def get_blog_audit_collections(db: Session, blog_id: int):
     from models.blog_models import BlogAuditCollectionModel
     return db.query(BlogAuditCollectionModel).filter(BlogAuditCollectionModel.blog_id == blog_id).all()
 
+def get_recent_contributions(db: Session):
+    from models.blog_models import RecentContributionModel, FeaturedBlogModel, BlogModel
+    contributions = db.query(RecentContributionModel)\
+        .join(FeaturedBlogModel, RecentContributionModel.featured_blog_id == FeaturedBlogModel.blog_id)\
+        .join(BlogModel, FeaturedBlogModel.blog_id == BlogModel.id)\
+        .order_by(RecentContributionModel.position).all()
+    return [rc for rc in contributions]
+
+def add_to_recent_contributions(db: Session, featured_blog_id: int, position: int, admin_user_id: int = None):
+    from models.blog_models import RecentContributionModel
+
+    # Check if position already taken
+    existing = db.query(RecentContributionModel).filter(RecentContributionModel.position == position).first()
+    if existing:
+        # Remove from that position
+        db.delete(existing)
+        db.commit()
+
+    contribution = RecentContributionModel(
+        featured_blog_id=featured_blog_id,
+        position=position,
+        added_by_id=admin_user_id
+    )
+    db.add(contribution)
+    db.commit()
+    db.refresh(contribution)
+    return contribution
+
+def remove_from_recent_contributions(db: Session, contribution_id: int):
+    from models.blog_models import RecentContributionModel
+    contribution = db.query(RecentContributionModel).filter(RecentContributionModel.id == contribution_id).first()
+    if contribution:
+        db.delete(contribution)
+        db.commit()
+        return True
+    return False
+
+def update_contribution_position(db: Session, contribution_id: int, new_position: int):
+    from models.blog_models import RecentContributionModel
+
+    # Check if new position already taken
+    existing = db.query(RecentContributionModel).filter(RecentContributionModel.position == new_position).first()
+    if existing and existing.id != contribution_id:
+        db.delete(existing)
+        db.commit()
+
+    contribution = db.query(RecentContributionModel).filter(RecentContributionModel.id == contribution_id).first()
+    if contribution:
+        contribution.position = new_position
+        db.commit()
+        db.refresh(contribution)
+        return contribution
+    return None
+
 def get_featured_blogs(db: Session, skip: int = 0, limit: int = 100):
     from models.blog_models import FeaturedBlogModel, BlogModel
     features = db.query(FeaturedBlogModel)\
