@@ -21,16 +21,15 @@ const HomeHero = ({ boolAnimationsReadyState }) => {
 
         <div className="ath-hero-meta-item">
           <a
-            href="#projects"
+            href="#footer"
             onClick={(e) => {
               e.preventDefault();
-              document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
+              document.querySelector('.ath-footer')?.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="ath-hero-explore-link"
-            style={{ textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', height: '100%' }}
+            className="ath-hero-cta-link"
+            style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: '100%', fontSize: '1.1rem', fontWeight: '600', letterSpacing: '0.05em', cursor: 'pointer' }}
           >
-            <span className="ath-meta-label" style={{ marginBottom: '0.5rem' }}>Explore</span>
-            <span style={{ fontSize: '1.2rem', fontWeight: '600', letterSpacing: '0.05em' }}>Projects →</span>
+            Get in Touch →
           </a>
         </div>
       </div>
