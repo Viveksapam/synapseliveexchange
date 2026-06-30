@@ -32,6 +32,19 @@ export const fetchPosts = async (numCommunityId = null) => {
     if (!objResponse.ok) return [];
     const arrBlogs = await objResponse.json();
     let arrPosts = arrBlogs.map(mapBlogToPost);
+
+    await Promise.all(arrPosts.map(async (objPost) => {
+      try {
+        const commentsRes = await fetch(`${API_BASE}/verisphere/blogs/${blogIdFromString(objPost.id)}/comments/`, { headers: noCacheHeaders });
+        if (commentsRes.ok) {
+          const arrComments = await commentsRes.json();
+          objPost.comments_count = arrComments.length;
+        }
+      } catch (objErr) {
+        console.error(`Failed to fetch comment count for post ${objPost.id}:`, objErr);
+      }
+    }));
+
     arrPosts.sort((a, b) => b.numUpvotes - a.numUpvotes);
     if (numCommunityId) {
       arrPosts = arrPosts.filter(
