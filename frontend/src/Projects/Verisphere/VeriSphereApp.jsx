@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Sun, Moon } from 'lucide-react';
 import WelcomePage from './pages/WelcomePage';
@@ -46,11 +46,6 @@ function VeriSphereApp({ onOpenLogin, authHook }) {
     };
   }, [isLightMode]);
 
-  useLayoutEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = 0;
-    window.scrollTo(0, 0);
-  }, [location.pathname]);
-
   useEffect(() => {
     const handleOpenLogin = () => {
       if (onOpenLogin) onOpenLogin();
@@ -64,7 +59,7 @@ function VeriSphereApp({ onOpenLogin, authHook }) {
     <div className="v2-wrapper">
       <SEO title="VeriSphere" icon="/verisphere.svg" />
       {/* Scrollable Content Overlay from V2 */}
-      <div className="v2-content-scroll" ref={scrollRef}>
+      <div className="v2-content-scroll" key={location.pathname} ref={scrollRef}>
         
         {/* Navigation redesigned using V2 styles */}
         <nav className="v2-nav">
