@@ -5,6 +5,7 @@ import WelcomePage from './pages/WelcomePage';
 import HomePage from './pages/HomePage';
 import CommunityPage from './pages/CommunityPage';
 import PostDetailPage from './pages/PostDetailPage';
+import PostCommentsPage from './pages/PostCommentsPage';
 import ProfilePage from './pages/ProfilePage';
 import './styles/VeriSphere.css';
 import './styles/VeriSphereLayout.css';
@@ -163,6 +164,7 @@ function VeriSphereApp({ onOpenLogin, authHook }) {
             <Route path="feed" element={<HomePage authHook={authHook} />} />
             <Route path="community/:id" element={<CommunityPage authHook={authHook} />} />
             <Route path="post/:id" element={<PostDetailPage authHook={authHook} />} />
+            <Route path="post/:id/comments" element={<PostCommentsPage authHook={authHook} />} />
             <Route path="profile" element={<ProfilePage authHook={authHook} />} />
           </Routes>
         </main>
