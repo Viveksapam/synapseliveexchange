@@ -29,6 +29,16 @@ const buildRazorpayOptions = (objOrder, objUser, strToken, setSuccess, setError)
   theme: { color: '#8b5cf6' },
 });
 
+const loadRazorpayScript = () =>
+  new Promise((resolve, reject) => {
+    if (window.Razorpay) { resolve(); return; }
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = resolve;
+    script.onerror = () => reject(new Error('Failed to load payment SDK.'));
+    document.body.appendChild(script);
+  });
+
 const CheckoutPage = () => {
   const { boolIsLoggedInState, strTokenState, objUserState } = useAuth();
   const [strAmountState, setStrAmountState] = useState('500');
@@ -52,6 +62,7 @@ const CheckoutPage = () => {
 
     setBoolIsLoadingState(true);
     try {
+      await loadRazorpayScript();
       const objOrder = await postCreateRazorpayOrder(numAmount, strTokenState);
       const objOptions = buildRazorpayOptions(
         objOrder, objUserState, strTokenState,

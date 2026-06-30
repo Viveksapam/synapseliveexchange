@@ -6,7 +6,6 @@ import { usePostDetail } from '../hooks/usePostDetail';
 import PostDetailHeader from '../components/PostDetailHeader';
 import PostDetailSources from '../components/PostDetailSources';
 import PostDetailContext from '../components/PostDetailContext';
-import PostDetailComments from '../components/PostDetailComments';
 import '../styles/VeriSphere.css';
 
 const PostDetailPage = () => {
@@ -22,27 +21,10 @@ const PostDetailPage = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const [strNewCommentState, setStrNewCommentState] = useState('');
-  const [boolIsSubmittingState, setBoolIsSubmittingState] = useState(false);
   const [boolIsAddingSourceState, setBoolIsAddingSourceState] = useState(false);
   const [strNewSourceUrlState, setStrNewSourceUrlState] = useState('');
   const [strNewSourceDescState, setStrNewSourceDescState] = useState('');
   const [boolIsSubmittingSourceState, setBoolIsSubmittingSourceState] = useState(false);
-  const [replyingToState, setReplyingToState] = useState(null);
-  const [replyModeState, setReplyModeState] = useState(null);
-  const [strReplyContentState, setStrReplyContentState] = useState('');
-  const [boolIsSubmittingReplyState, setBoolIsSubmittingReplyState] = useState(false);
-
-  const handleCommentSubmit = async (e) => {
-    e.preventDefault();
-    if (!strNewCommentState.trim()) return;
-    setBoolIsSubmittingState(true);
-    try {
-      await post.submitComment({ strContent: strNewCommentState });
-      setStrNewCommentState('');
-    } catch { alert('Failed to submit comment. Please ensure you are logged in.'); }
-    finally { setBoolIsSubmittingState(false); }
-  };
 
   const handleSourceSubmit = async (e) => {
     e.preventDefault();
@@ -56,27 +38,15 @@ const PostDetailPage = () => {
     finally { setBoolIsSubmittingSourceState(false); }
   };
 
-  const handleReplySubmit = async (e, numParentId) => {
-    e.preventDefault();
-    if (!strReplyContentState.trim()) return;
-    setBoolIsSubmittingReplyState(true);
-    try {
-      await post.submitComment({ strContent: strReplyContentState, objParent: numParentId });
-      setStrReplyContentState('');
-      setReplyingToState(null); setReplyModeState(null);
-    } catch { alert('Failed to submit reply. Please ensure you are logged in.'); }
-    finally { setBoolIsSubmittingReplyState(false); }
-  };
-
   if (post.boolIsLoadingState) return <div className="verisphere-loading">Analyzing arguments...</div>;
   if (!post.objPostState) return <div className="verisphere-empty-state">Post not found.</div>;
 
   return (
     <div className="verisphere-post-detail" style={{
-      maxWidth: 'none', margin: '2rem auto -1px auto', padding: '2.5rem 1.5rem 2rem 1.5rem',
-      background: 'var(--glass-bg)', borderRadius: '24px 24px 0 0',
+      maxWidth: 'none', margin: '2rem auto', padding: '2.5rem 1.5rem',
+      background: 'var(--glass-bg)', borderRadius: '24px',
       boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)',
-      border: '1px solid var(--glass-border)', borderBottom: 'none', backdropFilter: 'blur(20px)',
+      border: '1px solid var(--glass-border)', backdropFilter: 'blur(20px)',
       fontSize: '0.95rem',
       lineHeight: '1.6',
     }}>
@@ -100,21 +70,15 @@ const PostDetailPage = () => {
 
       <PostDetailContext strAiContextGuardrail={post.objPostState.strAiContextGuardrail} />
 
-      <PostDetailComments
-        post={post.objPostState}
-        boolIsLoggedIn={boolIsLoggedInState}
-        commentForm={{
-          strNewCommentState, setStrNewCommentState,
-          boolIsSubmittingState, onCommentSubmit: handleCommentSubmit,
-        }}
-        replyState={{
-          setReplyingToState, setReplyModeState, setStrReplyContentState,
-          replyingToState, replyModeState, strReplyContentState,
-          handleReplySubmit, boolIsSubmittingReplyState,
-        }}
-        onAnalyzeComment={post.analyzeComment}
-        loadingComments={post.loadingCommentsState}
-      />
+      <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--glass-border)' }}>
+        <Link
+          to={`/verisphere/post/${id}/comments`}
+          className="verisphere-btn-outline"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '10px 20px', fontSize: '0.95rem', textDecoration: 'none' }}
+        >
+          View Discussion ({post.objPostState.comments ? post.objPostState.comments.length : 0} comments)
+        </Link>
+      </div>
     </div>
   );
 };
