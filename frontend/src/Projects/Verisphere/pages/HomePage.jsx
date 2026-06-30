@@ -14,11 +14,15 @@ function HomePage({ authHook }) {
 
     const loadPosts = async () => {
         try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
             const data = await fetchPosts();
+            clearTimeout(timeoutId);
             setArrPostsState(data);
             setBoolIsServerDownState(false);
         } catch (error) {
             console.error("Error fetching posts:", error);
+            setBoolIsServerDownState(true);
         } finally {
             setBoolIsLoadingState(false);
         }
@@ -30,7 +34,7 @@ function HomePage({ authHook }) {
                 setBoolIsServerDownState(true);
                 setBoolIsLoadingState(false);
             }
-        }, 120000);
+        }, 10000);
 
         loadPosts();
         trackEvent('verisphere_home_view');
