@@ -18,7 +18,7 @@ const PostDetailPage = () => {
 
   React.useEffect(() => {
     const el = document.querySelector('.v2-content-scroll');
-    if (el) el.scrollTo({ top: 0 });
+    if (el) el.scrollTop = 0;
   }, [id]);
 
   React.useEffect(() => {
