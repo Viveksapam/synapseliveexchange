@@ -17,7 +17,7 @@ const PostCardReactions = ({ reactions, commentsCount, postId }) => {
   return (
     <div className="vs-post-actions" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'nowrap', position: 'relative' }}>
       <div className="verisphere-reacts" style={{ display: 'flex', gap: '0.4rem', flexWrap: 'nowrap' }}>
-        {arrTopReactions.slice(0, 5).map(([strEmoji, numCount]) => (
+        {arrTopReactions.slice(0, window.innerWidth < 768 ? 2 : 5).map(([strEmoji, numCount]) => (
           <button
             key={strEmoji}
             className="vs-react-btn"
