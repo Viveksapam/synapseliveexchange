@@ -15,8 +15,8 @@ const PostDetailSources = ({ post, sourceForm, onSourceSubmit, onToggleAdd }) =>
       border: '1px solid var(--glass-border)', borderRadius: '8px', backgroundColor: 'var(--glass-bg)',
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h4 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--v2-text-main)' }}>
-          <span className="icon">📚</span> Community Sources ({arrSources.length})
+        <h4 style={{ margin: 0, color: 'var(--v2-text-main)' }}>
+          Community Sources
         </h4>
         <button onClick={onToggleAdd} className="verisphere-btn-outline" style={{ padding: '4px 12px', fontSize: '0.8rem' }}>
           {boolIsAddingSourceState ? 'Cancel' : '+ Suggest Source'}

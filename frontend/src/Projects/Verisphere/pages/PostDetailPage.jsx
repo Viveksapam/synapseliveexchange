@@ -73,12 +73,14 @@ const PostDetailPage = () => {
 
   return (
     <div className="verisphere-post-detail" style={{
-      maxWidth: '1200px', margin: '2rem auto', padding: '4rem 3rem 3.5rem 3rem',
-      background: 'var(--glass-bg)', borderRadius: '24px',
+      maxWidth: 'none', margin: '2rem auto -1px auto', padding: '2.5rem 1.5rem 2rem 1.5rem',
+      background: 'var(--glass-bg)', borderRadius: '24px 24px 0 0',
       boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)',
-      border: '1px solid var(--glass-border)', backdropFilter: 'blur(20px)',
+      border: '1px solid var(--glass-border)', borderBottom: 'none', backdropFilter: 'blur(20px)',
+      fontSize: '0.95rem',
+      lineHeight: '1.6',
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem' }}>
         <Link to="/verisphere/feed" className="verisphere-back-link inline-block" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--v2-text-main)', transition: 'transform 0.2s' }}>
           ←
         </Link>
