@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
-  fetchPostDetail, postCreateSource, postCreateComment, postAnalyzeComment,
+  fetchPostDetail, postCreateSource, postCreateComment, postAnalyzeComment, deleteComment,
 } from '../api/verisphereApi';
 
 export const usePostDetail = (postId, strToken, boolIsLoggedIn) => {
@@ -52,8 +52,19 @@ export const usePostDetail = (postId, strToken, boolIsLoggedIn) => {
     }
   };
 
+  const handleDeleteComment = async (numCommentId) => {
+    if (!window.confirm('Are you sure you want to delete this comment?')) return;
+    try {
+      await deleteComment(postId, numCommentId);
+      await loadPost();
+    } catch (objErr) {
+      console.error('Failed to delete comment', objErr);
+      alert('Failed to delete comment');
+    }
+  };
+
   return {
     objPostState, boolIsLoadingState, loadingCommentsState,
-    submitComment, submitSource, analyzeComment,
+    submitComment, submitSource, analyzeComment, handleDeleteComment,
   };
 };

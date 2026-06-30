@@ -72,6 +72,21 @@ export const postToggleFeatured = async (numPostId, boolCurrentlyFeatured, strTo
   }
 };
 
+const loadRepliesRecursively = async (numBlogId, numCommentId) => {
+  try {
+    const repliesResponse = await fetch(`${API_BASE}/verisphere/blogs/${numBlogId}/comments/${numCommentId}/replies/`, { headers: noCacheHeaders });
+    const arrReplies = repliesResponse.ok ? await repliesResponse.json() : [];
+
+    // Recursively load replies for each reply (deep nesting like Reddit)
+    return await Promise.all(arrReplies.map(async (reply) => {
+      const nestedReplies = await loadRepliesRecursively(numBlogId, reply.id);
+      return { ...reply, replies: nestedReplies };
+    }));
+  } catch {
+    return [];
+  }
+};
+
 export const fetchPostDetail = async (idOrString) => {
   const numBlogId = blogIdFromString(idOrString);
   const objResponse = await fetch(`${API_BASE}/verisphere/blogs/`, { headers: noCacheHeaders });
@@ -81,7 +96,14 @@ export const fetchPostDetail = async (idOrString) => {
   if (!objBlog) throw new Error('Post not found');
   try {
     const commentsResponse = await fetch(`${API_BASE}/verisphere/blogs/${numBlogId}/comments/`, { headers: noCacheHeaders });
-    const arrComments = commentsResponse.ok ? await commentsResponse.json() : [];
+    let arrComments = commentsResponse.ok ? await commentsResponse.json() : [];
+
+    // Load replies recursively for each top-level comment
+    arrComments = await Promise.all(arrComments.map(async (comment) => {
+      const nestedReplies = await loadRepliesRecursively(numBlogId, comment.id);
+      return { ...comment, replies: nestedReplies };
+    }));
+
     const objPost = mapBlogToPost(objBlog);
     objPost.comments = arrComments;
     objPost.comments_count = arrComments.length;
@@ -168,4 +190,18 @@ export const postAnalyzeComment = async (numCommentId) => {
     console.error('Failed to analyze comment:', objErr);
   }
   return { strAiAnalysis: 'Analysis unavailable', dictAiMetrics: {} };
+};
+
+export const deleteComment = async (numPostId, numCommentId) => {
+  const numBlogId = blogIdFromString(numPostId);
+  try {
+    const objResponse = await fetch(`${API_BASE}/verisphere/blogs/${numBlogId}/comments/${numCommentId}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (objResponse.ok) return await objResponse.json();
+  } catch (objErr) {
+    console.error('Failed to delete comment:', objErr);
+  }
+  return null;
 };

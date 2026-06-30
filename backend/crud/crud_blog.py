@@ -15,7 +15,10 @@ def get_blog_by_id(db: Session, blog_id: int):
     return db.query(BlogModel).filter(BlogModel.id == blog_id).first()
 
 def get_blog_comments(db: Session, blog_id: int, skip: int = 0, limit: int = 100):
-    return db.query(BlogCommentModel).filter(BlogCommentModel.blog_id == blog_id).offset(skip).limit(limit).all()
+    return db.query(BlogCommentModel).filter(
+        BlogCommentModel.blog_id == blog_id,
+        BlogCommentModel.parent_comment_id == None
+    ).offset(skip).limit(limit).all()
 
 def create_blog_comment(db: Session, blog_id: int, comment: BlogCommentCreate):
     new_comment = BlogCommentModel(blog_id=blog_id, **comment.dict())

@@ -71,6 +71,7 @@ const PostCommentsPage = () => {
           setReplyingToState, setReplyModeState, setStrReplyContentState,
           replyingToState, replyModeState, strReplyContentState,
           handleReplySubmit, boolIsSubmittingReplyState,
+          handleDeleteComment: post.handleDeleteComment,
         }}
         onAnalyzeComment={post.analyzeComment}
         loadingComments={post.loadingCommentsState}

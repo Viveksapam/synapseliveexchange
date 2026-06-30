@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 const reasoningBox = (strBg) => ({ background: strBg, padding: '0.6rem 0.8rem', borderRadius: '6px' });
 const labelStyle = { fontSize: '0.7rem', color: 'var(--v2-text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '4px', letterSpacing: '1px' };
 
-const CommentBody = ({ comment, loadingCommentsState, onAnalyze, onStartReply }) => {
+const CommentBody = ({ comment, loadingCommentsState, onAnalyze, onStartReply, onDelete }) => {
   const objMetrics = comment.dictAiMetrics;
   const arrFallacies = objMetrics?.logical_errors || [];
 
@@ -61,6 +61,15 @@ const CommentBody = ({ comment, loadingCommentsState, onAnalyze, onStartReply })
           >
             + Reply
           </button>
+          {onDelete && (
+            <button
+              className="verisphere-btn-outline"
+              onClick={() => onDelete(comment.id)}
+              style={{ padding: '4px 10px', fontSize: '0.75rem', borderRadius: '12px', border: 'none', background: 'transparent', color: 'var(--v2-text-muted)' }}
+            >
+              Delete
+            </button>
+          )}
         </div>
       </div>
     </>
@@ -72,6 +81,7 @@ CommentBody.propTypes = {
   loadingCommentsState: PropTypes.object.isRequired,
   onAnalyze: PropTypes.func.isRequired,
   onStartReply: PropTypes.func.isRequired,
+  onDelete: PropTypes.func,
 };
 
 export default CommentBody;

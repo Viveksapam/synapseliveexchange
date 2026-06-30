@@ -7,6 +7,7 @@ const CommentThread = ({
   comment, level = 0, handleAnalyzeComment, loadingCommentsState,
   setReplyingToState, setReplyModeState, setStrReplyContentState,
   replyingToState, strReplyContentState, handleReplySubmit, boolIsSubmittingReplyState,
+  handleDeleteComment,
 }) => {
   const [boolIsCollapsedState, setBoolIsCollapsedState] = useState(false);
 
@@ -44,10 +45,10 @@ const CommentThread = ({
               </button>
             )}
             <strong style={{ fontSize: '0.95rem', color: 'var(--v2-text-main)' }}>
-              {comment.strAuthorUsername || 'user_' + comment.objAuthor}
+              {comment.strAuthorUsername || comment.strAuthor || 'Anonymous'}
             </strong>
             <span className="verisphere-date" style={{ color: 'var(--v2-text-muted)', fontSize: '0.8rem' }}>
-              • {new Date(comment.created_at).toLocaleDateString()}
+              • {comment.created_at ? new Date(comment.created_at).toLocaleDateString() : 'Date unavailable'}
             </span>
           </div>
 
@@ -57,6 +58,7 @@ const CommentThread = ({
               loadingCommentsState={loadingCommentsState}
               onAnalyze={handleAnalyzeComment}
               onStartReply={handleStartReply}
+              onDelete={handleDeleteComment}
             />
           )}
 
@@ -89,6 +91,7 @@ const CommentThread = ({
               strReplyContentState={strReplyContentState}
               handleReplySubmit={handleReplySubmit}
               boolIsSubmittingReplyState={boolIsSubmittingReplyState}
+              handleDeleteComment={handleDeleteComment}
             />
           ))}
         </div>
