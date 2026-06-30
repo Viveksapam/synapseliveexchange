@@ -9,6 +9,7 @@ import { useAuth } from './hooks/useAuth';
 import { usePageContext } from './hooks/usePageContext';
 import PageErrorBoundary from './errors/PageErrorBoundary';
 import './App.css';
+import './Home/Home.css';
 
 const Home = lazy(() => import('./Home/Home'));
 const ShopPage = lazy(() => import('./Projects/Merchandise/ShopPage'));
