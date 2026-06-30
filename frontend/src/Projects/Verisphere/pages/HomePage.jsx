@@ -9,44 +9,23 @@ import '../styles/VeriSphere.css';
 function HomePage({ authHook }) {
     const [arrPostsState, setArrPostsState] = useState([]);
     const [boolIsLoadingState, setBoolIsLoadingState] = useState(true);
-    const [boolIsServerDownState, setBoolIsServerDownState] = useState(false);
     const { trackEvent } = useActivityTracker();
 
-    const loadPosts = async () => {
-        try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000);
-            const data = await fetchPosts();
-            clearTimeout(timeoutId);
-            setArrPostsState(data);
-            setBoolIsServerDownState(false);
-        } catch (error) {
-            console.error("Error fetching posts:", error);
-            setBoolIsServerDownState(true);
-        } finally {
-            setBoolIsLoadingState(false);
-        }
-    };
-
     useEffect(() => {
-        const timeoutId = setTimeout(() => {
-            if (boolIsLoadingState) {
-                setBoolIsServerDownState(true);
+        const loadPosts = async () => {
+            try {
+                const data = await fetchPosts();
+                setArrPostsState(data);
+            } catch (error) {
+                console.error("Error fetching posts:", error);
+            } finally {
                 setBoolIsLoadingState(false);
             }
-        }, 10000);
+        };
 
         loadPosts();
         trackEvent('verisphere_home_view');
-
-        return () => clearTimeout(timeoutId);
     }, []);
-
-    if (boolIsServerDownState) return (
-        <div className="verisphere-loading">
-            Server down
-        </div>
-    );
 
     if (boolIsLoadingState) return (
         <div className="verisphere-loading">
