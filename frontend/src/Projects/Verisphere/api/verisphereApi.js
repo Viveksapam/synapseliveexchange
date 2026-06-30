@@ -69,9 +69,15 @@ export const fetchPostDetail = async (idOrString) => {
   try {
     const commentsResponse = await fetch(`${API_BASE}/verisphere/blogs/${numBlogId}/comments/`, { headers: noCacheHeaders });
     const arrComments = commentsResponse.ok ? await commentsResponse.json() : [];
-    return { ...mapBlogToPost(objBlog), comments: arrComments };
+    const objPost = mapBlogToPost(objBlog);
+    objPost.comments = arrComments;
+    objPost.comments_count = arrComments.length;
+    return objPost;
   } catch {
-    return { ...mapBlogToPost(objBlog), comments: [] };
+    const objPost = mapBlogToPost(objBlog);
+    objPost.comments = [];
+    objPost.comments_count = 0;
+    return objPost;
   }
 };
 
