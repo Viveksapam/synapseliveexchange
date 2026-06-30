@@ -73,7 +73,7 @@ const PostDetailPage = () => {
 
   return (
     <div className="verisphere-post-detail" style={{
-      maxWidth: '1200px', margin: '2rem auto', padding: '3rem',
+      maxWidth: '1200px', margin: '2rem auto', padding: '3.5rem 2.5rem 3rem 2.5rem',
       background: 'var(--glass-bg)', borderRadius: '24px',
       boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)',
       border: '1px solid var(--glass-border)', backdropFilter: 'blur(20px)',
