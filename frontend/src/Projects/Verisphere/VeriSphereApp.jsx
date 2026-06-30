@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Sun, Moon } from 'lucide-react';
 import WelcomePage from './pages/WelcomePage';
@@ -46,8 +46,9 @@ function VeriSphereApp({ onOpenLogin, authHook }) {
     };
   }, [isLightMode]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
+    window.scrollTo(0, 0);
   }, [location.pathname]);
 
   useEffect(() => {
