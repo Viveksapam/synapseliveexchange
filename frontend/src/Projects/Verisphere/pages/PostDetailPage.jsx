@@ -17,6 +17,12 @@ const PostDetailPage = () => {
   const [numWindowWidth, setNumWindowWidth] = React.useState(window.innerWidth);
 
   React.useEffect(() => {
+    window.scrollTo(0, 0);
+    const timer = setTimeout(() => window.scrollTo(0, 0), 0);
+    return () => clearTimeout(timer);
+  }, [id]);
+
+  React.useEffect(() => {
     const handleResize = () => setNumWindowWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
