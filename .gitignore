@@ -206,6 +206,9 @@ tempCodeRunnerFile.py
 # Private instruction logs (not for repo)
 docs/.private/
 
+# Site logic documentation (local development reference only)
+docs/SITE_LOGIC.md
+
 # Ruff stuff:
 .ruff_cache/
 
