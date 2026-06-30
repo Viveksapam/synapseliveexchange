@@ -89,6 +89,5 @@ class PostReactionModel(Base):
     user_id = Column(BigInteger, ForeignKey("user_usermodel.id", ondelete="CASCADE"), index=True)
     emoji = Column(String(50), index=True)
 
-    post = relationship("BlogModel")
-    # Using string for relationship to avoid circular imports if user_models isn't imported here
-    user = relationship("UserModel", primaryjoin="PostReactionModel.user_id == foreign(UserModel.id)")
+    post = relationship("BlogModel", passive_deletes=True)
+    user = relationship("UserModel", foreign_keys="[PostReactionModel.user_id]", passive_deletes=True)
