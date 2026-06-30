@@ -58,7 +58,7 @@ const ContributionsSection = ({ arrBlogsState }) => {
 
         {/* Footer bar */}
         <div className="ath-blog-footer-bar">
-          <span className="ath-blog-footer-count">{arrBlogsState.length} featured articles</span>
+          <span className="ath-blog-footer-count">featured articles</span>
           <a
             className="ath-blog-footer-link"
             onClick={() => navigate('/verisphere')}

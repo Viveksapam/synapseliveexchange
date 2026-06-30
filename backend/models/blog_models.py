@@ -69,11 +69,23 @@ class BlogCommentModel(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     blog_id = Column(Integer, ForeignKey("blog_blogmodel.id", ondelete="CASCADE"))
+    parent_comment_id = Column(Integer, ForeignKey("blog_blogcommentmodel.id", ondelete="CASCADE"), nullable=True, index=True)
     strAuthor = Column(String(255), default="Anonymous")
     strContent = Column(Text)
     datePosted = Column(DateTime, default=datetime.datetime.utcnow)
 
     blog = relationship("BlogModel", back_populates="comments")
+    analysis = relationship("CommentAnalysisModel", back_populates="comment", uselist=False)
+
+class CommentAnalysisModel(Base):
+    __tablename__ = "blog_commentanalysismodel"
+
+    comment_id = Column(Integer, ForeignKey("blog_blogcommentmodel.id", ondelete="CASCADE"), primary_key=True)
+    sentiment = Column(String(50), nullable=True)
+    relevance_score = Column(Float, default=0.5)
+    ai_summary = Column(Text, nullable=True)
+
+    comment = relationship("BlogCommentModel", back_populates="analysis")
 
 class FeaturedBlogModel(Base):
     __tablename__ = "blog_featuredblogmodel"
@@ -92,3 +104,27 @@ class PostReactionModel(Base):
     post = relationship("BlogModel")
     # Using string for relationship to avoid circular imports if user_models isn't imported here
     user = relationship("UserModel", primaryjoin="PostReactionModel.user_id == foreign(UserModel.id)")
+
+class BlogContextModel(Base):
+    __tablename__ = "blog_blogcontextmodel"
+
+    id = Column(Integer, primary_key=True, index=True)
+    blog_id = Column(Integer, ForeignKey("blog_blogmodel.id", ondelete="CASCADE"), index=True)
+    strTitle = Column(String(255))
+    strDescription = Column(Text, nullable=True)
+    dtCreatedAt = Column(DateTime, default=datetime.datetime.utcnow)
+
+    blog = relationship("BlogModel")
+    sources = relationship("BlogSourceModel", back_populates="context")
+
+class BlogSourceModel(Base):
+    __tablename__ = "blog_blogsourcemodel"
+
+    id = Column(Integer, primary_key=True, index=True)
+    context_id = Column(Integer, ForeignKey("blog_blogcontextmodel.id", ondelete="CASCADE"), index=True)
+    strTitle = Column(String(255))
+    strUrl = Column(String(500))
+    strAuthor = Column(String(255), nullable=True)
+    dtCreatedAt = Column(DateTime, default=datetime.datetime.utcnow)
+
+    context = relationship("BlogContextModel", back_populates="sources")

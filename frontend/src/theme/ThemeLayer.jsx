@@ -12,13 +12,13 @@ import {
 import './ThemeLayer.css';
 
 const THEME_META = {
-  christmas: { label: '🎄 Christmas Mode', icon: '❄️' },
-  halloween: { label: '🎃 Halloween Mode', icon: '🦇' },
-  diwali:    { label: '✨ Diwali Mode',    icon: '🪔' },
-  new_year:  { label: '🎆 New Year!',      icon: '🎉' },
-  winter:    { label: '❄️ Winter',         icon: '🌨️' },
-  night:     { label: '🌙 Night Mode',     icon: '🌙' },
-  default:   { label: null, icon: null },
+  christmas: { label: 'Merry Christmas' },
+  halloween: { label: 'Happy Halloween' },
+  diwali:    { label: 'Happy Diwali' },
+  new_year:  { label: 'Happy New Year' },
+  winter:    { label: 'Stay Warm' },
+  night:     { label: 'Good Night' },
+  default:   { label: null },
 };
 
 function ThemeParticleLayer({ theme, intensity }) {
@@ -85,8 +85,8 @@ export default function ThemeLayer() {
         <ThemeParticleLayer theme={themeCtx.theme} intensity={themeCtx.intensity} />
       )}
 
-      {/* Theme badge — only outside VeriSphere */}
-      {!isVeriSphere && meta.label && !badgeDismissed && (
+      {/* Theme badge — DISABLED MANUALLY BY SAPAM. Will explore this feature later. */}
+      {/* {!isVeriSphere && meta.label && !badgeDismissed && (
         <div
           className={`theme-badge ${visible ? 'theme-badge--visible' : ''}`}
           role="status"
@@ -102,7 +102,7 @@ export default function ThemeLayer() {
             ×
           </button>
         </div>
-      )}
+      )} */
     </>
   );
 }
