@@ -18,10 +18,20 @@ const HomeHero = ({ boolAnimationsReadyState }) => {
         </div>
         
         <div className="ath-divider-vertical"></div>
-        
+
         <div className="ath-hero-meta-item">
-          <span className="ath-meta-label">At A Glance</span>
-          <p className="ath-meta-mono">04 LIVE APPS</p>
+          <a
+            href="#projects"
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="ath-hero-explore-link"
+            style={{ textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', height: '100%' }}
+          >
+            <span className="ath-meta-label" style={{ marginBottom: '0.5rem' }}>Explore</span>
+            <span style={{ fontSize: '1.2rem', fontWeight: '600', letterSpacing: '0.05em' }}>Projects →</span>
+          </a>
         </div>
       </div>
     </section>
