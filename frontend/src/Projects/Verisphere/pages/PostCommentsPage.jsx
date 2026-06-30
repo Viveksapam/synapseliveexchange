@@ -58,9 +58,6 @@ const PostCommentsPage = () => {
         >
           ←
         </Link>
-        <h2 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--v2-text-muted)', fontWeight: 500 }}>
-          {post.objPostState.strTitle}
-        </h2>
       </div>
 
       <PostDetailComments
