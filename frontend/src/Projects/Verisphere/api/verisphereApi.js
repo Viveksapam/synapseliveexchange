@@ -130,7 +130,10 @@ export const postCreateSource = async (numPostId, objSourceData) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(objSourceData),
   });
-  if (!objResponse.ok) throw new Error('Failed to submit source');
+  if (!objResponse.ok) {
+    const strDetail = await objResponse.text().catch(() => '');
+    throw new Error(`Failed to submit source (${objResponse.status}): ${strDetail}`);
+  }
   return objResponse.json();
 };
 
