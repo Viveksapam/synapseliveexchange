@@ -46,10 +46,9 @@ const PostCommentsPage = ({ authHook }) => {
 
   return (
     <div className="verisphere-post-detail" style={{
-      maxWidth: 'none', margin: '2rem auto', padding: '2.5rem 1.5rem',
-      background: 'var(--glass-bg)', borderRadius: '24px',
-      boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)',
-      border: '1px solid var(--glass-border)', backdropFilter: 'blur(20px)',
+      maxWidth: 'none', margin: '2rem auto', padding: '2rem 1rem',
+      background: 'var(--glass-bg)', borderRadius: '16px',
+      backdropFilter: 'blur(20px)',
       fontSize: '0.95rem', lineHeight: '1.6',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.2rem' }}>

@@ -12,7 +12,7 @@ const PostDetailContext = ({ strAiContextGuardrail }) => {
 
   return (
   <div className="verisphere-context-guardrail" style={{ marginTop: '2rem' }}>
-    <div className="verisphere-ai-box" style={{ background: 'var(--glass-bg)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--glass-border)' }}>
+    <div className="verisphere-ai-box" style={{ padding: '1.5rem 0', borderTop: '1px solid var(--glass-border)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', gap: '0.8rem', flexWrap: 'wrap' }}>
         <h4 style={{ margin: 0, color: 'var(--v2-text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span className="icon" style={{ fontSize: '1.2rem' }}>🛡️</span> Context Guardrails
