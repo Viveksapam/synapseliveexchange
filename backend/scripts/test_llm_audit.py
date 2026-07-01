@@ -4,6 +4,13 @@ required. Run from the backend/ folder: python scripts/test_llm_audit.py
 Confirms GEMINI_API_KEY is set and Gemini responds with the expected JSON
 shape, using a small made-up post + source instead of a real database row.
 """
+import os
+import sys
+
+# Running this as `python scripts/test_llm_audit.py` only puts scripts/ on
+# sys.path, not backend/ itself - add it explicitly so `services` resolves.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from services.llm_audit import analyze_audit_collection, LlmAuditError
 
 sample_data = {
