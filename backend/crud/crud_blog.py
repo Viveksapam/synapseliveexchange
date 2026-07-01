@@ -211,24 +211,61 @@ def sync_audit_to_blog_analysis(db: Session, blog_id: int, llm_response: dict):
     logical_soundness = llm_response.get("logical_soundness", 0.5)
     verifiable = llm_response.get("verifiable", "partial")
     summary = llm_response.get("summary", "")
+    context_guardrail = llm_response.get("ai_context_guardrail", "")
+    detail = llm_response.get("analysis_detail")
+    detail_json = json.dumps(detail) if detail else None
 
     analysis = db.query(BlogAIAnalysisModel).filter(BlogAIAnalysisModel.blog_id == blog_id).first()
     if analysis:
         analysis.logical_soundness = logical_soundness
         analysis.verifiable = verifiable
         analysis.ai_summary = summary
+        analysis.ai_context_guardrail = context_guardrail
+        analysis.analysis_detail = detail_json
     else:
         analysis = BlogAIAnalysisModel(
             blog_id=blog_id,
             logical_soundness=logical_soundness,
             verifiable=verifiable,
-            ai_summary=summary
+            ai_summary=summary,
+            ai_context_guardrail=context_guardrail,
+            analysis_detail=detail_json,
         )
         db.add(analysis)
 
     db.commit()
     db.refresh(analysis)
     return analysis
+
+
+def add_recommended_sources(db: Session, blog_id: int, recommended_new_sources: list, approver_name: str = None):
+    """Persist AI-recommended sources as PENDING (review_status='pending') so a
+    human can vet them under '+ In Review' before they reach Community Sources.
+    De-duplicates against existing sources by title. Returns the created rows."""
+    if not recommended_new_sources:
+        return []
+
+    existing_titles = {
+        (s.strTitle or "").strip().lower()
+        for s in get_blog_sources(db, blog_id)
+    }
+
+    created = []
+    for rec in recommended_new_sources:
+        if not isinstance(rec, dict):
+            continue
+        title = (rec.get("publisher_or_organization") or "").strip()
+        url = (rec.get("suggested_search_query_or_url") or "").strip()
+        description = (rec.get("reason_for_inclusion") or "").strip()
+        if not title or title.lower() in existing_titles:
+            continue
+        source = create_source_for_blog(
+            db, blog_id, title=title, url=url, description=description,
+            author=approver_name or "AI suggestion",
+        )
+        existing_titles.add(title.lower())
+        created.append(source)
+    return created
 
 def get_blog_audit_collections(db: Session, blog_id: int):
     from models.blog_models import BlogAuditCollectionModel

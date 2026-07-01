@@ -77,7 +77,7 @@ const PostDetailPage = ({ authHook }) => {
       />
 
       <PostDetailContext
-        strAiContextGuardrail={post.objPostState.ai_summary}
+        strAiContextGuardrail={post.objPostState.ai_context_guardrail}
         post={post.objPostState}
         onAnalyze={() => post.analyzePost()}
         boolIsAnalyzing={post.boolIsAnalyzingPostState}

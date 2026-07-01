@@ -220,6 +220,12 @@ def run_blog_audit(blog_id: int, db: Session = Depends(get_db), current_user: Us
     for source_id in llm_result.get("approved_source_ids", []):
         crud_blog.approve_blog_source(db, source_id, approved_by="ai", approver_name=llm_audit.APPROVER_DISPLAY_NAME)
 
+    # AI-recommended sources land as pending suggestions for human review.
+    crud_blog.add_recommended_sources(
+        db, blog_id, llm_result.get("recommended_new_sources", []),
+        approver_name=llm_audit.APPROVER_DISPLAY_NAME,
+    )
+
     return collection
 
 @router.get("/audit/collections/{collection_id}/", response_model=BlogAuditCollectionResponse)
@@ -329,6 +335,12 @@ def analyze_blog(blog_id: int, db: Session = Depends(get_db), current_user: User
 
     for source_id in llm_result.get("approved_source_ids", []):
         crud_blog.approve_blog_source(db, source_id, approved_by="ai", approver_name=llm_audit.APPROVER_DISPLAY_NAME)
+
+    # AI-recommended sources land as pending suggestions for human review.
+    crud_blog.add_recommended_sources(
+        db, blog_id, llm_result.get("recommended_new_sources", []),
+        approver_name=llm_audit.APPROVER_DISPLAY_NAME,
+    )
 
     # Return updated blog with analysis
     updated_blog = crud_blog.get_blog_by_id(db, blog_id)

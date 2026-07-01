@@ -3,6 +3,25 @@ import {
   fetchPostDetail, postCreateSource, postCreateComment, postAnalyzeComment, deleteComment, postAnalyzePost,
 } from '../api/verisphereApi';
 
+// Recursively gather every comment id in the thread (top-level + nested replies).
+const collectCommentIds = (comments = []) =>
+  comments.flatMap((c) => [c.id, ...collectCommentIds(c.replies)]);
+
+// Recursively apply an analysis result to the matching comment anywhere in the tree.
+const applyCommentAnalysis = (comments = [], numCommentId, data) =>
+  comments.map((c) => {
+    if (c.id === numCommentId) {
+      return {
+        ...c,
+        strAiAnalysis: data.ai_summary,
+        dictAiMetrics: { sentiment: data.sentiment, relevance_score: data.relevance_score },
+      };
+    }
+    return c.replies?.length
+      ? { ...c, replies: applyCommentAnalysis(c.replies, numCommentId, data) }
+      : c;
+  });
+
 export const usePostDetail = (postId, strToken, boolIsLoggedIn) => {
   const [objPostState, setObjPostState] = useState(null);
   const [boolIsLoadingState, setBoolIsLoadingState] = useState(true);
@@ -42,18 +61,7 @@ export const usePostDetail = (postId, strToken, boolIsLoggedIn) => {
       const data = await postAnalyzeComment(numCommentId, strToken);
       setObjPostState((prev) => ({
         ...prev,
-        comments: prev.comments.map((c) =>
-          c.id === numCommentId
-            ? {
-                ...c,
-                strAiAnalysis: data.ai_summary,
-                dictAiMetrics: {
-                  sentiment: data.sentiment,
-                  relevance_score: data.relevance_score,
-                },
-              }
-            : c
-        ),
+        comments: applyCommentAnalysis(prev.comments, numCommentId, data),
       }));
     } catch (objErr) {
       console.error('Failed to analyze comment', objErr);
@@ -82,11 +90,25 @@ export const usePostDetail = (postId, strToken, boolIsLoggedIn) => {
         verifiable: data.verifiable,
         logical_soundness: data.logical_soundness,
         ai_summary: data.ai_summary,
+        ai_context_guardrail: data.ai_context_guardrail,
+        analysis_detail: data.analysis_detail,
         dictAiMetrics: {
           verifiable: data.verifiable,
           logical_soundness: data.logical_soundness,
         },
       }));
+
+      // "Analyze Post & Discussion" also audits every comment in the thread.
+      // Note: we intentionally do NOT refetch the post afterward — the comments
+      // endpoint doesn't return per-comment analysis, so a reload would wipe the
+      // in-place results below. AI-recommended sources are added as pending on
+      // the backend and surface fresh when the user opens "+ In Review".
+      const arrCommentIds = collectCommentIds(objPostState?.comments);
+      // Run sequentially to keep per-comment loading indicators meaningful and
+      // avoid hammering the backend with a burst of requests.
+      for (const numCommentId of arrCommentIds) {
+        await analyzeComment(numCommentId);
+      }
     } catch (objErr) {
       console.error('Failed to analyze post', objErr);
     } finally {

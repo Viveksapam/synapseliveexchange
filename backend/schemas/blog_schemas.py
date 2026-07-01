@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Optional, List, Any
 from datetime import date, datetime
 
 class BlogCommentBase(BaseModel):
@@ -101,6 +101,8 @@ class BlogResponse(BaseModel):
     verifiable: Optional[str] = 'yes'
     logical_soundness: Optional[float] = 0.99
     ai_summary: Optional[str] = None
+    ai_context_guardrail: Optional[str] = None
+    analysis_detail: Optional[Any] = None
     boolIsFeatured: Optional[bool] = False
     contexts: List[BlogContextResponse] = []
     sources: List[BlogSourceResponse] = []

@@ -228,12 +228,14 @@ export const postAnalyzePost = async (numPostId, strToken) => {
     verifiable: 'yes',
     logical_soundness: 0,
     ai_summary: 'Analysis unavailable',
+    ai_context_guardrail: '',
+    analysis_detail: null,
   };
 };
 
 export const postAnalyzeComment = async (numCommentId, strToken) => {
   try {
-    const objResponse = await fetch(`${API_BASE}/comments/${numCommentId}/analyze/`, {
+    const objResponse = await fetch(`${API_BASE}/verisphere/comments/${numCommentId}/analyze/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...(strToken && { Authorization: `Bearer ${strToken}` }) },
     });

@@ -46,21 +46,7 @@ def analyze_audit_collection(collected_data: dict) -> dict:
     genai.configure(api_key=settings.GEMINI_API_KEY)
     model = genai.GenerativeModel(_MODEL_NAME)
 
-    prompt = (
-        "You are auditing a discussion post on a fact-checking platform, "
-        "including any community-submitted sources for it. Respond with "
-        "ONLY a JSON object of this exact shape, no other text:\n"
-        "{\n"
-        '  "logical_soundness": <float 0-1, how well-reasoned the post/comments are>,\n'
-        '  "verifiable": "yes" | "no" | "partial",\n'
-        '  "summary": "<one paragraph explaining the assessment>",\n'
-        '  "approved_source_ids": [<ids of sources that look like real, '
-        "on-topic, working links worth showing publicly>],\n"
-        '  "rejected_source_ids": [<ids of sources that look broken, spammy, '
-        "or unrelated to the post>]\n"
-        "}\n\n"
-        f"DATA:\n{json.dumps(collected_data)}"
-    )
+    prompt = _POST_AUDIT_PROMPT + f"\n\nDATA:\n{json.dumps(collected_data)}"
 
     try:
         response = model.generate_content(
@@ -71,6 +57,102 @@ def analyze_audit_collection(collected_data: dict) -> dict:
         raise LlmAuditError(f"Gemini API call failed: {e}") from e
 
     try:
-        return json.loads(response.text)
+        raw = json.loads(response.text)
     except (ValueError, AttributeError) as e:
         raise LlmAuditError(f"Gemini returned a non-JSON response: {e}") from e
+
+    return _flatten_audit_response(raw)
+
+
+# System prompt for the post/discussion audit. The model returns a rich,
+# decomposed object; _flatten_audit_response collapses it into the flat shape
+# the rest of the app (crud + router) already consumes.
+_POST_AUDIT_PROMPT = (
+    "You are a fact-checking and epistemics analyst auditing a discussion post "
+    "(and any community-submitted sources) on a platform used by academic "
+    "researchers. Your readers are educated and will reject unjustified "
+    "confidence. Rigor and calibration matter more than a verdict.\n\n"
+    "METHOD - work through these before scoring:\n"
+    "1. Restate the post's central claim in one sentence. Classify it: "
+    "empirical (falsifiable) | normative | definitional | speculative.\n"
+    "2. Steelman it: state the strongest charitable version before any critique.\n"
+    "3. Map the argument: premises, the inference, and hidden assumptions. For "
+    "each premise assign an evidence tier: systematic-review > RCT > "
+    "observational > expert-assertion > anecdote > bare-claim.\n"
+    "4. Identify logical fallacies or cognitive biases. For each, QUOTE the "
+    "exact span of text that triggers it. Do not report a fallacy you cannot quote.\n"
+    "5. Evaluate each provided source for authority, provenance, recency, and "
+    "RELEVANCE TO THE SPECIFIC CLAIM (a source on the general topic that does "
+    "not bear on the exact claim is not support).\n"
+    "6. State the verification pathway: the specific evidence, dataset, or "
+    "experiment that would confirm or falsify the claim.\n"
+    "7. Cross-reference against your own knowledge for authoritative context.\n\n"
+    "SCORING - score each 0-100 with a one-line rationale, then set "
+    "logical_soundness (0-1) as a justified aggregate (bands: 0-20 very low, "
+    "21-40 low, 41-60 mixed, 61-80 solid, 81-100 strong):\n"
+    "clarity_falsifiability | premise_support | inferential_validity | "
+    "source_reliability | fallacy_bias_freedom\n\n"
+    "GUARDRAILS (hard rules):\n"
+    "- NEVER fabricate a citation, DOI, or URL. Recommended sources are a "
+    "VERIFIABLE SEARCH STRATEGY (publisher + precise query, or a root domain "
+    "you are confident exists), labeled as suggestions to verify - not evidence.\n"
+    "- No false precision: every number must be tied to a rubric band + rationale.\n"
+    "- The summary must be entailed by the sub-scores; do not contradict them.\n"
+    "- Popularity, reactions, and author identity are NOT evidence. Ignore them.\n"
+    "- Judge the argument, not the person. No moralizing.\n"
+    "- Where your knowledge is uncertain or past your cutoff, say so explicitly.\n\n"
+    "Return ONLY this JSON (no prose, no markdown fences):\n"
+    "{\n"
+    '  "logical_soundness": <float 0-1>,\n'
+    '  "verifiable": "yes" | "no" | "partial",\n'
+    '  "sub_scores": {\n'
+    '    "clarity_falsifiability": {"score": <int>, "rationale": "<one line>"},\n'
+    '    "premise_support":        {"score": <int>, "rationale": "<one line>"},\n'
+    '    "inferential_validity":   {"score": <int>, "rationale": "<one line>"},\n'
+    '    "source_reliability":     {"score": <int>, "rationale": "<one line>"},\n'
+    '    "fallacy_bias_freedom":   {"score": <int>, "rationale": "<one line>"}\n'
+    "  },\n"
+    '  "detected_fallacies": [\n'
+    '    {"name": "<fallacy>", "quote": "<exact trigger text>", "explanation": "<why>"}\n'
+    "  ],\n"
+    '  "steelman": "<strongest charitable version of the claim>",\n'
+    '  "summary": "<3-5 sentence audit: claim type, key weaknesses/strengths, why the score>",\n'
+    '  "context_guardrail": "<the established ground truth on this topic and where '
+    "THIS discussion is at risk of drifting from it - the epistemic frame, "
+    'distinct from the summary>",\n'
+    '  "verification_pathway": "<specific evidence/data/experiment that would confirm or falsify>",\n'
+    '  "source_evaluation": {\n'
+    '    "approved_source_ids": [<real, on-topic, claim-relevant source ids>],\n'
+    '    "rejected_source_ids": [<broken, off-claim, or low-authority ids>]\n'
+    "  },\n"
+    '  "recommended_new_sources": [\n'
+    "    {\n"
+    '      "publisher_or_organization": "<e.g. Nature, Cochrane, Reuters, a gov database>",\n'
+    '      "reason_for_inclusion": "<what specific gap this fills>",\n'
+    '      "suggested_search_query_or_url": "<precise query or confident root URL - to verify, not a fabricated deep link>"\n'
+    "    }\n"
+    "  ]\n"
+    "}"
+)
+
+
+def _flatten_audit_response(raw: dict) -> dict:
+    """Collapse the rich audit object the model returns into the flat shape the
+    crud/router layer consumes, while preserving the decomposed detail under
+    'analysis_detail' and 'ai_context_guardrail' for the UI."""
+    source_eval = raw.get("source_evaluation") or {}
+    return {
+        "logical_soundness": raw.get("logical_soundness", 0.5),
+        "verifiable": raw.get("verifiable", "partial"),
+        "summary": raw.get("summary", ""),
+        "ai_context_guardrail": raw.get("context_guardrail", ""),
+        "analysis_detail": {
+            "sub_scores": raw.get("sub_scores", {}),
+            "detected_fallacies": raw.get("detected_fallacies", []),
+            "steelman": raw.get("steelman", ""),
+            "verification_pathway": raw.get("verification_pathway", ""),
+        },
+        "recommended_new_sources": raw.get("recommended_new_sources", []),
+        "approved_source_ids": source_eval.get("approved_source_ids", []),
+        "rejected_source_ids": source_eval.get("rejected_source_ids", []),
+    }

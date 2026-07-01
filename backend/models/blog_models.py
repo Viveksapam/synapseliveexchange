@@ -55,6 +55,21 @@ class BlogModel(Base):
         return self.ai_analysis.ai_summary if self.ai_analysis else None
 
     @property
+    def ai_context_guardrail(self):
+        return self.ai_analysis.ai_context_guardrail if self.ai_analysis else None
+
+    @property
+    def analysis_detail(self):
+        import json as _json
+        raw = self.ai_analysis.analysis_detail if self.ai_analysis else None
+        if not raw:
+            return None
+        try:
+            return _json.loads(raw)
+        except (ValueError, TypeError):
+            return None
+
+    @property
     def sources_count(self):
         # Total sources across all contexts, regardless of review_status -
         # Community Sources only shows approved ones, but the feed count
@@ -78,6 +93,14 @@ class BlogAIAnalysisModel(Base):
     verifiable = Column(String(50), default='yes')
     logical_soundness = Column(Float, default=0.99)
     ai_summary = Column(Text, nullable=True)
+    # The epistemic frame for the discussion: established ground truth + where
+    # this thread is at risk of drifting from it. Distinct from ai_summary,
+    # which audits the specific post. Powers the "Context Guardrails" panel.
+    ai_context_guardrail = Column(Text, nullable=True)
+    # JSON blob holding the decomposed audit: sub_scores, detected_fallacies,
+    # steelman, verification_pathway. Kept as text so the rubric can evolve
+    # without a migration per field.
+    analysis_detail = Column(Text, nullable=True)
 
     blog = relationship("BlogModel", back_populates="ai_analysis")
 
