@@ -25,8 +25,12 @@ def create_users():
         print(f"Created user {user.username} with ID {user.id}")
     else:
         print(f"User {user.username} already exists with ID {user.id}")
-        
+
     db.close()
+
+    # Also ensure the Synapse AI reviewer account exists.
+    from scripts.create_synapse_ai import create_synapse_ai
+    create_synapse_ai()
 
 if __name__ == "__main__":
     create_users()

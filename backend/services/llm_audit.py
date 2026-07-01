@@ -4,7 +4,12 @@ from core.config import settings
 from services.llm_audit_mock import analyze_audit_collection_mock
 
 _MODEL_NAME = "gemini-2.0-flash"
-APPROVER_DISPLAY_NAME = "Gemini 2.0 Flash" if not settings.USE_MOCK_LLM else "Mock LLM"
+
+# The platform's AI reviewer identity. It has a real user account (see
+# scripts/create_synapse_ai.py) so its approvals are attributable like any
+# other moderator. This display name is what gets stamped on sources it acts on.
+SYNAPSE_AI_USERNAME = "synapse_ai"
+APPROVER_DISPLAY_NAME = "Synapse AI"
 
 
 class LlmAuditError(Exception):

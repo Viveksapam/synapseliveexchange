@@ -6,6 +6,15 @@ The heuristics here are deliberately simple but content-aware: they read the
 post/comment text for evidence markers vs. pseudo-scientific / absolutist
 markers and produce a calibrated, prose assessment rather than raw stats.
 """
+import re
+
+# Common words to ignore when comparing a comment against the post's topic.
+_STOPWORDS = {
+    "this", "that", "with", "from", "have", "into", "your", "their", "about",
+    "which", "would", "there", "these", "those", "actually", "really", "being",
+    "because", "should", "could", "other", "than", "then", "them", "they",
+    "what", "when", "where", "will", "just", "like", "also", "more", "some",
+}
 
 # Words that signal grounded, checkable reasoning.
 _EVIDENCE_MARKERS = [
@@ -92,13 +101,38 @@ def analyze_audit_collection_mock(collected_data: dict) -> dict:
     return _analyze_post_mock(collected_data)
 
 
+def _topic_keywords(blog: dict) -> set:
+    """Significant (non-stopword) terms from the post's title + summary that a
+    genuinely on-topic comment would be expected to touch."""
+    text = f"{blog.get('strTitle', '')} {blog.get('strSummary', '')}".lower()
+    return {w for w in re.findall(r"[a-z]{4,}", text) if w not in _STOPWORDS}
+
+
 def _analyze_comment_mock(collected_data: dict) -> dict:
+    """Relevance here is STRICT: it measures how much the comment materially
+    contributes to VERIFYING OR REFUTING the post's claim - not how agreeable,
+    friendly, or well-written it is. Opinion, praise, and anecdote score low by
+    design; only on-topic, evidence-bearing engagement scores high."""
     comment = collected_data.get("target_comment", {})
-    content = (comment.get("strContent") or "").lower()
+    raw_content = comment.get("strContent") or ""
+    content = raw_content.lower()
     chain_len = len(collected_data.get("comment_chain", []))
+    blog = collected_data.get("blog", {})
+
+    topic_words = _topic_keywords(blog)
+    comment_words = {w for w in re.findall(r"[a-z]{4,}", content) if w not in _STOPWORDS}
+    on_topic = len(topic_words & comment_words)
 
     evidence = _count_markers(content, _EVIDENCE_MARKERS)
     pseudo = _count_markers(content, _PSEUDO_MARKERS)
+    # A comment that cites more evidence than it name-drops pseudo terms is
+    # almost certainly critiquing them, not asserting them - don't penalize it.
+    effective_pseudo = pseudo if evidence < pseudo else 0
+    absolutes = _count_markers(content, _ABSOLUTES)
+    is_pure_agreement = (
+        evidence == 0
+        and any(w in content for w in ["great", "love", "fantastic", "me too", "thanks", "awesome", "+1", "so true", "this!"])
+    )
 
     if any(w in content for w in ["disagree", "wrong", "incorrect", "however", "but ", "actually"]):
         sentiment = "critical" if evidence == 0 else "constructive"
@@ -107,27 +141,60 @@ def _analyze_comment_mock(collected_data: dict) -> dict:
     else:
         sentiment = "neutral"
 
-    relevance = 0.45 + min(0.25, evidence * 0.1) + (0.1 if chain_len > 1 else 0) - min(0.2, pseudo * 0.1)
-    relevance = round(max(0.1, min(0.95, relevance)), 2)
+    # Strict, additive scoring from a low floor.
+    relevance = 0.10
+    if on_topic >= 1:
+        relevance += 0.12
+    if on_topic >= 3:
+        relevance += 0.06
+    relevance += min(0.30, evidence * 0.15)
+    if len(content) > 120:
+        relevance += 0.08
+    if chain_len > 2:
+        relevance += 0.05
+    relevance -= 0.20 * effective_pseudo
+    relevance -= 0.05 * absolutes
+    if len(content) < 40:
+        relevance -= 0.10
 
-    if evidence and not pseudo:
+    # Hard caps that keep the metric honest about verification value.
+    if evidence == 0:
+        relevance = min(relevance, 0.45)   # no evidence => cannot be highly relevant
+    if on_topic == 0:
+        relevance = min(relevance, 0.30)   # doesn't engage the claim at all
+    if is_pure_agreement:
+        relevance = min(relevance, 0.20)   # praise is not verification
+
+    relevance = round(max(0.05, min(0.90, relevance)), 2)
+
+    if evidence and on_topic and not effective_pseudo:
         summary = (
-            f"This {sentiment} comment grounds its point in checkable specifics "
-            f"({evidence} evidence marker(s)), which raises its evidentiary weight "
-            "above bare opinion. It engages the thread's substance rather than the "
-            "author, and its claim could be verified against the cited material."
+            f"This {sentiment} comment engages the specific claim ({on_topic} shared "
+            f"term(s) with the post) and cites checkable specifics ({evidence} evidence "
+            f"marker(s)), so it materially bears on verification - relevance {int(relevance * 100)}%."
         )
-    elif pseudo:
+    elif effective_pseudo:
         summary = (
-            f"This {sentiment} comment leans on assertion and absolutist phrasing "
-            "rather than evidence. Treat its conclusion as unverified: it restates "
-            "confidence without offering a way to check the claim."
+            f"This {sentiment} comment leans on assertion or absolutist phrasing rather "
+            f"than evidence, so it does little to verify the claim. Relevance is held low "
+            f"({int(relevance * 100)}%) despite its confident tone."
+        )
+    elif is_pure_agreement:
+        summary = (
+            f"This is agreement/praise, not verification. It offers no evidence and does "
+            f"not test the claim, so relevance is capped low ({int(relevance * 100)}%) "
+            "regardless of sentiment."
+        )
+    elif on_topic == 0:
+        summary = (
+            f"This {sentiment} comment does not engage the post's actual claim (no shared "
+            f"terminology), so its relevance to verification is minimal ({int(relevance * 100)}%)."
         )
     else:
         summary = (
-            f"A {sentiment} comment that stays on-topic but is largely anecdotal. "
-            "It neither cites evidence nor commits an obvious fallacy, so it adds "
-            "context without materially strengthening or weakening the post's case."
+            f"A {sentiment}, on-topic but anecdotal comment: it references the subject but "
+            f"cites no evidence, so it adds context without strengthening or weakening the "
+            f"claim. Relevance {int(relevance * 100)}%."
         )
 
     return {

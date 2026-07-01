@@ -239,8 +239,8 @@ def sync_audit_to_blog_analysis(db: Session, blog_id: int, llm_response: dict):
 
 
 def add_recommended_sources(db: Session, blog_id: int, recommended_new_sources: list, approver_name: str = None):
-    """Persist AI-recommended sources as PENDING (review_status='pending') so a
-    human can vet them under '+ In Review' before they reach Community Sources.
+    """Persist AI-recommended sources and AUTO-APPROVE them (approved_by='ai'),
+    so they appear directly in Community Sources attributed to Synapse AI.
     De-duplicates against existing sources by title. Returns the created rows."""
     if not recommended_new_sources:
         return []
@@ -261,8 +261,9 @@ def add_recommended_sources(db: Session, blog_id: int, recommended_new_sources: 
             continue
         source = create_source_for_blog(
             db, blog_id, title=title, url=url, description=description,
-            author=approver_name or "AI suggestion",
+            author=approver_name or "Synapse AI",
         )
+        approve_blog_source(db, source.id, approved_by="ai", approver_name=approver_name or "Synapse AI")
         existing_titles.add(title.lower())
         created.append(source)
     return created

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   fetchPostDetail, postCreateSource, postCreateComment, postAnalyzeComment, deleteComment, postAnalyzePost,
+  fetchApprovedSources,
 } from '../api/verisphereApi';
 
 // Recursively gather every comment id in the thread (top-level + nested replies).
@@ -99,16 +100,20 @@ export const usePostDetail = (postId, strToken, boolIsLoggedIn) => {
       }));
 
       // "Analyze Post & Discussion" also audits every comment in the thread.
-      // Note: we intentionally do NOT refetch the post afterward — the comments
-      // endpoint doesn't return per-comment analysis, so a reload would wipe the
-      // in-place results below. AI-recommended sources are added as pending on
-      // the backend and surface fresh when the user opens "+ In Review".
+      // Note: we deliberately avoid a full post refetch — the comments endpoint
+      // doesn't return per-comment analysis, so a reload would wipe the in-place
+      // results below. We refresh only the sources list instead (below).
       const arrCommentIds = collectCommentIds(objPostState?.comments);
       // Run sequentially to keep per-comment loading indicators meaningful and
       // avoid hammering the backend with a burst of requests.
       for (const numCommentId of arrCommentIds) {
         await analyzeComment(numCommentId);
       }
+
+      // Synapse AI auto-approves its recommended sources, so refresh just the
+      // approved Community Sources list without disturbing the comment analyses.
+      const arrSources = await fetchApprovedSources(postId);
+      setObjPostState((prev) => (prev ? { ...prev, sources: arrSources } : prev));
     } catch (objErr) {
       console.error('Failed to analyze post', objErr);
     } finally {

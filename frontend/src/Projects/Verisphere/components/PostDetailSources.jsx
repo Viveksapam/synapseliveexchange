@@ -12,6 +12,7 @@ const PostDetailSources = ({ postId, post, sourceForm, onSourceSubmit, onToggleA
   } = sourceForm;
 
   const [boolShowReviewState, setBoolShowReviewState] = useState(false);
+  const [boolIsCollapsedState, setBoolIsCollapsedState] = useState(false);
 
   const arrSources = post.sources || [];
 
@@ -20,15 +21,31 @@ const PostDetailSources = ({ postId, post, sourceForm, onSourceSubmit, onToggleA
       marginTop: '1.5rem', marginBottom: '1.5rem', padding: '1rem 0',
       borderTop: '1px solid var(--glass-border)', borderBottom: '1px solid var(--glass-border)',
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h4 style={{ margin: 0, color: 'var(--v2-text-main)' }}>
-          Community Sources
-        </h4>
-        <button onClick={onToggleAdd} className="verisphere-btn-outline" style={{ padding: '4px 12px', fontSize: '0.8rem' }}>
-          {boolIsAddingSourceState ? 'Cancel' : '+ Suggest Source'}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: boolIsCollapsedState ? 0 : '1rem', gap: '0.8rem' }}>
+        <button
+          type="button"
+          onClick={() => setBoolIsCollapsedState(!boolIsCollapsedState)}
+          aria-expanded={!boolIsCollapsedState}
+          style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, textAlign: 'left' }}
+        >
+          <span style={{ fontSize: '0.9rem', color: 'var(--v2-text-muted)', width: '0.9rem', display: 'inline-block' }}>
+            {boolIsCollapsedState ? '▶' : '▼'}
+          </span>
+          <h4 style={{ margin: 0, color: 'var(--v2-text-main)' }}>
+            Community Sources
+          </h4>
+          {arrSources.length > 0 && (
+            <span style={{ fontSize: '0.8rem', color: 'var(--v2-text-muted)' }}>({arrSources.length})</span>
+          )}
         </button>
+        {!boolIsCollapsedState && (
+          <button onClick={onToggleAdd} className="verisphere-btn-outline" style={{ padding: '4px 12px', fontSize: '0.8rem' }}>
+            {boolIsAddingSourceState ? 'Cancel' : '+ Suggest Source'}
+          </button>
+        )}
       </div>
 
+      {!boolIsCollapsedState && (<>
       {boolIsAddingSourceState && (
         <form onSubmit={onSourceSubmit} style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: 'var(--glass-bg)', borderRadius: '6px' }}>
           <input
@@ -102,6 +119,7 @@ const PostDetailSources = ({ postId, post, sourceForm, onSourceSubmit, onToggleA
           <SourceReviewTable postId={postId} boolIsAdmin={boolIsAdmin} strToken={strToken} onApproved={onSourceApproved} />
         </div>
       )}
+      </>)}
     </div>
   );
 };

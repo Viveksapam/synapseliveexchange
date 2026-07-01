@@ -137,6 +137,16 @@ export const postCreateSource = async (numPostId, objSourceData) => {
   return objResponse.json();
 };
 
+export const fetchApprovedSources = async (numPostId) => {
+  const numBlogId = blogIdFromString(numPostId);
+  try {
+    const objResponse = await fetch(`${API_BASE}/verisphere/blogs/${numBlogId}/sources/?status=approved`, { headers: noCacheHeaders });
+    return objResponse.ok ? await objResponse.json() : [];
+  } catch {
+    return [];
+  }
+};
+
 export const fetchPendingSources = async (numPostId) => {
   const numBlogId = blogIdFromString(numPostId);
   try {
