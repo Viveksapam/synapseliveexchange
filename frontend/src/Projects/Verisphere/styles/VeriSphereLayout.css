@@ -22,9 +22,9 @@
 
 .verisphere-post-card {
   display: flex;
+  position: relative;
   background: var(--glass-bg, rgba(15, 15, 20, 0.4));
   border: none;
-  border-bottom: 10px solid var(--v2-text-main, #ffffff);
   border-radius: 0;
   padding: 20px 4px;
   gap: 1rem;
@@ -33,8 +33,14 @@
   color: var(--v2-text-main, #ffffff);
 }
 
-.verisphere-post-card:last-child {
-  border-bottom: none;
+.verisphere-post-card:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 10px;
+  background: #d1d5db;
 }
 
 .verisphere-post-card:hover {
@@ -187,6 +193,14 @@
   .verisphere-post-card {
     padding: 16px 6px;
     gap: 0.875rem;
+  }
+
+  /* Divider bar breaks out of the grid/card padding to touch the screen edges */
+  .verisphere-post-card:not(:last-child)::after {
+    left: 50%;
+    right: auto;
+    width: 100vw;
+    margin-left: -50vw;
   }
 
   .verisphere-post-title  { font-size: 1.15rem; }
