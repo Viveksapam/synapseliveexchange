@@ -187,6 +187,23 @@ def migrate():
             conn.rollback()
             print(f"✗ Error adding approved_by: {e}")
 
+        try:
+            # 9. Add approver_name to blog_blogsourcemodel (username or AI model name)
+            print("Adding approver_name to blog_blogsourcemodel...")
+            result = conn.execute(text("SELECT column_name FROM information_schema.columns WHERE table_name='blog_blogsourcemodel' AND column_name='approver_name'"))
+            if result.fetchone():
+                print("✓ approver_name already exists")
+            else:
+                conn.execute(text("""
+                    ALTER TABLE blog_blogsourcemodel
+                    ADD COLUMN approver_name VARCHAR(100)
+                """))
+                print("✓ Added approver_name")
+            conn.commit()
+        except Exception as e:
+            conn.rollback()
+            print(f"✗ Error adding approver_name: {e}")
+
         print("\n✅ Migration finished (see ✗ lines above for any steps that failed).")
 
 if __name__ == "__main__":

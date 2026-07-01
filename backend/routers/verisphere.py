@@ -149,7 +149,7 @@ def update_source(source_id: int, source: BlogSourceCreate, db: Session = Depend
 
 @router.post("/sources/{source_id}/approve/", response_model=BlogSourceResponse)
 def approve_source(source_id: int, db: Session = Depends(get_db), current_user: UserModel = Depends(get_current_admin_user)):
-    updated = crud_blog.approve_blog_source(db, source_id)
+    updated = crud_blog.approve_blog_source(db, source_id, approved_by="admin", approver_name=current_user.username)
     if not updated:
         raise HTTPException(status_code=404, detail="Source not found")
     return updated
@@ -215,7 +215,7 @@ def run_blog_audit(blog_id: int, db: Session = Depends(get_db), current_user: Us
     collection = crud_blog.update_audit_collection_response(db, collection.id, llm_result)
 
     for source_id in llm_result.get("approved_source_ids", []):
-        crud_blog.approve_blog_source(db, source_id, approved_by="ai")
+        crud_blog.approve_blog_source(db, source_id, approved_by="ai", approver_name=llm_audit.APPROVER_DISPLAY_NAME)
 
     return collection
 
@@ -244,7 +244,7 @@ def set_llm_response(collection_id: int, llm_response: dict, db: Session = Depen
     if not collection:
         raise HTTPException(status_code=404, detail="Collection not found")
     for source_id in llm_response.get("approved_source_ids", []):
-        crud_blog.approve_blog_source(db, source_id, approved_by="ai")
+        crud_blog.approve_blog_source(db, source_id, approved_by="ai", approver_name=llm_audit.APPROVER_DISPLAY_NAME)
     return {"message": "LLM response stored", "status": collection.status}
 
 @router.get("/blogs/{blog_id}/comments/{comment_id}/replies/", response_model=List[BlogCommentResponse])

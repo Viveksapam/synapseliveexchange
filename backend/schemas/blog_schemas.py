@@ -52,7 +52,8 @@ class BlogSourceResponse(BlogSourceBase):
     id: int
     context_id: int
     review_status: str = "pending"
-    approved_by: Optional[str] = None  # 'moderator' or 'ai', once review_status == 'approved'
+    approved_by: Optional[str] = None  # 'admin', 'moderator', or 'ai'
+    approver_name: Optional[str] = None  # username or AI model name
     dtCreatedAt: datetime
 
     class Config:

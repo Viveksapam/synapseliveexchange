@@ -3,6 +3,7 @@ import google.generativeai as genai
 from core.config import settings
 
 _MODEL_NAME = "gemini-2.0-flash"
+APPROVER_DISPLAY_NAME = "Gemini 2.0 Flash"
 
 
 class LlmAuditError(Exception):
