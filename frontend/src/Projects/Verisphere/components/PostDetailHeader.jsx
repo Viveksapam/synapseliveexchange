@@ -22,6 +22,8 @@ const PostDetailHeader = ({ post, reactions }) => {
 
   const objMetrics = post.dictAiMetrics;
   const boolIsAnalyzed = objMetrics && objMetrics.logical_soundness !== undefined;
+  // logical_soundness is stored 0-1; display and color use a 0-100 scale.
+  const numSoundness = boolIsAnalyzed ? Math.round(objMetrics.logical_soundness * 100) : null;
 
   const MAX_CHARS = numWindowWidth >= 768 ? 280 : 160;
   const boolNeedsCollapse = post.strContent && post.strContent.length > MAX_CHARS;
@@ -36,8 +38,8 @@ const PostDetailHeader = ({ post, reactions }) => {
         }}>
           <div style={{ flex: 1, minWidth: '120px' }}>
             <span style={{ fontSize: '0.75rem', color: 'var(--v2-text-muted)', display: 'block' }}>Soundness</span>
-            <span style={{ fontSize: '1.2rem', fontWeight: 'bold', color: getScoreColor(objMetrics.logical_soundness) }}>
-              {objMetrics.logical_soundness}/100
+            <span style={{ fontSize: '1.2rem', fontWeight: 'bold', color: getScoreColor(numSoundness) }}>
+              {numSoundness}/100
             </span>
           </div>
           <div style={{ flex: 1, minWidth: '120px' }}>
