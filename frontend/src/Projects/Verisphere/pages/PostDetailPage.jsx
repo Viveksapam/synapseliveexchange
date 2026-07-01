@@ -84,6 +84,7 @@ const PostDetailPage = ({ authHook }) => {
         post={post.objPostState}
         onAnalyze={() => post.analyzePost()}
         boolIsAnalyzing={post.boolIsAnalyzingPostState}
+        boolIsAdmin={boolIsAdmin}
       />
 
       <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--glass-border)' }}>

@@ -39,7 +39,7 @@ SubScoreBar.propTypes = {
   rationale: PropTypes.string,
 };
 
-const PostDetailContext = ({ strAiContextGuardrail, post, onAnalyze, boolIsAnalyzing }) => {
+const PostDetailContext = ({ strAiContextGuardrail, post, onAnalyze, boolIsAnalyzing, boolIsAdmin }) => {
   const [boolIsMobileState, setBoolIsMobileState] = useState(window.innerWidth < 768);
   const [boolIsPostAnalysisExpandedState, setBoolIsPostAnalysisExpandedState] = useState(false);
 
@@ -160,20 +160,22 @@ const PostDetailContext = ({ strAiContextGuardrail, post, onAnalyze, boolIsAnaly
           </h4>
           <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
             <button className="verisphere-btn-outline" style={{ fontSize: '0.85rem', padding: '6px 10px' }}>Set Context</button>
-            <button
-              onClick={onAnalyze}
-              disabled={boolIsAnalyzing}
-              className="verisphere-btn-primary"
-              style={{
-                fontSize: '0.85rem', padding: '6px 10px', background: 'rgba(79, 163, 255, 0.1)',
-                color: boolIsAnalyzing ? 'var(--v2-text-muted)' : 'var(--v2-accent-secondary)',
-                border: `1.5px solid ${boolIsAnalyzing ? 'var(--glass-border)' : 'var(--v2-accent-secondary)'}`,
-                borderRadius: '6px', cursor: boolIsAnalyzing ? 'not-allowed' : 'pointer',
-                opacity: boolIsAnalyzing ? 0.6 : 1,
-              }}
-            >
-              {boolIsAnalyzing ? '⊙ Analyzing...' : 'Analyze Post & Discussion'}
-            </button>
+            {boolIsAdmin && (
+              <button
+                onClick={onAnalyze}
+                disabled={boolIsAnalyzing}
+                className="verisphere-btn-primary"
+                style={{
+                  fontSize: '0.85rem', padding: '6px 10px', background: 'rgba(79, 163, 255, 0.1)',
+                  color: boolIsAnalyzing ? 'var(--v2-text-muted)' : 'var(--v2-accent-secondary)',
+                  border: `1.5px solid ${boolIsAnalyzing ? 'var(--glass-border)' : 'var(--v2-accent-secondary)'}`,
+                  borderRadius: '6px', cursor: boolIsAnalyzing ? 'not-allowed' : 'pointer',
+                  opacity: boolIsAnalyzing ? 0.6 : 1,
+                }}
+              >
+                {boolIsAnalyzing ? '⊙ Analyzing...' : 'Analyze Post & Discussion'}
+              </button>
+            )}
           </div>
         </div>
         <p style={{ color: 'var(--v2-text-main)', lineHeight: '1.6', margin: 0, fontSize: '0.95rem' }}>
@@ -189,6 +191,7 @@ PostDetailContext.propTypes = {
   post: PropTypes.object,
   onAnalyze: PropTypes.func,
   boolIsAnalyzing: PropTypes.bool,
+  boolIsAdmin: PropTypes.bool,
 };
 
 export default PostDetailContext;

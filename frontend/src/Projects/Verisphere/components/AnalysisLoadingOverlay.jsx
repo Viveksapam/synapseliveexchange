@@ -9,22 +9,26 @@ const AnalysisLoadingOverlay = ({ boolIsVisible, strPhase, numProgress }) => {
     { id: 'comments', label: 'Analyzing comments...' },
     { id: 'sources', label: 'Adding recommended sources...' },
     { id: 'reload', label: 'Refreshing data...' },
+    { id: 'done', label: 'Analysis complete.' },
   ];
 
-  const currentPhaseIndex = phases.findIndex((p) => p.id === strPhase);
-  const progressPercent = Math.min(100, ((currentPhaseIndex + (numProgress || 0)) / phases.length) * 100);
+  const currentPhaseIndex = Math.max(0, phases.findIndex((p) => p.id === strPhase));
+  const boolIsDone = strPhase === 'done';
+  const progressPercent = boolIsDone
+    ? 100
+    : Math.min(96, ((currentPhaseIndex + (numProgress || 0)) / (phases.length - 1)) * 100);
 
   return (
     <div
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(0, 0, 0, 0.6)',
+        background: 'rgba(15, 20, 30, 0.35)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 9999,
-        backdropFilter: 'blur(4px)',
+        backdropFilter: 'blur(6px)',
       }}
     >
       <div
@@ -44,16 +48,18 @@ const AnalysisLoadingOverlay = ({ boolIsVisible, strPhase, numProgress }) => {
               width: '48px',
               height: '48px',
               margin: '0 auto 1rem',
-              background: 'var(--glass-border)',
+              background: boolIsDone ? 'rgba(46, 160, 67, 0.15)' : 'var(--glass-border)',
               borderRadius: '50%',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '1.5rem',
-              animation: 'spin 1s linear infinite',
+              color: boolIsDone ? '#2ea043' : 'inherit',
+              animation: boolIsDone ? 'none' : 'spin 1s linear infinite',
+              transition: 'background 0.3s ease',
             }}
           >
-            ⊙
+            {boolIsDone ? '✓' : '⊙'}
           </div>
           <h3 style={{ margin: '0 0 0.5rem', color: 'var(--v2-text-main)', fontSize: '1.1rem' }}>
             Analyzing Post & Discussion
@@ -75,9 +81,9 @@ const AnalysisLoadingOverlay = ({ boolIsVisible, strPhase, numProgress }) => {
             <div
               style={{
                 height: '100%',
-                background: 'var(--v2-accent-secondary)',
+                background: boolIsDone ? '#2ea043' : 'var(--v2-accent-secondary)',
                 width: `${progressPercent}%`,
-                transition: 'width 0.3s ease',
+                transition: 'width 0.5s ease, background 0.3s ease',
               }}
             />
           </div>
@@ -122,7 +128,7 @@ const AnalysisLoadingOverlay = ({ boolIsVisible, strPhase, numProgress }) => {
 
 AnalysisLoadingOverlay.propTypes = {
   boolIsVisible: PropTypes.bool.isRequired,
-  strPhase: PropTypes.oneOf(['post', 'comments', 'sources', 'reload']),
+  strPhase: PropTypes.oneOf(['post', 'comments', 'sources', 'reload', 'done']),
   numProgress: PropTypes.number,
 };
 

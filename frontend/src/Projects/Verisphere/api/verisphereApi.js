@@ -225,36 +225,35 @@ export const postAnalyzeContext = async () => ({ summary: 'Mock AI analysis of t
 
 export const postAnalyzePost = async (numPostId, strToken) => {
   const numBlogId = blogIdFromString(numPostId);
-  try {
-    const objResponse = await fetch(`${API_BASE}/verisphere/blogs/${numBlogId}/analysis/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...(strToken && { Authorization: `Bearer ${strToken}` }) },
-    });
-    if (objResponse.ok) return await objResponse.json();
-  } catch (objErr) {
-    console.error('Failed to analyze post:', objErr);
+  const objResponse = await fetch(`${API_BASE}/verisphere/blogs/${numBlogId}/analysis/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...(strToken && { Authorization: `Bearer ${strToken}` }) },
+  });
+  if (!objResponse.ok) {
+    const strDetail = await objResponse.text().catch(() => '');
+    throw new Error(
+      objResponse.status === 403
+        ? 'You need admin access to run an analysis.'
+        : `Failed to analyze post (${objResponse.status}): ${strDetail}`
+    );
   }
-  return {
-    verifiable: 'yes',
-    logical_soundness: 0,
-    ai_summary: 'Analysis unavailable',
-    ai_context_guardrail: '',
-    analysis_detail: null,
-    analyzed_at: null,
-  };
+  return objResponse.json();
 };
 
 export const postAnalyzeComment = async (numCommentId, strToken) => {
-  try {
-    const objResponse = await fetch(`${API_BASE}/verisphere/comments/${numCommentId}/analyze/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...(strToken && { Authorization: `Bearer ${strToken}` }) },
-    });
-    if (objResponse.ok) return await objResponse.json();
-  } catch (objErr) {
-    console.error('Failed to analyze comment:', objErr);
+  const objResponse = await fetch(`${API_BASE}/verisphere/comments/${numCommentId}/analyze/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...(strToken && { Authorization: `Bearer ${strToken}` }) },
+  });
+  if (!objResponse.ok) {
+    const strDetail = await objResponse.text().catch(() => '');
+    throw new Error(
+      objResponse.status === 403
+        ? 'You need admin access to run an analysis.'
+        : `Failed to analyze comment (${objResponse.status}): ${strDetail}`
+    );
   }
-  return { sentiment: null, relevance_score: 0.5, ai_summary: 'Analysis unavailable' };
+  return objResponse.json();
 };
 
 export const deleteComment = async (numPostId, numCommentId) => {
