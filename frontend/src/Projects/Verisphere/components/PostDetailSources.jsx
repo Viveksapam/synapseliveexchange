@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import SourceReviewTable from './SourceReviewTable';
 
-const PostDetailSources = ({ post, sourceForm, onSourceSubmit, onToggleAdd }) => {
+const PostDetailSources = ({ postId, post, sourceForm, onSourceSubmit, onToggleAdd, boolIsAdmin, strToken, onSourceApproved }) => {
   const {
-    boolIsAddingSourceState, strNewSourceUrlState, setStrNewSourceUrlState,
+    boolIsAddingSourceState, strNewSourceTitleState, setStrNewSourceTitleState,
+    strNewSourceUrlState, setStrNewSourceUrlState,
     strNewSourceDescState, setStrNewSourceDescState, boolIsSubmittingSourceState,
   } = sourceForm;
+
+  const [boolShowReviewState, setBoolShowReviewState] = useState(false);
 
   const arrSources = post.sources || [];
 
@@ -26,6 +30,15 @@ const PostDetailSources = ({ post, sourceForm, onSourceSubmit, onToggleAdd }) =>
       {boolIsAddingSourceState && (
         <form onSubmit={onSourceSubmit} style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: 'var(--glass-bg)', borderRadius: '6px' }}>
           <input
+            type="text"
+            placeholder="Article name"
+            value={strNewSourceTitleState}
+            onChange={(e) => setStrNewSourceTitleState(e.target.value)}
+            required
+            className="verisphere-textarea"
+            style={{ height: 'auto', padding: '8px', fontSize: '0.85rem', marginBottom: '0.5rem' }}
+          />
+          <input
             type="url"
             placeholder="https://..."
             value={strNewSourceUrlState}
@@ -44,35 +57,52 @@ const PostDetailSources = ({ post, sourceForm, onSourceSubmit, onToggleAdd }) =>
           <button type="submit" disabled={boolIsSubmittingSourceState} className="verisphere-btn-outline" style={{ padding: '6px 16px', fontSize: '0.85rem', background: 'rgba(128, 128, 128, 0.15)', color: 'var(--v2-text-main)', borderColor: 'var(--glass-border)' }}>
             {boolIsSubmittingSourceState ? 'Submitting...' : 'Submit Source'}
           </button>
+          <p style={{ fontSize: '0.75rem', color: 'var(--v2-text-muted)', margin: '0.5rem 0 0' }}>
+            Submitted sources are reviewed before appearing in the list below.
+          </p>
         </form>
       )}
 
       {arrSources.length > 0 ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+        <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
           {arrSources.map((objSource) => (
-            <div key={objSource.id} style={{ padding: '0.8rem', backgroundColor: 'var(--glass-bg)', borderRadius: '6px', borderLeft: '3px solid #58a6ff' }}>
-              <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem' }}>{objSource.strDescription}</p>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: 'var(--v2-text-muted)' }}>
-                <a href={objSource.strUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#58a6ff', textDecoration: 'none', wordBreak: 'break-all' }}>
-                  🔗 {objSource.strUrl.length > 50 ? objSource.strUrl.substring(0, 50) + '...' : objSource.strUrl}
-                </a>
-                <span>Added by {objSource.strAuthorUsername || 'user_' + objSource.objAuthor}</span>
-              </div>
-            </div>
+            <li key={objSource.id}>
+              <a href={objSource.strUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.9rem', color: 'var(--v2-text-main)', textDecoration: 'none' }}>
+                {objSource.strTitle}
+              </a>
+            </li>
           ))}
-        </div>
+        </ul>
       ) : (
         <p style={{ fontSize: '0.85rem', color: 'var(--v2-text-muted)', fontStyle: 'italic', margin: 0 }}>No community sources submitted yet.</p>
+      )}
+
+      <button
+        onClick={() => setBoolShowReviewState(!boolShowReviewState)}
+        className="verisphere-btn-outline"
+        style={{ padding: '4px 10px', fontSize: '0.75rem', marginTop: '0.75rem', border: 'none', background: 'transparent', color: 'var(--v2-text-muted)' }}
+      >
+        {boolShowReviewState ? '- Hide In Review' : '+ In Review'}
+      </button>
+
+      {boolShowReviewState && (
+        <div style={{ marginTop: '0.75rem' }}>
+          <SourceReviewTable postId={postId} boolIsAdmin={boolIsAdmin} strToken={strToken} onApproved={onSourceApproved} />
+        </div>
       )}
     </div>
   );
 };
 
 PostDetailSources.propTypes = {
+  postId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   post: PropTypes.object.isRequired,
   sourceForm: PropTypes.object.isRequired,
   onSourceSubmit: PropTypes.func.isRequired,
   onToggleAdd: PropTypes.func.isRequired,
+  boolIsAdmin: PropTypes.bool,
+  strToken: PropTypes.string,
+  onSourceApproved: PropTypes.func,
 };
 
 export default PostDetailSources;

@@ -122,7 +122,9 @@ class BlogSourceModel(Base):
     context_id = Column(Integer, ForeignKey("blog_blogcontextmodel.id", ondelete="CASCADE"), index=True)
     strTitle = Column(String(255))
     strUrl = Column(String(500))
+    strDescription = Column(Text, nullable=True)
     strAuthor = Column(String(255), nullable=True)
+    review_status = Column(String(20), default='pending', nullable=False)
     dtCreatedAt = Column(DateTime, default=datetime.datetime.utcnow)
 
     context = relationship("BlogContextModel", back_populates="sources")

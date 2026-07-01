@@ -360,9 +360,35 @@ def get_context_sources(db: Session, context_id: int):
     from models.blog_models import BlogSourceModel
     return db.query(BlogSourceModel).filter(BlogSourceModel.context_id == context_id).all()
 
-def create_source_in_context(db: Session, context_id: int, title: str, url: str, author: str = None):
+def get_or_create_default_context(db: Session, blog_id: int):
+    from models.blog_models import BlogContextModel
+    context = db.query(BlogContextModel).filter(BlogContextModel.blog_id == blog_id).first()
+    if context:
+        return context
+    context = BlogContextModel(blog_id=blog_id, strTitle="General")
+    db.add(context)
+    db.commit()
+    db.refresh(context)
+    return context
+
+def get_blog_sources(db: Session, blog_id: int, status: str = None):
+    from models.blog_models import BlogSourceModel, BlogContextModel
+    query = (
+        db.query(BlogSourceModel)
+        .join(BlogContextModel, BlogSourceModel.context_id == BlogContextModel.id)
+        .filter(BlogContextModel.blog_id == blog_id)
+    )
+    if status:
+        query = query.filter(BlogSourceModel.review_status == status)
+    return query.order_by(BlogSourceModel.dtCreatedAt.desc()).all()
+
+def create_source_for_blog(db: Session, blog_id: int, title: str, url: str, description: str = None, author: str = None):
+    context = get_or_create_default_context(db, blog_id)
+    return create_source_in_context(db, context.id, title, url, description, author)
+
+def create_source_in_context(db: Session, context_id: int, title: str, url: str, description: str = None, author: str = None):
     from models.blog_models import BlogSourceModel
-    source = BlogSourceModel(context_id=context_id, strTitle=title, strUrl=url, strAuthor=author)
+    source = BlogSourceModel(context_id=context_id, strTitle=title, strUrl=url, strDescription=description, strAuthor=author)
     db.add(source)
     db.commit()
     db.refresh(source)
@@ -378,6 +404,16 @@ def update_blog_source(db: Session, source_id: int, title: str = None, url: str 
             source.strUrl = url
         if author is not None:
             source.strAuthor = author
+        db.commit()
+        db.refresh(source)
+        return source
+    return None
+
+def approve_blog_source(db: Session, source_id: int):
+    from models.blog_models import BlogSourceModel
+    source = db.query(BlogSourceModel).filter(BlogSourceModel.id == source_id).first()
+    if source:
+        source.review_status = "approved"
         db.commit()
         db.refresh(source)
         return source

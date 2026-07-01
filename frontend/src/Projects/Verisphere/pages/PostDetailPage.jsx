@@ -12,7 +12,8 @@ import '../styles/VeriSphere.css';
 const PostDetailPage = ({ authHook }) => {
   const { id } = useParams();
   const fallbackAuth = useAuth();
-  const { strTokenState, boolIsLoggedInState } = authHook || fallbackAuth;
+  const { strTokenState, boolIsLoggedInState, objUserState } = authHook || fallbackAuth;
+  const boolIsAdmin = !!(objUserState && (objUserState.is_superuser || objUserState.is_staff));
   const reactions = useReactions(id, boolIsLoggedInState);
   const post = usePostDetail(id, strTokenState, boolIsLoggedInState);
   const [numWindowWidth, setNumWindowWidth] = React.useState(window.innerWidth);
@@ -24,17 +25,18 @@ const PostDetailPage = ({ authHook }) => {
   }, []);
 
   const [boolIsAddingSourceState, setBoolIsAddingSourceState] = useState(false);
+  const [strNewSourceTitleState, setStrNewSourceTitleState] = useState('');
   const [strNewSourceUrlState, setStrNewSourceUrlState] = useState('');
   const [strNewSourceDescState, setStrNewSourceDescState] = useState('');
   const [boolIsSubmittingSourceState, setBoolIsSubmittingSourceState] = useState(false);
 
   const handleSourceSubmit = async (e) => {
     e.preventDefault();
-    if (!strNewSourceUrlState.trim()) return;
+    if (!strNewSourceTitleState.trim() || !strNewSourceUrlState.trim()) return;
     setBoolIsSubmittingSourceState(true);
     try {
-      await post.submitSource({ strUrl: strNewSourceUrlState, strDescription: strNewSourceDescState });
-      setStrNewSourceUrlState(''); setStrNewSourceDescState('');
+      await post.submitSource({ strTitle: strNewSourceTitleState, strUrl: strNewSourceUrlState, strDescription: strNewSourceDescState });
+      setStrNewSourceTitleState(''); setStrNewSourceUrlState(''); setStrNewSourceDescState('');
       setBoolIsAddingSourceState(false);
     } catch { alert('Failed to submit source. Please ensure you are logged in.'); }
     finally { setBoolIsSubmittingSourceState(false); }
@@ -60,13 +62,18 @@ const PostDetailPage = ({ authHook }) => {
       <PostDetailHeader post={post.objPostState} reactions={reactions} />
 
       <PostDetailSources
+        postId={id}
         post={post.objPostState}
         sourceForm={{
-          boolIsAddingSourceState, strNewSourceUrlState, setStrNewSourceUrlState,
+          boolIsAddingSourceState, strNewSourceTitleState, setStrNewSourceTitleState,
+          strNewSourceUrlState, setStrNewSourceUrlState,
           strNewSourceDescState, setStrNewSourceDescState, boolIsSubmittingSourceState,
         }}
         onSourceSubmit={handleSourceSubmit}
         onToggleAdd={() => setBoolIsAddingSourceState(!boolIsAddingSourceState)}
+        boolIsAdmin={boolIsAdmin}
+        strToken={strTokenState}
+        onSourceApproved={post.refetch}
       />
 
       <PostDetailContext strAiContextGuardrail={post.objPostState.strAiContextGuardrail} />

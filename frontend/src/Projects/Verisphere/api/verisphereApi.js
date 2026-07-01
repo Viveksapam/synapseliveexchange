@@ -97,19 +97,10 @@ export const fetchPostDetail = async (idOrString) => {
     objPost.comments = arrComments;
     objPost.comments_count = arrComments.length;
 
-    // Load sources for this post
+    // Load only approved sources for this post (Community Sources shows the verified list)
     try {
-      const sourcesResponse = await fetch(`${API_BASE}/verisphere/blogs/${numBlogId}/contexts/`, { headers: noCacheHeaders });
-      const arrContexts = sourcesResponse.ok ? await sourcesResponse.json() : [];
-
-      // Load sources for each context
-      const allSources = [];
-      for (const context of arrContexts) {
-        const sourcesRes = await fetch(`${API_BASE}/verisphere/contexts/${context.id}/sources/`, { headers: noCacheHeaders });
-        const sources = sourcesRes.ok ? await sourcesRes.json() : [];
-        allSources.push(...sources);
-      }
-      objPost.sources = allSources;
+      const sourcesResponse = await fetch(`${API_BASE}/verisphere/blogs/${numBlogId}/sources/?status=approved`, { headers: noCacheHeaders });
+      objPost.sources = sourcesResponse.ok ? await sourcesResponse.json() : [];
     } catch {
       objPost.sources = [];
     }
@@ -132,9 +123,38 @@ export const postCreatePost = async (objPostData) => ({
   score: 0, comments_count: 0,
 });
 
-export const postCreateSource = async (numPostId, objSourceData) => ({
-  id: Date.now(), ...objSourceData, reliability_score: 80,
-});
+export const postCreateSource = async (numPostId, objSourceData) => {
+  const numBlogId = blogIdFromString(numPostId);
+  const objResponse = await fetch(`${API_BASE}/verisphere/blogs/${numBlogId}/sources/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(objSourceData),
+  });
+  if (!objResponse.ok) throw new Error('Failed to submit source');
+  return objResponse.json();
+};
+
+export const fetchPendingSources = async (numPostId) => {
+  const numBlogId = blogIdFromString(numPostId);
+  try {
+    const objResponse = await fetch(`${API_BASE}/verisphere/blogs/${numBlogId}/sources/?status=pending`, { headers: noCacheHeaders });
+    return objResponse.ok ? await objResponse.json() : [];
+  } catch {
+    return [];
+  }
+};
+
+export const postApproveSource = async (numSourceId, strToken) => {
+  try {
+    const objResponse = await fetch(`${API_BASE}/verisphere/sources/${numSourceId}/approve/`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${strToken}` },
+    });
+    return objResponse.ok ? await objResponse.json() : null;
+  } catch {
+    return null;
+  }
+};
 
 export const postCreateComment = async (numPostId, objCommentData) => {
   const numBlogId = blogIdFromString(numPostId);
