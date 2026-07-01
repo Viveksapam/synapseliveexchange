@@ -26,7 +26,7 @@
   background: var(--glass-bg, rgba(15, 15, 20, 0.4));
   border: none;
   border-radius: 0;
-  padding: 26px 4px 20px;
+  padding: 20px 4px;
   gap: 1rem;
   margin-bottom: 0;
   transition: background-color 0.2s ease;
@@ -39,7 +39,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  height: 10px;
+  height: 1px;
   background: #d1d5db;
 }
 
@@ -191,7 +191,7 @@
 
   /* Post cards: tighter padding, edge-to-edge */
   .verisphere-post-card {
-    padding: 22px 6px 16px;
+    padding: 16px 6px;
     gap: 0.875rem;
   }
 
@@ -294,7 +294,7 @@
 
   /* Post card */
   .verisphere-post-card {
-    padding: 16px 4px 12px;
+    padding: 12px 4px;
     flex-direction: column !important;
     gap: 0;
   }
