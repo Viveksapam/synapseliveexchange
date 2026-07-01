@@ -52,6 +52,7 @@ class BlogSourceResponse(BlogSourceBase):
     id: int
     context_id: int
     review_status: str = "pending"
+    approved_by: Optional[str] = None  # 'moderator' or 'ai', once review_status == 'approved'
     dtCreatedAt: datetime
 
     class Config:

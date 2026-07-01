@@ -170,6 +170,23 @@ def migrate():
             conn.rollback()
             print(f"✗ Error adding review_status: {e}")
 
+        try:
+            # 8. Add approved_by to blog_blogsourcemodel ('moderator' or 'ai', null while pending)
+            print("Adding approved_by to blog_blogsourcemodel...")
+            result = conn.execute(text("SELECT column_name FROM information_schema.columns WHERE table_name='blog_blogsourcemodel' AND column_name='approved_by'"))
+            if result.fetchone():
+                print("✓ approved_by already exists")
+            else:
+                conn.execute(text("""
+                    ALTER TABLE blog_blogsourcemodel
+                    ADD COLUMN approved_by VARCHAR(20)
+                """))
+                print("✓ Added approved_by")
+            conn.commit()
+        except Exception as e:
+            conn.rollback()
+            print(f"✗ Error adding approved_by: {e}")
+
         print("\n✅ Migration finished (see ✗ lines above for any steps that failed).")
 
 if __name__ == "__main__":

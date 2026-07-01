@@ -209,6 +209,12 @@ def get_blog_audit_collections(blog_id: int, db: Session = Depends(get_db)):
 
 @router.post("/audit/collections/{collection_id}/llm-response/")
 def set_llm_response(collection_id: int, llm_response: dict, db: Session = Depends(get_db)):
+    # TODO: source review currently only moves from 'pending' to 'approved' via
+    # the moderator-only POST /sources/{id}/approve/ endpoint below. Once an AI
+    # reviewer is wired up to consume BlogAuditCollectionModel.source_ids and
+    # call back here, this handler should also read llm_response for any
+    # sources it approved and call crud_blog.approve_blog_source(db, source_id,
+    # approved_by="ai") for each, so sources can clear review without a human.
     collection = crud_blog.update_audit_collection_response(db, collection_id, llm_response)
     if not collection:
         raise HTTPException(status_code=404, detail="Collection not found")

@@ -125,6 +125,8 @@ class BlogSourceModel(Base):
     strDescription = Column(Text, nullable=True)
     strAuthor = Column(String(255), nullable=True)
     review_status = Column(String(20), default='pending', nullable=False)
+    # Who moved review_status to 'approved': 'moderator' or 'ai'. Null while still pending.
+    approved_by = Column(String(20), nullable=True)
     dtCreatedAt = Column(DateTime, default=datetime.datetime.utcnow)
 
     context = relationship("BlogContextModel", back_populates="sources")
