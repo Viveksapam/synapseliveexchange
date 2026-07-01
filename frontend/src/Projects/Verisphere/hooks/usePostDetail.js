@@ -66,5 +66,6 @@ export const usePostDetail = (postId, strToken, boolIsLoggedIn) => {
   return {
     objPostState, boolIsLoadingState, loadingCommentsState,
     submitComment, submitSource, analyzeComment, handleDeleteComment,
+    refetch: loadPost,
   };
 };

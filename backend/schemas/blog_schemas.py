@@ -42,6 +42,7 @@ class BlogContextCreate(BlogContextBase):
 class BlogSourceBase(BaseModel):
     strTitle: str
     strUrl: str
+    strDescription: Optional[str] = None
     strAuthor: Optional[str] = None
 
 class BlogSourceCreate(BlogSourceBase):
@@ -50,6 +51,7 @@ class BlogSourceCreate(BlogSourceBase):
 class BlogSourceResponse(BlogSourceBase):
     id: int
     context_id: int
+    review_status: str = "pending"
     dtCreatedAt: datetime
 
     class Config:

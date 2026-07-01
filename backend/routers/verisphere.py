@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from database import get_db
 from crud import crud_blog, crud_portfolio
 from schemas.blog_schemas import BlogResponse, BlogCommentResponse, BlogCommentCreate, BlogSourceResponse, BlogSourceCreate, CommentAnalysisResponse, CommentAnalysisCreate, BlogContextResponse, BlogContextCreate, BlogAuditCollectionResponse
@@ -122,11 +122,32 @@ def get_sources(context_id: int, db: Session = Depends(get_db)):
 
 @router.post("/contexts/{context_id}/sources/", response_model=BlogSourceResponse)
 def add_source(context_id: int, source: BlogSourceCreate, db: Session = Depends(get_db)):
-    return crud_blog.create_source_in_context(db, context_id, source.strTitle, source.strUrl, source.strAuthor)
+    return crud_blog.create_source_in_context(db, context_id, source.strTitle, source.strUrl, source.strDescription, source.strAuthor)
+
+@router.get("/blogs/{blog_id}/sources/", response_model=List[BlogSourceResponse])
+def get_blog_sources(blog_id: int, status: Optional[str] = None, db: Session = Depends(get_db)):
+    blog = crud_blog.get_blog_by_id(db, blog_id)
+    if not blog:
+        raise HTTPException(status_code=404, detail="Blog not found")
+    return crud_blog.get_blog_sources(db, blog_id, status=status)
+
+@router.post("/blogs/{blog_id}/sources/", response_model=BlogSourceResponse)
+def add_blog_source(blog_id: int, source: BlogSourceCreate, db: Session = Depends(get_db)):
+    blog = crud_blog.get_blog_by_id(db, blog_id)
+    if not blog:
+        raise HTTPException(status_code=404, detail="Blog not found")
+    return crud_blog.create_source_for_blog(db, blog_id, source.strTitle, source.strUrl, source.strDescription, source.strAuthor)
 
 @router.put("/sources/{source_id}", response_model=BlogSourceResponse)
 def update_source(source_id: int, source: BlogSourceCreate, db: Session = Depends(get_db)):
     updated = crud_blog.update_blog_source(db, source_id, source.strTitle, source.strUrl, source.strAuthor)
+    if not updated:
+        raise HTTPException(status_code=404, detail="Source not found")
+    return updated
+
+@router.post("/sources/{source_id}/approve/", response_model=BlogSourceResponse)
+def approve_source(source_id: int, db: Session = Depends(get_db), current_user: UserModel = Depends(get_current_admin_user)):
+    updated = crud_blog.approve_blog_source(db, source_id)
     if not updated:
         raise HTTPException(status_code=404, detail="Source not found")
     return updated

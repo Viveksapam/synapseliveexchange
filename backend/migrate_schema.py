@@ -125,6 +125,35 @@ def migrate():
         except Exception as e:
             print(f"✗ Error creating index: {e}")
 
+        try:
+            # 7. Add strDescription and review_status to blog_blogsourcemodel
+            print("Adding strDescription to blog_blogsourcemodel...")
+            result = conn.execute(text("SELECT column_name FROM information_schema.columns WHERE table_name='blog_blogsourcemodel' AND column_name='strDescription'"))
+            if result.fetchone():
+                print("✓ strDescription already exists")
+            else:
+                conn.execute(text("""
+                    ALTER TABLE blog_blogsourcemodel
+                    ADD COLUMN "strDescription" TEXT
+                """))
+                print("✓ Added strDescription")
+        except Exception as e:
+            print(f"✗ Error adding strDescription: {e}")
+
+        try:
+            print("Adding review_status to blog_blogsourcemodel...")
+            result = conn.execute(text("SELECT column_name FROM information_schema.columns WHERE table_name='blog_blogsourcemodel' AND column_name='review_status'"))
+            if result.fetchone():
+                print("✓ review_status already exists")
+            else:
+                conn.execute(text("""
+                    ALTER TABLE blog_blogsourcemodel
+                    ADD COLUMN review_status VARCHAR(20) NOT NULL DEFAULT 'pending'
+                """))
+                print("✓ Added review_status")
+        except Exception as e:
+            print(f"✗ Error adding review_status: {e}")
+
         conn.commit()
         print("\n✅ Migration completed successfully!")
 

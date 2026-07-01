@@ -19,10 +19,10 @@ const PostCard = ({ objPost, authHook }) => {
   const navigate = useNavigate();
   const objMetrics = objPost.dictAiMetrics;
   const boolIsAnalyzed = objMetrics && objMetrics.logical_soundness !== undefined;
-  const { objUserState, strTokenState } = authHook || {};
+  const { objUserState, strTokenState, boolIsLoggedInState } = authHook || {};
   const boolIsAdmin = !!(objUserState && (objUserState.is_superuser || objUserState.is_staff));
   const [boolIsFeaturedState, setBoolIsFeaturedState] = useState(objPost.boolIsFeatured);
-  const reactions = useReactions(objPost.id);
+  const reactions = useReactions(objPost.id, boolIsLoggedInState);
 
   const strScoreColor = getVerifiableColor(boolIsAnalyzed ? objMetrics.verifiable : null);
 

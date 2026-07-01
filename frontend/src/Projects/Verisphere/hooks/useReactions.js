@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { fetchPostReactions, postToggleReaction } from '../api/verisphereApi';
 import { seedInitialReactions } from '../utils/embedUtils';
 
-export const useReactions = (postId) => {
+export const useReactions = (postId, boolIsLoggedIn) => {
   const objInitial = seedInitialReactions(postId);
   const [objReactionsState, setReactions] = useState(objInitial);
   const [objUserReactedState, setUserReacted] = useState({});
@@ -30,6 +30,11 @@ export const useReactions = (postId) => {
   }, [boolShowPickerState]);
 
   const handleReact = useCallback(async (strEmoji) => {
+    if (!boolIsLoggedIn) {
+      setShowPicker(false);
+      window.dispatchEvent(new CustomEvent('open-login'));
+      return;
+    }
     const boolHasReacted = objUserReactedState[strEmoji];
     const numActive = Object.values(objUserReactedState).filter(Boolean).length;
     if (!boolHasReacted && numActive >= 3) {
@@ -53,7 +58,7 @@ export const useReactions = (postId) => {
       }));
       setUserReacted((prev) => ({ ...prev, [strEmoji]: boolHasReacted }));
     }
-  }, [postId, objUserReactedState]);
+  }, [postId, objUserReactedState, boolIsLoggedIn]);
 
   const arrTopReactions = Object.entries(objReactionsState)
     .filter(([, numCount]) => numCount > 0)
