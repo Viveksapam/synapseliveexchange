@@ -8,22 +8,33 @@
   padding: 1.2rem;
 }
 
-.verisphere-main-content, .verisphere-sidebar {
+.verisphere-sidebar {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+.verisphere-main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 .verisphere-post-card {
   display: flex;
   background: var(--glass-bg, rgba(15, 15, 20, 0.4));
   border: none;
+  border-bottom: 10px solid var(--v2-text-main, #ffffff);
   border-radius: 0;
   padding: 20px 4px;
   gap: 1rem;
   margin-bottom: 0;
   transition: background-color 0.2s ease;
   color: var(--v2-text-main, #ffffff);
+}
+
+.verisphere-post-card:last-child {
+  border-bottom: none;
 }
 
 .verisphere-post-card:hover {
