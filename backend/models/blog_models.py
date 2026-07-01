@@ -117,6 +117,19 @@ class BlogCommentModel(Base):
     blog = relationship("BlogModel", back_populates="comments")
     analysis = relationship("CommentAnalysisModel", back_populates="comment", uselist=False)
 
+    @property
+    def strAiAnalysis(self):
+        return self.analysis.ai_summary if self.analysis else None
+
+    @property
+    def dictAiMetrics(self):
+        if not self.analysis:
+            return None
+        return {
+            'sentiment': self.analysis.sentiment,
+            'relevance_score': self.analysis.relevance_score,
+        }
+
 class CommentAnalysisModel(Base):
     __tablename__ = "blog_commentanalysismodel"
 

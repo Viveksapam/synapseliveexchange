@@ -28,6 +28,9 @@ class BlogCommentResponse(BlogCommentBase):
     id: int
     blog_id: int
     datePosted: datetime
+    # Analysis auto-hydrated from CommentAnalysisModel by ORM properties
+    strAiAnalysis: Optional[str] = None
+    dictAiMetrics: Optional[Any] = None
 
     class Config:
         orm_mode = True
