@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 const reasoningBox = (strBg) => ({ background: strBg, padding: '0.6rem 0.8rem', borderRadius: '6px' });
 const labelStyle = { fontSize: '0.7rem', color: 'var(--v2-text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '4px', letterSpacing: '1px' };
 
 const CommentBody = ({ comment, loadingCommentsState, onAnalyze, onStartReply, onDelete }) => {
+  const [boolIsAnalysisExpandedState, setBoolIsAnalysisExpandedState] = useState(false);
   const objMetrics = comment.dictAiMetrics;
   const arrFallacies = objMetrics?.logical_errors || [];
+  const boolHasAnalysis = comment.strAiAnalysis || objMetrics;
 
   return (
     <>
@@ -37,10 +39,56 @@ const CommentBody = ({ comment, loadingCommentsState, onAnalyze, onStartReply, o
             <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--v2-text-main)' }}>{comment.strReferences}</p>
           </div>
         )}
-        {comment.strAiAnalysis && (
-          <div className="verisphere-ai-box comment-ai" style={reasoningBox('rgba(88, 166, 255, 0.05)')}>
-            <strong style={labelStyle}>Analysis</strong>
-            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--v2-text-main)' }}>{comment.strAiAnalysis}</p>
+        {boolHasAnalysis && (
+          <div className="verisphere-ai-box comment-ai" style={{ ...reasoningBox('rgba(88, 166, 255, 0.05)'), padding: 0 }}>
+            <button
+              onClick={() => setBoolIsAnalysisExpandedState(!boolIsAnalysisExpandedState)}
+              style={{
+                width: '100%', padding: '0.6rem 0.8rem', display: 'flex', justifyContent: 'space-between',
+                alignItems: 'center', background: 'transparent', border: 'none', cursor: 'pointer',
+                fontSize: '0.85rem', color: 'var(--v2-text-main)', textAlign: 'left',
+              }}
+            >
+              <span>
+                <strong style={{ ...labelStyle, margin: 0, marginBottom: 0, display: 'inline', textTransform: 'capitalize' }}>
+                  📊 Analysis
+                </strong>
+              </span>
+              <span style={{ fontSize: '0.9rem', color: 'var(--v2-text-muted)' }}>
+                {boolIsAnalysisExpandedState ? '▼' : '▶'}
+              </span>
+            </button>
+            {boolIsAnalysisExpandedState && (
+              <div style={{ padding: '0 0.8rem 0.6rem 0.8rem', borderTop: '1px solid rgba(88, 166, 255, 0.1)' }}>
+                {comment.strAiAnalysis && (
+                  <p style={{ margin: '0.4rem 0 0 0', fontSize: '0.85rem', color: 'var(--v2-text-main)', lineHeight: '1.4' }}>
+                    {comment.strAiAnalysis}
+                  </p>
+                )}
+                {objMetrics && (objMetrics.logical_soundness !== undefined || objMetrics.verifiable !== undefined) && (
+                  <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(88, 166, 255, 0.1)' }}>
+                    <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem' }}>
+                      {objMetrics.logical_soundness !== undefined && (
+                        <div>
+                          <span style={{ color: 'var(--v2-text-muted)' }}>Soundness:</span>
+                          <span style={{ color: 'var(--v2-text-main)', marginLeft: '0.3rem', fontWeight: 'bold' }}>
+                            {objMetrics.logical_soundness}/100
+                          </span>
+                        </div>
+                      )}
+                      {objMetrics.verifiable !== undefined && (
+                        <div>
+                          <span style={{ color: 'var(--v2-text-muted)' }}>Verifiable:</span>
+                          <span style={{ color: 'var(--v2-text-main)', marginLeft: '0.3rem', fontWeight: 'bold' }}>
+                            {objMetrics.verifiable}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
         <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.2rem' }}>
@@ -51,7 +99,7 @@ const CommentBody = ({ comment, loadingCommentsState, onAnalyze, onStartReply, o
               className="verisphere-btn-outline small"
               style={{ padding: '4px 10px', fontSize: '0.75rem', borderRadius: '12px' }}
             >
-              {loadingCommentsState[comment.id] ? 'Analyzing...' : 'Request Analysis'}
+              {loadingCommentsState[comment.id] ? 'Analyzing...' : 'Analyze'}
             </button>
           )}
           <button

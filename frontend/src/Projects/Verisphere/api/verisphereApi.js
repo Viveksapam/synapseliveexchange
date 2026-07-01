@@ -213,6 +213,22 @@ export const postToggleReaction = async (numPostId, strEmoji) => {
 
 export const postAnalyzeContext = async () => ({ summary: 'Mock AI analysis of the post context.' });
 
+export const postAnalyzePost = async (numPostId) => {
+  const numBlogId = blogIdFromString(numPostId);
+  try {
+    const objResponse = await fetch(`${API_BASE}/verisphere/blogs/${numBlogId}/analysis/`, { headers: noCacheHeaders });
+    if (objResponse.ok) return await objResponse.json();
+  } catch (objErr) {
+    console.error('Failed to analyze post:', objErr);
+  }
+  return {
+    dictPostAnalysis: {},
+    dictAiMetrics: {},
+    strAiContextGuardrail: 'Analysis unavailable',
+    comment_analyses: {},
+  };
+};
+
 export const postAnalyzeComment = async (numCommentId) => {
   try {
     const objResponse = await fetch(`${API_BASE}/comments/${numCommentId}/analysis/`, { headers: noCacheHeaders });

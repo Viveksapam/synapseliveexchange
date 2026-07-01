@@ -76,7 +76,12 @@ const PostDetailPage = ({ authHook }) => {
         onSourceApproved={post.refetch}
       />
 
-      <PostDetailContext strAiContextGuardrail={post.objPostState.strAiContextGuardrail} />
+      <PostDetailContext
+        strAiContextGuardrail={post.objPostState.strAiContextGuardrail}
+        post={post.objPostState}
+        onAnalyze={post.analyzePost}
+        boolIsAnalyzing={post.boolIsAnalyzingPostState}
+      />
 
       <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--glass-border)' }}>
         <Link

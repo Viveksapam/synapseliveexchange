@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
-  fetchPostDetail, postCreateSource, postCreateComment, postAnalyzeComment, deleteComment,
+  fetchPostDetail, postCreateSource, postCreateComment, postAnalyzeComment, deleteComment, postAnalyzePost,
 } from '../api/verisphereApi';
 
 export const usePostDetail = (postId, strToken, boolIsLoggedIn) => {
   const [objPostState, setObjPostState] = useState(null);
   const [boolIsLoadingState, setBoolIsLoadingState] = useState(true);
   const [loadingCommentsState, setLoadingCommentsState] = useState({});
+  const [boolIsAnalyzingPostState, setBoolIsAnalyzingPostState] = useState(false);
 
   const loadPost = useCallback(async () => {
     try {
@@ -63,9 +64,31 @@ export const usePostDetail = (postId, strToken, boolIsLoggedIn) => {
     }
   };
 
+  const analyzePost = async () => {
+    setBoolIsAnalyzingPostState(true);
+    try {
+      const data = await postAnalyzePost(postId);
+      setObjPostState((prev) => ({
+        ...prev,
+        dictPostAnalysis: data.dictPostAnalysis || {},
+        dictAiMetrics: data.dictAiMetrics || prev.dictAiMetrics,
+        strAiContextGuardrail: data.strAiContextGuardrail || prev.strAiContextGuardrail,
+        comments: prev.comments.map((c) =>
+          data.comment_analyses && data.comment_analyses[c.id]
+            ? { ...c, strAiAnalysis: data.comment_analyses[c.id].strAiAnalysis, dictAiMetrics: data.comment_analyses[c.id].dictAiMetrics }
+            : c
+        ),
+      }));
+    } catch (objErr) {
+      console.error('Failed to analyze post', objErr);
+    } finally {
+      setBoolIsAnalyzingPostState(false);
+    }
+  };
+
   return {
-    objPostState, boolIsLoadingState, loadingCommentsState,
-    submitComment, submitSource, analyzeComment, handleDeleteComment,
+    objPostState, boolIsLoadingState, loadingCommentsState, boolIsAnalyzingPostState,
+    submitComment, submitSource, analyzeComment, analyzePost, handleDeleteComment,
     refetch: loadPost,
   };
 };
