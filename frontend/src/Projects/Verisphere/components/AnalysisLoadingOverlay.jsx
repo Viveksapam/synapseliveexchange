@@ -23,12 +23,12 @@ const AnalysisLoadingOverlay = ({ boolIsVisible, strPhase, numProgress }) => {
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(15, 20, 30, 0.35)',
+        background: 'rgba(255, 255, 255, 0.45)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 9999,
-        backdropFilter: 'blur(6px)',
+        backdropFilter: 'blur(8px)',
       }}
     >
       <div
