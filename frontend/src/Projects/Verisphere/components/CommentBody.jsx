@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { formatAnalyzedAt } from '../utils/formatAnalyzedAt';
 
 const reasoningBox = (strBg) => ({ background: strBg, padding: '0.6rem 0.8rem', borderRadius: '6px' });
 const labelStyle = { fontSize: '0.7rem', color: 'var(--v2-text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '4px', letterSpacing: '1px' };
@@ -9,6 +10,7 @@ const CommentBody = ({ comment, loadingCommentsState, onAnalyze, onStartReply, o
   const objMetrics = comment.dictAiMetrics;
   const arrFallacies = objMetrics?.logical_errors || [];
   const boolHasAnalysis = comment.strAiAnalysis || objMetrics;
+  const strAnalyzedAt = formatAnalyzedAt(objMetrics?.analyzed_at);
 
   return (
     <>
@@ -44,22 +46,27 @@ const CommentBody = ({ comment, loadingCommentsState, onAnalyze, onStartReply, o
             <button
               onClick={() => setBoolIsAnalysisExpandedState(!boolIsAnalysisExpandedState)}
               style={{
-                width: '100%', padding: '0.6rem 0.8rem', display: 'flex', justifyContent: 'space-between',
-                alignItems: 'center', background: 'transparent', border: 'none', cursor: 'pointer',
+                width: '100%', padding: '0.6rem 0.8rem', display: 'flex', alignItems: 'center',
+                gap: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer',
                 fontSize: '0.85rem', color: 'var(--v2-text-main)', textAlign: 'left',
               }}
             >
+              <span style={{ fontSize: '0.9rem', color: 'var(--v2-text-muted)', minWidth: '0.9rem' }}>
+                {boolIsAnalysisExpandedState ? '▼' : '▶'}
+              </span>
               <span>
                 <strong style={{ ...labelStyle, margin: 0, marginBottom: 0, display: 'inline', textTransform: 'capitalize' }}>
                   📊 Analysis
                 </strong>
               </span>
-              <span style={{ fontSize: '0.9rem', color: 'var(--v2-text-muted)' }}>
-                {boolIsAnalysisExpandedState ? '▼' : '▶'}
-              </span>
             </button>
             {boolIsAnalysisExpandedState && (
               <div style={{ padding: '0 0.8rem 0.6rem 0.8rem', borderTop: '1px solid rgba(88, 166, 255, 0.1)' }}>
+                {strAnalyzedAt && (
+                  <p style={{ margin: '0.4rem 0 0 0', fontSize: '0.7rem', color: 'var(--v2-text-muted)' }}>
+                    Analyzed {strAnalyzedAt}
+                  </p>
+                )}
                 {comment.strAiAnalysis && (
                   <p style={{ margin: '0.4rem 0 0 0', fontSize: '0.85rem', color: 'var(--v2-text-main)', lineHeight: '1.4' }}>
                     {comment.strAiAnalysis}

@@ -6,6 +6,7 @@ import { usePostDetail } from '../hooks/usePostDetail';
 import PostDetailHeader from '../components/PostDetailHeader';
 import PostDetailSources from '../components/PostDetailSources';
 import PostDetailContext from '../components/PostDetailContext';
+import AnalysisLoadingOverlay from '../components/AnalysisLoadingOverlay';
 import { countAllComments } from '../utils/commentCounter';
 import '../styles/VeriSphere.css';
 
@@ -46,7 +47,9 @@ const PostDetailPage = ({ authHook }) => {
   if (!post.objPostState) return <div className="verisphere-empty-state">Post not found.</div>;
 
   return (
-    <div className="verisphere-post-detail" style={{
+    <>
+      <AnalysisLoadingOverlay boolIsVisible={post.boolIsAnalyzingPostState} strPhase={post.strAnalysisPhaseState} />
+      <div className="verisphere-post-detail" style={{
       maxWidth: 'none', margin: '2rem auto', padding: '2rem 1rem',
       background: 'var(--glass-bg)', borderRadius: '16px',
       backdropFilter: 'blur(20px)',
@@ -93,6 +96,7 @@ const PostDetailPage = ({ authHook }) => {
         </Link>
       </div>
     </div>
+    </>
   );
 };
 

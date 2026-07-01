@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { formatAnalyzedAt } from '../utils/formatAnalyzedAt';
 
 const SUB_SCORE_LABELS = {
   clarity_falsifiability: 'Clarity & Falsifiability',
@@ -52,6 +53,7 @@ const PostDetailContext = ({ strAiContextGuardrail, post, onAnalyze, boolIsAnaly
   const objDetail = post?.analysis_detail || null;
   const arrSubScores = objDetail?.sub_scores ? Object.entries(objDetail.sub_scores) : [];
   const arrFallacies = objDetail?.detected_fallacies || [];
+  const strAnalyzedAt = formatAnalyzedAt(post?.analyzed_at);
 
   return (
     <div className="verisphere-context-guardrail" style={{ marginTop: '2rem' }}>
@@ -61,15 +63,15 @@ const PostDetailContext = ({ strAiContextGuardrail, post, onAnalyze, boolIsAnaly
             onClick={() => setBoolIsPostAnalysisExpandedState(!boolIsPostAnalysisExpandedState)}
             style={{
               background: 'transparent', border: 'none', width: '100%', textAlign: 'left', cursor: 'pointer',
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 0, marginBottom: boolIsPostAnalysisExpandedState ? '0.8rem' : 0,
+              display: 'flex', alignItems: 'center', gap: '0.5rem', padding: 0, marginBottom: boolIsPostAnalysisExpandedState ? '0.8rem' : 0,
             }}
           >
+            <span style={{ fontSize: '1.2rem', color: 'var(--v2-text-muted)', minWidth: '1.2rem' }}>
+              {boolIsPostAnalysisExpandedState ? '▼' : '▶'}
+            </span>
             <h4 style={{ margin: 0, color: 'var(--v2-text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <span style={{ fontSize: '1.2rem' }}>📋</span> Post Analysis
             </h4>
-            <span style={{ fontSize: '1.2rem', color: 'var(--v2-text-muted)' }}>
-              {boolIsPostAnalysisExpandedState ? '▼' : '▶'}
-            </span>
           </button>
           {!boolIsPostAnalysisExpandedState && (
             <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.85rem', color: 'var(--v2-text-muted)' }}>
@@ -78,6 +80,11 @@ const PostDetailContext = ({ strAiContextGuardrail, post, onAnalyze, boolIsAnaly
           )}
           {boolIsPostAnalysisExpandedState && (
             <div style={{ marginTop: '0.8rem', paddingTop: '0.8rem', borderTop: '1px solid var(--glass-border)' }}>
+              {strAnalyzedAt && (
+                <p style={{ margin: '0 0 0.8rem', fontSize: '0.75rem', color: 'var(--v2-text-muted)' }}>
+                  Analyzed {strAnalyzedAt}
+                </p>
+              )}
               <div style={{ marginBottom: '1rem' }}>
                 <p style={{ margin: '0.3rem 0', fontSize: '0.85rem', color: 'var(--v2-text-muted)', fontWeight: '500' }}>AI Assessment</p>
                 <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: 'var(--v2-text-main)', lineHeight: '1.5' }}>{post.ai_summary}</p>

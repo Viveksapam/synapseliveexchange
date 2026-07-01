@@ -106,6 +106,7 @@ class BlogResponse(BaseModel):
     ai_summary: Optional[str] = None
     ai_context_guardrail: Optional[str] = None
     analysis_detail: Optional[Any] = None
+    analyzed_at: Optional[datetime] = None
     boolIsFeatured: Optional[bool] = False
     contexts: List[BlogContextResponse] = []
     sources: List[BlogSourceResponse] = []
@@ -120,6 +121,7 @@ class CommentAnalysisResponse(BaseModel):
     sentiment: Optional[str] = None
     relevance_score: Optional[float] = 0.5
     ai_summary: Optional[str] = None
+    analyzed_at: Optional[datetime] = None
 
     class Config:
         orm_mode = True

@@ -59,6 +59,10 @@ class BlogModel(Base):
         return self.ai_analysis.ai_context_guardrail if self.ai_analysis else None
 
     @property
+    def analyzed_at(self):
+        return self.ai_analysis.analyzed_at if self.ai_analysis else None
+
+    @property
     def analysis_detail(self):
         import json as _json
         raw = self.ai_analysis.analysis_detail if self.ai_analysis else None
@@ -101,6 +105,8 @@ class BlogAIAnalysisModel(Base):
     # steelman, verification_pathway. Kept as text so the rubric can evolve
     # without a migration per field.
     analysis_detail = Column(Text, nullable=True)
+    # When this analysis was last (re)generated.
+    analyzed_at = Column(DateTime, nullable=True)
 
     blog = relationship("BlogModel", back_populates="ai_analysis")
 
@@ -128,6 +134,7 @@ class BlogCommentModel(Base):
         return {
             'sentiment': self.analysis.sentiment,
             'relevance_score': self.analysis.relevance_score,
+            'analyzed_at': self.analysis.analyzed_at.isoformat() if self.analysis.analyzed_at else None,
         }
 
 class CommentAnalysisModel(Base):
@@ -137,6 +144,8 @@ class CommentAnalysisModel(Base):
     sentiment = Column(String(50), nullable=True)
     relevance_score = Column(Float, default=0.5)
     ai_summary = Column(Text, nullable=True)
+    # When this comment analysis was last (re)generated.
+    analyzed_at = Column(DateTime, nullable=True)
 
     comment = relationship("BlogCommentModel", back_populates="analysis")
 

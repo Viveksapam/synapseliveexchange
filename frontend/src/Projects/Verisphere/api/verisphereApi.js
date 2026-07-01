@@ -240,6 +240,7 @@ export const postAnalyzePost = async (numPostId, strToken) => {
     ai_summary: 'Analysis unavailable',
     ai_context_guardrail: '',
     analysis_detail: null,
+    analyzed_at: null,
   };
 };
 

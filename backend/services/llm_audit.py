@@ -98,9 +98,11 @@ _POST_AUDIT_PROMPT = (
     "clarity_falsifiability | premise_support | inferential_validity | "
     "source_reliability | fallacy_bias_freedom\n\n"
     "GUARDRAILS (hard rules):\n"
-    "- NEVER fabricate a citation, DOI, or URL. Recommended sources are a "
-    "VERIFIABLE SEARCH STRATEGY (publisher + precise query, or a root domain "
-    "you are confident exists), labeled as suggestions to verify - not evidence.\n"
+    "- Recommended sources must have a REAL, RESOLVABLE, readable URL - prefer a "
+    "DOI (https://doi.org/...) or an official publisher/landing page you are "
+    "confident exists. Do NOT invent DOIs or deep links that may not resolve; if "
+    "unsure of an exact article URL, link the publisher's real search or section "
+    "page instead. Format each reference in APA 7th edition.\n"
     "- No false precision: every number must be tied to a rubric band + rationale.\n"
     "- The summary must be entailed by the sub-scores; do not contradict them.\n"
     "- Popularity, reactions, and author identity are NOT evidence. Ignore them.\n"
@@ -132,9 +134,10 @@ _POST_AUDIT_PROMPT = (
     "  },\n"
     '  "recommended_new_sources": [\n'
     "    {\n"
+    '      "apa_reference": "<full APA 7th-edition reference for the source, e.g. Author, A. A. (Year). Title. Publisher/Journal. https://doi.org/...>",\n'
     '      "publisher_or_organization": "<e.g. Nature, Cochrane, Reuters, a gov database>",\n'
-    '      "reason_for_inclusion": "<what specific gap this fills>",\n'
-    '      "suggested_search_query_or_url": "<precise query or confident root URL - to verify, not a fabricated deep link>"\n'
+    '      "url": "<a real, resolvable, readable URL - a DOI or official landing/search page you are confident exists>",\n'
+    '      "reason_for_inclusion": "<what specific gap this fills>"\n'
     "    }\n"
     "  ]\n"
     "}"

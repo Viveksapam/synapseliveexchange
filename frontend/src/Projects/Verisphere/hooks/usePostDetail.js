@@ -15,7 +15,7 @@ const applyCommentAnalysis = (comments = [], numCommentId, data) =>
       return {
         ...c,
         strAiAnalysis: data.ai_summary,
-        dictAiMetrics: { sentiment: data.sentiment, relevance_score: data.relevance_score },
+        dictAiMetrics: { sentiment: data.sentiment, relevance_score: data.relevance_score, analyzed_at: data.analyzed_at },
       };
     }
     return c.replies?.length
@@ -28,6 +28,7 @@ export const usePostDetail = (postId, strToken, boolIsLoggedIn) => {
   const [boolIsLoadingState, setBoolIsLoadingState] = useState(true);
   const [loadingCommentsState, setLoadingCommentsState] = useState({});
   const [boolIsAnalyzingPostState, setBoolIsAnalyzingPostState] = useState(false);
+  const [strAnalysisPhaseState, setStrAnalysisPhaseState] = useState(null);
 
   const loadPost = useCallback(async () => {
     try {
@@ -84,7 +85,9 @@ export const usePostDetail = (postId, strToken, boolIsLoggedIn) => {
 
   const analyzePost = async () => {
     setBoolIsAnalyzingPostState(true);
+    setStrAnalysisPhaseState('post');
     try {
+      // Step 1: Analyze the post
       const data = await postAnalyzePost(postId, strToken);
       setObjPostState((prev) => ({
         ...prev,
@@ -93,36 +96,38 @@ export const usePostDetail = (postId, strToken, boolIsLoggedIn) => {
         ai_summary: data.ai_summary,
         ai_context_guardrail: data.ai_context_guardrail,
         analysis_detail: data.analysis_detail,
+        analyzed_at: data.analyzed_at,
         dictAiMetrics: {
           verifiable: data.verifiable,
           logical_soundness: data.logical_soundness,
         },
       }));
 
-      // "Analyze Post & Discussion" also audits every comment in the thread.
-      // Note: we deliberately avoid a full post refetch — the comments endpoint
-      // doesn't return per-comment analysis, so a reload would wipe the in-place
-      // results below. We refresh only the sources list instead (below).
+      // Step 2: Analyze comments in the thread
+      setStrAnalysisPhaseState('comments');
       const arrCommentIds = collectCommentIds(objPostState?.comments);
-      // Run sequentially to keep per-comment loading indicators meaningful and
-      // avoid hammering the backend with a burst of requests.
       for (const numCommentId of arrCommentIds) {
         await analyzeComment(numCommentId);
       }
 
-      // Synapse AI auto-approves its recommended sources, so refresh just the
-      // approved Community Sources list without disturbing the comment analyses.
+      // Step 3: Refresh approved sources (Synapse AI auto-approves its recommendations)
+      setStrAnalysisPhaseState('sources');
       const arrSources = await fetchApprovedSources(postId);
       setObjPostState((prev) => (prev ? { ...prev, sources: arrSources } : prev));
+
+      // Step 4: Reload the full post to capture all updates (analysis, new sources, etc.)
+      setStrAnalysisPhaseState('reload');
+      await loadPost();
     } catch (objErr) {
       console.error('Failed to analyze post', objErr);
     } finally {
       setBoolIsAnalyzingPostState(false);
+      setStrAnalysisPhaseState(null);
     }
   };
 
   return {
-    objPostState, boolIsLoadingState, loadingCommentsState, boolIsAnalyzingPostState,
+    objPostState, boolIsLoadingState, loadingCommentsState, boolIsAnalyzingPostState, strAnalysisPhaseState,
     submitComment, submitSource, analyzeComment, analyzePost, handleDeleteComment,
     refetch: loadPost,
   };

@@ -215,6 +215,7 @@ def sync_audit_to_blog_analysis(db: Session, blog_id: int, llm_response: dict):
     detail = llm_response.get("analysis_detail")
     detail_json = json.dumps(detail) if detail else None
 
+    now = datetime.datetime.utcnow()
     analysis = db.query(BlogAIAnalysisModel).filter(BlogAIAnalysisModel.blog_id == blog_id).first()
     if analysis:
         analysis.logical_soundness = logical_soundness
@@ -222,6 +223,7 @@ def sync_audit_to_blog_analysis(db: Session, blog_id: int, llm_response: dict):
         analysis.ai_summary = summary
         analysis.ai_context_guardrail = context_guardrail
         analysis.analysis_detail = detail_json
+        analysis.analyzed_at = now
     else:
         analysis = BlogAIAnalysisModel(
             blog_id=blog_id,
@@ -230,6 +232,7 @@ def sync_audit_to_blog_analysis(db: Session, blog_id: int, llm_response: dict):
             ai_summary=summary,
             ai_context_guardrail=context_guardrail,
             analysis_detail=detail_json,
+            analyzed_at=now,
         )
         db.add(analysis)
 
@@ -254,14 +257,16 @@ def add_recommended_sources(db: Session, blog_id: int, recommended_new_sources: 
     for rec in recommended_new_sources:
         if not isinstance(rec, dict):
             continue
-        title = (rec.get("publisher_or_organization") or "").strip()
-        url = (rec.get("suggested_search_query_or_url") or "").strip()
+        # Article name is the APA-formatted reference; the link is a real,
+        # readable URL. Fall back to older field names for compatibility.
+        title = (rec.get("apa_reference") or rec.get("publisher_or_organization") or "").strip()
+        url = (rec.get("url") or rec.get("suggested_search_query_or_url") or "").strip()
         description = (rec.get("reason_for_inclusion") or "").strip()
         if not title or title.lower() in existing_titles:
             continue
         source = create_source_for_blog(
             db, blog_id, title=title, url=url, description=description,
-            author=approver_name or "Synapse AI",
+            author=rec.get("publisher_or_organization") or approver_name or "Synapse AI",
         )
         approve_blog_source(db, source.id, approved_by="ai", approver_name=approver_name or "Synapse AI")
         existing_titles.add(title.lower())
@@ -354,18 +359,21 @@ def sync_comment_audit_to_analysis(db: Session, comment_id: int, llm_response: d
     relevance_score = llm_response.get("relevance_score", 0.5)
     ai_summary = llm_response.get("ai_summary", "")
 
+    now = datetime.datetime.utcnow()
     analysis = db.query(CommentAnalysisModel).filter(CommentAnalysisModel.comment_id == comment_id).first()
     if analysis:
         if sentiment:
             analysis.sentiment = sentiment
         analysis.relevance_score = relevance_score
         analysis.ai_summary = ai_summary
+        analysis.analyzed_at = now
     else:
         analysis = CommentAnalysisModel(
             comment_id=comment_id,
             sentiment=sentiment,
             relevance_score=relevance_score,
-            ai_summary=ai_summary
+            ai_summary=ai_summary,
+            analyzed_at=now,
         )
         db.add(analysis)
 

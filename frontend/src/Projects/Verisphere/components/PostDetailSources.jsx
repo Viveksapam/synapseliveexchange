@@ -28,7 +28,7 @@ const PostDetailSources = ({ postId, post, sourceForm, onSourceSubmit, onToggleA
           aria-expanded={!boolIsCollapsedState}
           style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, textAlign: 'left' }}
         >
-          <span style={{ fontSize: '0.9rem', color: 'var(--v2-text-muted)', width: '0.9rem', display: 'inline-block' }}>
+          <span style={{ fontSize: '0.9rem', color: 'var(--v2-text-muted)', minWidth: '0.9rem' }}>
             {boolIsCollapsedState ? '▶' : '▼'}
           </span>
           <h4 style={{ margin: 0, color: 'var(--v2-text-main)' }}>

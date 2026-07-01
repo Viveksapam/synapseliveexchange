@@ -68,6 +68,7 @@ const blogPostShape = (blog) => ({
   ai_summary: blog.ai_summary || blog.strSummary,
   ai_context_guardrail: blog.ai_context_guardrail || null,
   analysis_detail: blog.analysis_detail || null,
+  analyzed_at: blog.analyzed_at || null,
   boolIsFeatured: blog.boolIsFeatured || false,
 });
 

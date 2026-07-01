@@ -7,6 +7,7 @@ post/comment text for evidence markers vs. pseudo-scientific / absolutist
 markers and produce a calibrated, prose assessment rather than raw stats.
 """
 import re
+from urllib.parse import quote_plus
 
 # Common words to ignore when comparing a comment against the post's topic.
 _STOPWORDS = {
@@ -51,40 +52,49 @@ def _band(score):
 
 
 def _recommended_sources_for(topic_hint):
-    """Two to three reputable, verifiable search strategies. These are search
-    directions for a human to verify, never fabricated deep links."""
+    """Two to three reputable sources with REAL, readable links and an APA
+    7th-edition reference as the article name. The URLs point to genuine,
+    resolvable pages (publisher search/section pages) rather than fabricated
+    deep links, so every recommendation is clickable and verifiable."""
+    query = quote_plus(topic_hint)
     return [
         {
-            "publisher_or_organization": "Nature / Nature Communications",
+            "apa_reference": (
+                f"Nature Publishing Group. (n.d.). Search results for “{topic_hint}”. "
+                f"Springer Nature. https://www.nature.com/search?q={query}"
+            ),
+            "publisher_or_organization": "Nature (Springer Nature)",
+            "url": f"https://www.nature.com/search?q={query}",
             "reason_for_inclusion": (
                 "Peer-reviewed primary literature is the appropriate evidentiary "
-                "tier for the empirical claim in this post; it is currently "
+                "tier for the empirical claim in this post, which is currently "
                 "supported only by assertion."
-            ),
-            "suggested_search_query_or_url": (
-                f'site:nature.com "{topic_hint}" peer-reviewed study'
             ),
         },
         {
+            "apa_reference": (
+                f"Google Scholar. (n.d.). Scholarly results for “{topic_hint}”. "
+                f"Google. https://scholar.google.com/scholar?q={query}"
+            ),
             "publisher_or_organization": "Google Scholar",
+            "url": f"https://scholar.google.com/scholar?q={query}",
             "reason_for_inclusion": (
-                "Surfaces the breadth of academic consensus (and dissent) so the "
+                "Surfaces the breadth of academic consensus and dissent so the "
                 "claim can be weighed against the established literature rather "
                 "than a single source."
             ),
-            "suggested_search_query_or_url": (
-                f'https://scholar.google.com/scholar?q={topic_hint.replace(" ", "+")}'
-            ),
         },
         {
+            "apa_reference": (
+                "Reuters. (n.d.). Fact check. Thomson Reuters. "
+                "https://www.reuters.com/fact-check/"
+            ),
             "publisher_or_organization": "Reuters Fact Check",
+            "url": "https://www.reuters.com/fact-check/",
             "reason_for_inclusion": (
                 "Provides an independent, editorially-accountable adjudication of "
                 "the viral framing, useful for separating the factual core from "
                 "rhetorical amplification."
-            ),
-            "suggested_search_query_or_url": (
-                f'site:reuters.com/fact-check {topic_hint}'
             ),
         },
     ]

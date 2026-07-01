@@ -279,22 +279,24 @@ def migrate():
             else:
                 print(f"✗ Error creating blog_commentauditcollectionmodel: {e}")
 
-        for col_name, col_type in [
-            ("ai_context_guardrail", "TEXT"),
-            ("analysis_detail", "TEXT"),
+        for table_name, col_name, col_type in [
+            ("blog_blogaianalysismodel", "ai_context_guardrail", "TEXT"),
+            ("blog_blogaianalysismodel", "analysis_detail", "TEXT"),
+            ("blog_blogaianalysismodel", "analyzed_at", "TIMESTAMP"),
+            ("blog_commentanalysismodel", "analyzed_at", "TIMESTAMP"),
         ]:
             try:
-                print(f"Adding {col_name} to blog_blogaianalysismodel...")
+                print(f"Adding {col_name} to {table_name}...")
                 result = conn.execute(text(
                     "SELECT column_name FROM information_schema.columns "
-                    "WHERE table_name='blog_blogaianalysismodel' "
+                    f"WHERE table_name='{table_name}' "
                     f"AND column_name='{col_name}'"
                 ))
                 if result.fetchone():
                     print(f"✓ {col_name} already exists")
                 else:
                     conn.execute(text(
-                        f"ALTER TABLE blog_blogaianalysismodel ADD COLUMN {col_name} {col_type}"
+                        f"ALTER TABLE {table_name} ADD COLUMN {col_name} {col_type}"
                     ))
                     print(f"✓ Added {col_name}")
                 conn.commit()
