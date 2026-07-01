@@ -118,7 +118,8 @@ class PostReactionModel(Base):
     user_id = Column(BigInteger, ForeignKey("user_usermodel.id", ondelete="CASCADE"), index=True)
     emoji = Column(String(50), index=True)
 
-    post = relationship("BlogModel")
+    post = relationship("BlogModel", passive_deletes=True)
+    user = relationship("UserModel", foreign_keys="[PostReactionModel.user_id]", passive_deletes=True)
 
 class BlogContextModel(Base):
     __tablename__ = "blog_blogcontextmodel"
