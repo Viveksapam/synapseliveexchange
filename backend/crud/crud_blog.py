@@ -23,7 +23,17 @@ def get_blogs(db: Session, skip: int = 0, limit: int = 100):
     return blogs
 
 def get_blog_by_id(db: Session, blog_id: int):
-    return db.query(BlogModel).filter(BlogModel.id == blog_id).first()
+    from models.blog_models import BlogContextModel
+    blog = db.query(BlogModel).filter(BlogModel.id == blog_id).first()
+    if blog:
+        # Eagerly load contexts and flatten sources
+        blog.contexts = db.query(BlogContextModel).filter(BlogContextModel.blog_id == blog_id).all()
+        # Flatten all sources from all contexts into a single list
+        all_sources = []
+        for context in blog.contexts:
+            all_sources.extend(get_context_sources(db, context.id))
+        blog.sources = all_sources
+    return blog
 
 def get_blog_comments(db: Session, blog_id: int, skip: int = 0, limit: int = 100):
     return db.query(BlogCommentModel).filter(

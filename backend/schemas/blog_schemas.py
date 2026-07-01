@@ -102,6 +102,8 @@ class BlogResponse(BaseModel):
     logical_soundness: Optional[float] = 0.99
     ai_summary: Optional[str] = None
     boolIsFeatured: Optional[bool] = False
+    contexts: List[BlogContextResponse] = []
+    sources: List[BlogSourceResponse] = []
 
     # Not including comments here directly to keep payload small, as they fetch it via /comments endpoint
 
