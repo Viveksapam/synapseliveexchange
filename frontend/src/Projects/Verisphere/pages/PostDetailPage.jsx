@@ -38,7 +38,7 @@ const PostDetailPage = ({ authHook }) => {
       await post.submitSource({ strTitle: strNewSourceTitleState, strUrl: strNewSourceUrlState, strDescription: strNewSourceDescState });
       setStrNewSourceTitleState(''); setStrNewSourceUrlState(''); setStrNewSourceDescState('');
       setBoolIsAddingSourceState(false);
-    } catch { alert('Failed to submit source. Please ensure you are logged in.'); }
+    } catch (objErr) { alert(objErr.message || 'Failed to submit source.'); }
     finally { setBoolIsSubmittingSourceState(false); }
   };
 
