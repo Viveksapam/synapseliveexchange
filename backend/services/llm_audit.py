@@ -3,7 +3,10 @@ import google.generativeai as genai
 from core.config import settings
 from services.llm_audit_mock import analyze_audit_collection_mock
 
-_MODEL_NAME = "gemini-2.0-flash"
+# "-latest" alias so Google's periodic model deprecations (e.g. gemini-2.0-flash
+# was pulled from serving despite still appearing in list_models()) don't
+# silently break analysis - this always resolves to a currently served model.
+_MODEL_NAME = "gemini-flash-latest"
 
 # The platform's AI reviewer identity. It has a real user account (see
 # scripts/create_synapse_ai.py) so its approvals are attributable like any
