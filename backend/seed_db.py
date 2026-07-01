@@ -14,7 +14,7 @@ Behaviour:
 """
 
 from database import SessionLocal
-from models.blog_models import BlogModel, FeaturedBlogModel
+from models.blog_models import BlogModel, FeaturedBlogModel, RecentContributionModel
 from models.portfolio_models import SkillModel, VideoModel, ProjectModel
 
 
@@ -250,7 +250,8 @@ def seed_projects(db):
 
 
 def seed_blogs(db):
-    """Insert homepage contributions if missing; reset Featured to those 3.
+    """Insert curated blogs if missing; reset Featured to all of them and
+    pin the first 3 as the homepage "Recent Contributions".
 
     Non-destructive: never deletes existing blogs, comments or reactions.
     """
@@ -267,9 +268,17 @@ def seed_blogs(db):
         db.refresh(blog)
         featured_ids.append(blog.id)
 
-    # Point the homepage Featured list at exactly these three contributions.
+    # Point the homepage Featured list at exactly these contributions.
     db.query(FeaturedBlogModel).delete()
     db.add_all([FeaturedBlogModel(blog_id=bid) for bid in featured_ids])
+    db.commit()
+
+    # Pin the first 3 into the homepage "Recent Contributions" slots.
+    db.query(RecentContributionModel).delete()
+    db.add_all([
+        RecentContributionModel(featured_blog_id=bid, position=i + 1)
+        for i, bid in enumerate(featured_ids[:3])
+    ])
     db.commit()
 
 
