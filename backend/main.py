@@ -1,12 +1,25 @@
+import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers import verisphere, portfolio, project, auth, activity
 from database import engine
 from models import blog_models, portfolio_models, user_models
+from core.config import settings
 
 blog_models.Base.metadata.create_all(bind=engine)
 portfolio_models.Base.metadata.create_all(bind=engine)
 user_models.Base.metadata.create_all(bind=engine)
+
+# Print the AI mode this process booted with. Because pydantic Settings reads
+# env vars ONCE at startup, this line is the source of truth for whether THIS
+# running process will call real Gemini or return mock data - editing .env
+# after boot changes nothing until the process is restarted.
+_log = logging.getLogger("uvicorn.error")
+_log.info(
+    "[STARTUP] AI audit mode: %s%s",
+    "MOCK (USE_MOCK_LLM=True)" if settings.USE_MOCK_LLM else "REAL GEMINI (USE_MOCK_LLM=False)",
+    "" if settings.USE_MOCK_LLM else (" — API key present" if settings.GEMINI_API_KEY else " — WARNING: GEMINI_API_KEY is EMPTY"),
+)
 
 app = FastAPI(title="Synapse API")
 

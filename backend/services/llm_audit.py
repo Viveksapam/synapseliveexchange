@@ -1,7 +1,26 @@
 import json
+import time
+import logging
 import google.generativeai as genai
 from core.config import settings
 from services.llm_audit_mock import analyze_audit_collection_mock
+
+# Logs to the uvicorn console (and Render's log viewer). Every audit request
+# prints which path ran (MOCK vs real Gemini), the model, latency, and a short
+# fingerprint of the result - so "is this mock or real?" is never a guess again.
+logger = logging.getLogger("uvicorn.error")
+
+
+def _log_audit_result(kind: str, started: float, result: dict):
+    srcs = result.get("recommended_new_sources", []) or []
+    first = srcs[0].get("apa_reference", "")[:70] if srcs else "(none)"
+    logger.info(
+        "[LLM AUDIT] path=%s elapsed=%.2fs soundness=%s verifiable=%s "
+        "n_recommended_sources=%d first_source=%r",
+        kind, time.monotonic() - started,
+        result.get("logical_soundness"), result.get("verifiable"),
+        len(srcs), first,
+    )
 
 # "-latest" alias so Google's periodic model deprecations (e.g. gemini-2.0-flash
 # was pulled from serving despite still appearing in list_models()) don't
@@ -45,11 +64,17 @@ def analyze_audit_collection(collected_data: dict) -> dict:
       "rejected_source_ids": [int, ...],
     }
     """
+    started = time.monotonic()
+
     # Use mock LLM in development
     if settings.USE_MOCK_LLM:
-        return analyze_audit_collection_mock(collected_data)
+        logger.info("[LLM AUDIT] USE_MOCK_LLM=True -> returning MOCK data (no Gemini call)")
+        result = analyze_audit_collection_mock(collected_data)
+        _log_audit_result("MOCK", started, result)
+        return result
 
     # Use real Gemini in production
+    logger.info("[LLM AUDIT] USE_MOCK_LLM=False -> calling Gemini model=%s", _MODEL_NAME)
     _require_api_key()
     genai.configure(api_key=settings.GEMINI_API_KEY)
     model = genai.GenerativeModel(_MODEL_NAME)
@@ -62,14 +87,21 @@ def analyze_audit_collection(collected_data: dict) -> dict:
             generation_config={"response_mime_type": "application/json"},
         )
     except Exception as e:
+        logger.error("[LLM AUDIT] Gemini call FAILED after %.2fs: %s", time.monotonic() - started, e)
         raise LlmAuditError(f"Gemini API call failed: {e}") from e
 
     try:
-        raw = json.loads(response.text)
+        raw = _parse_json_response(response.text)
     except (ValueError, AttributeError) as e:
+        logger.error(
+            "[LLM AUDIT] Gemini returned unparseable JSON after %.2fs: %s | raw (first 500 chars): %r",
+            time.monotonic() - started, e, response.text[:500] if hasattr(response, "text") else None,
+        )
         raise LlmAuditError(f"Gemini returned a non-JSON response: {e}") from e
 
-    return _flatten_audit_response(raw)
+    result = _flatten_audit_response(raw)
+    _log_audit_result(f"GEMINI:{_MODEL_NAME}", started, result)
+    return result
 
 
 # System prompt for the post/discussion audit. The model returns a rich,
@@ -156,6 +188,24 @@ _POST_AUDIT_PROMPT = (
     "  ]\n"
     "}"
 )
+
+
+def _parse_json_response(text: str) -> dict:
+    """Extract the JSON object Gemini returned, tolerating the two ways it
+    routinely violates response_mime_type='application/json':
+    1. Wrapping the object in ```json ... ``` markdown fences.
+    2. Appending trailing content after the closing brace (a second, malformed
+       JSON blob, stray prose, etc.) - json.loads rejects the whole string in
+       this case ("Extra data"), so we decode just the first valid JSON value
+       and ignore anything after it.
+    """
+    cleaned = text.strip()
+    if cleaned.startswith("```"):
+        cleaned = cleaned.split("```")[1]
+        if cleaned.startswith("json"):
+            cleaned = cleaned[4:]
+        cleaned = cleaned.strip()
+    return json.JSONDecoder().raw_decode(cleaned)[0]
 
 
 def _flatten_audit_response(raw: dict) -> dict:
