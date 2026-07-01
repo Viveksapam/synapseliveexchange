@@ -2,9 +2,10 @@
 
 ## Blog Created Successfully! 🎉
 
-**Blog ID:** 29  
+**Blog ID:** 30  
 **Title:** How Climate Change Laws Are Reshaping Employment Markets  
 **Comments:** 4 (including 1 reply)
+**Sources:** 6 sources across 3 contexts (Research & Studies, Policy & Government, Economic Analysis)
 
 ---
 
@@ -26,26 +27,26 @@ npm run dev
 
 **View the blog post:**
 ```
-http://localhost:5173/verisphere/post/29
+http://localhost:5173/verisphere/post/30
 ```
 
 **View comments & analysis buttons:**
 ```
-http://localhost:5173/verisphere/post/29/comments
+http://localhost:5173/verisphere/post/30/comments
 ```
 
 ---
 
 ## What You'll See
 
-### Post Detail Page (`/post/29`)
+### Post Detail Page (`/post/30`)
 - ✅ Blog title: "How Climate Change Laws Are Reshaping Employment Markets"
 - ✅ Summary and full content
 - ✅ **"Analyze Post & Discussion"** button → Analyzes entire post + all comments
 - ✅ Community badge: "Environment & Policy"
 - ✅ Link to "View Discussion (4 comments)"
 
-### Comments Page (`/post/29/comments`)
+### Comments Page (`/post/30/comments`)
 - ✅ Root comment by Dr. Sarah Mitchell
 - ✅ Root comment by James Chen
 - ✅ Root comment by Maria Garcia
@@ -80,7 +81,7 @@ http://localhost:5173/verisphere/post/29/comments
 
 ### Analyze Post
 ```bash
-curl -X POST http://localhost:8000/api/verisphere/blogs/29/analysis/ \
+curl -X POST http://localhost:8000/api/verisphere/blogs/30/analysis/ \
   -H "Authorization: Bearer <admin-token>"
 ```
 
@@ -141,7 +142,7 @@ After clicking "Analyze" on a comment:
 - Current `.env` uses mock LLM - that's normal
 
 ❌ **"Analyze" button not visible:**
-- Make sure you're on `/verisphere/post/29/comments` page
+- Make sure you're on `/verisphere/post/30/comments` page
 - Comments must be loaded first
 - Refresh page if needed
 
