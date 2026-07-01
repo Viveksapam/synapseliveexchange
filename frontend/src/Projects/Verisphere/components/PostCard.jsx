@@ -84,7 +84,7 @@ const PostCard = ({ objPost, authHook }) => {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
           <span style={{ fontSize: '0.82rem', color: 'var(--v2-text-muted)', whiteSpace: 'nowrap' }}>
-            📚 {objPost.sources ? objPost.sources.length : 0} Sources
+            📚 {objPost.sources_count || 0} Sources
           </span>
           <Link to={`/verisphere/post/${objPost.id}`} className="verisphere-btn-outline" style={{ padding: '2px 8px', fontSize: '0.75rem', whiteSpace: 'nowrap' }}>
             + Add Source
