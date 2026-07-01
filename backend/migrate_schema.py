@@ -204,6 +204,81 @@ def migrate():
             conn.rollback()
             print(f"✗ Error adding approver_name: {e}")
 
+        try:
+            # Create blog_blogaianalysismodel table
+            print("Creating blog_blogaianalysismodel table...")
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS blog_blogaianalysismodel (
+                    blog_id INTEGER PRIMARY KEY REFERENCES blog_blogmodel(id) ON DELETE CASCADE,
+                    logical_soundness FLOAT DEFAULT 0.99,
+                    verifiable VARCHAR(50) DEFAULT 'yes',
+                    ai_summary TEXT
+                )
+            """))
+            conn.commit()
+            print("✓ Created blog_blogaianalysismodel")
+        except Exception as e:
+            conn.rollback()
+            if "already exists" in str(e):
+                print("✓ blog_blogaianalysismodel already exists")
+            else:
+                print(f"✗ Error creating blog_blogaianalysismodel: {e}")
+
+        try:
+            # Create blog_auditcollectionmodel table
+            print("Creating blog_auditcollectionmodel table...")
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS blog_auditcollectionmodel (
+                    id SERIAL PRIMARY KEY,
+                    blog_id INTEGER NOT NULL REFERENCES blog_blogmodel(id) ON DELETE CASCADE,
+                    comment_ids TEXT,
+                    source_ids TEXT,
+                    context_ids TEXT,
+                    collected_data TEXT,
+                    llm_response TEXT,
+                    status VARCHAR(50) DEFAULT 'pending',
+                    error_message TEXT,
+                    collected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    processed_at TIMESTAMP
+                )
+            """))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS blog_auditcollectionmodel_blog_id_idx ON blog_auditcollectionmodel(blog_id)"))
+            conn.commit()
+            print("✓ Created blog_auditcollectionmodel")
+        except Exception as e:
+            conn.rollback()
+            if "already exists" in str(e):
+                print("✓ blog_auditcollectionmodel already exists")
+            else:
+                print(f"✗ Error creating blog_auditcollectionmodel: {e}")
+
+        try:
+            # Create blog_commentauditcollectionmodel table
+            print("Creating blog_commentauditcollectionmodel table...")
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS blog_commentauditcollectionmodel (
+                    id SERIAL PRIMARY KEY,
+                    comment_id INTEGER NOT NULL REFERENCES blog_blogcommentmodel(id) ON DELETE CASCADE,
+                    blog_id INTEGER NOT NULL REFERENCES blog_blogmodel(id) ON DELETE CASCADE,
+                    collected_data TEXT,
+                    llm_response TEXT,
+                    status VARCHAR(50) DEFAULT 'pending',
+                    error_message TEXT,
+                    collected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    processed_at TIMESTAMP
+                )
+            """))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS blog_commentauditcollectionmodel_comment_id_idx ON blog_commentauditcollectionmodel(comment_id)"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS blog_commentauditcollectionmodel_blog_id_idx ON blog_commentauditcollectionmodel(blog_id)"))
+            conn.commit()
+            print("✓ Created blog_commentauditcollectionmodel")
+        except Exception as e:
+            conn.rollback()
+            if "already exists" in str(e):
+                print("✓ blog_commentauditcollectionmodel already exists")
+            else:
+                print(f"✗ Error creating blog_commentauditcollectionmodel: {e}")
+
         print("\n✅ Migration finished (see ✗ lines above for any steps that failed).")
 
 if __name__ == "__main__":

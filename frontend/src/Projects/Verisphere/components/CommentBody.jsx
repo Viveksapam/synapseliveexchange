@@ -65,22 +65,22 @@ const CommentBody = ({ comment, loadingCommentsState, onAnalyze, onStartReply, o
                     {comment.strAiAnalysis}
                   </p>
                 )}
-                {objMetrics && (objMetrics.logical_soundness !== undefined || objMetrics.verifiable !== undefined) && (
+                {objMetrics && (objMetrics.sentiment || objMetrics.relevance_score !== undefined) && (
                   <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(88, 166, 255, 0.1)' }}>
-                    <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem' }}>
-                      {objMetrics.logical_soundness !== undefined && (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '0.75rem', fontSize: '0.8rem' }}>
+                      {objMetrics.sentiment && (
                         <div>
-                          <span style={{ color: 'var(--v2-text-muted)' }}>Soundness:</span>
-                          <span style={{ color: 'var(--v2-text-main)', marginLeft: '0.3rem', fontWeight: 'bold' }}>
-                            {objMetrics.logical_soundness}/100
+                          <span style={{ color: 'var(--v2-text-muted)', display: 'block', marginBottom: '0.2rem' }}>Sentiment</span>
+                          <span style={{ color: 'var(--v2-text-main)', fontWeight: 'bold', textTransform: 'capitalize' }}>
+                            {objMetrics.sentiment}
                           </span>
                         </div>
                       )}
-                      {objMetrics.verifiable !== undefined && (
+                      {objMetrics.relevance_score !== undefined && (
                         <div>
-                          <span style={{ color: 'var(--v2-text-muted)' }}>Verifiable:</span>
-                          <span style={{ color: 'var(--v2-text-main)', marginLeft: '0.3rem', fontWeight: 'bold' }}>
-                            {objMetrics.verifiable}
+                          <span style={{ color: 'var(--v2-text-muted)', display: 'block', marginBottom: '0.2rem' }}>Relevance</span>
+                          <span style={{ color: 'var(--v2-text-main)', fontWeight: 'bold' }}>
+                            {(objMetrics.relevance_score * 100).toFixed(0)}%
                           </span>
                         </div>
                       )}

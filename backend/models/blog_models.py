@@ -181,3 +181,21 @@ class BlogAuditCollectionModel(Base):
     processed_at = Column(DateTime, nullable=True)
 
     blog = relationship("BlogModel")
+
+class CommentAuditCollectionModel(Base):
+    __tablename__ = "blog_commentauditcollectionmodel"
+
+    id = Column(Integer, primary_key=True, index=True)
+    comment_id = Column(Integer, ForeignKey("blog_blogcommentmodel.id", ondelete="CASCADE"), index=True)
+    blog_id = Column(Integer, ForeignKey("blog_blogmodel.id", ondelete="CASCADE"), index=True)
+
+    collected_data = Column(Text)  # JSON with comment context, parent chain, blog, guardrails
+    llm_response = Column(Text, nullable=True)
+
+    status = Column(String(50), default="pending")
+    error_message = Column(Text, nullable=True)
+    collected_at = Column(DateTime, default=datetime.datetime.utcnow)
+    processed_at = Column(DateTime, nullable=True)
+
+    comment = relationship("BlogCommentModel")
+    blog = relationship("BlogModel")

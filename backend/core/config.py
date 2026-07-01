@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     GEMINI_API_KEY: str = ""
+    USE_MOCK_LLM: bool = True  # Set to False in production
 
     class Config:
         env_file = ".env"

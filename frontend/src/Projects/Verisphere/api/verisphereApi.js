@@ -213,30 +213,35 @@ export const postToggleReaction = async (numPostId, strEmoji) => {
 
 export const postAnalyzeContext = async () => ({ summary: 'Mock AI analysis of the post context.' });
 
-export const postAnalyzePost = async (numPostId) => {
+export const postAnalyzePost = async (numPostId, strToken) => {
   const numBlogId = blogIdFromString(numPostId);
   try {
-    const objResponse = await fetch(`${API_BASE}/verisphere/blogs/${numBlogId}/analysis/`, { headers: noCacheHeaders });
+    const objResponse = await fetch(`${API_BASE}/verisphere/blogs/${numBlogId}/analysis/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(strToken && { Authorization: `Bearer ${strToken}` }) },
+    });
     if (objResponse.ok) return await objResponse.json();
   } catch (objErr) {
     console.error('Failed to analyze post:', objErr);
   }
   return {
-    dictPostAnalysis: {},
-    dictAiMetrics: {},
-    strAiContextGuardrail: 'Analysis unavailable',
-    comment_analyses: {},
+    verifiable: 'yes',
+    logical_soundness: 0,
+    ai_summary: 'Analysis unavailable',
   };
 };
 
-export const postAnalyzeComment = async (numCommentId) => {
+export const postAnalyzeComment = async (numCommentId, strToken) => {
   try {
-    const objResponse = await fetch(`${API_BASE}/comments/${numCommentId}/analysis/`, { headers: noCacheHeaders });
+    const objResponse = await fetch(`${API_BASE}/comments/${numCommentId}/analyze/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(strToken && { Authorization: `Bearer ${strToken}` }) },
+    });
     if (objResponse.ok) return await objResponse.json();
   } catch (objErr) {
     console.error('Failed to analyze comment:', objErr);
   }
-  return { strAiAnalysis: 'Analysis unavailable', dictAiMetrics: {} };
+  return { sentiment: null, relevance_score: 0.5, ai_summary: 'Analysis unavailable' };
 };
 
 export const deleteComment = async (numPostId, numCommentId) => {

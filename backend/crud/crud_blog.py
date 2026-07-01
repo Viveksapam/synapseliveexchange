@@ -190,9 +190,140 @@ def update_audit_collection_response(db: Session, collection_id: int, llm_respon
         return collection
     return None
 
+def sync_audit_to_blog_analysis(db: Session, blog_id: int, llm_response: dict):
+    """Sync LLM audit results to BlogAIAnalysisModel."""
+    from models.blog_models import BlogAIAnalysisModel
+
+    blog = get_blog_by_id(db, blog_id)
+    if not blog:
+        return None
+
+    logical_soundness = llm_response.get("logical_soundness", 0.5)
+    verifiable = llm_response.get("verifiable", "partial")
+    summary = llm_response.get("summary", "")
+
+    analysis = db.query(BlogAIAnalysisModel).filter(BlogAIAnalysisModel.blog_id == blog_id).first()
+    if analysis:
+        analysis.logical_soundness = logical_soundness
+        analysis.verifiable = verifiable
+        analysis.ai_summary = summary
+    else:
+        analysis = BlogAIAnalysisModel(
+            blog_id=blog_id,
+            logical_soundness=logical_soundness,
+            verifiable=verifiable,
+            ai_summary=summary
+        )
+        db.add(analysis)
+
+    db.commit()
+    db.refresh(analysis)
+    return analysis
+
 def get_blog_audit_collections(db: Session, blog_id: int):
     from models.blog_models import BlogAuditCollectionModel
     return db.query(BlogAuditCollectionModel).filter(BlogAuditCollectionModel.blog_id == blog_id).all()
+
+def create_comment_audit_collection(db: Session, comment_id: int):
+    """Collect comment context for analysis: parent chain, blog post, comment itself, guardrails."""
+    from models.blog_models import CommentAuditCollectionModel
+
+    comment = db.query(BlogCommentModel).filter(BlogCommentModel.id == comment_id).first()
+    if not comment:
+        return None
+
+    blog = get_blog_by_id(db, comment.blog_id)
+    if not blog:
+        return None
+
+    # Build parent comment chain (traverse up to root)
+    parent_chain = []
+    current = comment
+    while current:
+        parent_chain.insert(0, {
+            "id": current.id,
+            "strAuthor": current.strAuthor,
+            "strContent": current.strContent,
+            "datePosted": str(current.datePosted)
+        })
+        if current.parent_comment_id:
+            current = db.query(BlogCommentModel).filter(BlogCommentModel.id == current.parent_comment_id).first()
+        else:
+            current = None
+
+    collected_data = {
+        "blog": {
+            "id": blog.id,
+            "strTitle": blog.strTitle,
+            "strSummary": blog.strSummary,
+            "strContent": blog.strContent,
+            "strAuthorUsername": blog.strAuthorUsername,
+            "strCommunityName": blog.strCommunityName,
+            "ai_summary": blog.ai_summary,
+            "verifiable": blog.verifiable,
+        },
+        "comment_chain": parent_chain,
+        "target_comment": {
+            "id": comment.id,
+            "strAuthor": comment.strAuthor,
+            "strContent": comment.strContent,
+            "datePosted": str(comment.datePosted)
+        }
+    }
+
+    collection = CommentAuditCollectionModel(
+        comment_id=comment_id,
+        blog_id=comment.blog_id,
+        collected_data=json.dumps(collected_data),
+        status="pending"
+    )
+    db.add(collection)
+    db.commit()
+    db.refresh(collection)
+    return collection
+
+def get_comment_audit_collection(db: Session, collection_id: int):
+    from models.blog_models import CommentAuditCollectionModel
+    return db.query(CommentAuditCollectionModel).filter(CommentAuditCollectionModel.id == collection_id).first()
+
+def update_comment_audit_collection_response(db: Session, collection_id: int, llm_response: dict):
+    from models.blog_models import CommentAuditCollectionModel
+    collection = db.query(CommentAuditCollectionModel).filter(CommentAuditCollectionModel.id == collection_id).first()
+    if collection:
+        collection.llm_response = json.dumps(llm_response)
+        collection.status = "processed"
+        collection.processed_at = datetime.datetime.utcnow()
+        db.commit()
+        db.refresh(collection)
+        return collection
+    return None
+
+def sync_comment_audit_to_analysis(db: Session, comment_id: int, llm_response: dict):
+    """Sync LLM comment analysis results to CommentAnalysisModel."""
+    from models.blog_models import CommentAnalysisModel
+
+    sentiment = llm_response.get("sentiment", None)
+    relevance_score = llm_response.get("relevance_score", 0.5)
+    ai_summary = llm_response.get("ai_summary", "")
+
+    analysis = db.query(CommentAnalysisModel).filter(CommentAnalysisModel.comment_id == comment_id).first()
+    if analysis:
+        if sentiment:
+            analysis.sentiment = sentiment
+        analysis.relevance_score = relevance_score
+        analysis.ai_summary = ai_summary
+    else:
+        analysis = CommentAnalysisModel(
+            comment_id=comment_id,
+            sentiment=sentiment,
+            relevance_score=relevance_score,
+            ai_summary=ai_summary
+        )
+        db.add(analysis)
+
+    db.commit()
+    db.refresh(analysis)
+    return analysis
 
 def get_recent_contributions(db: Session):
     from models.blog_models import RecentContributionModel, FeaturedBlogModel, BlogModel

@@ -107,3 +107,12 @@ class BlogResponse(BaseModel):
 
     class Config:
         orm_mode = True
+
+class CommentAnalysisResponse(BaseModel):
+    comment_id: int
+    sentiment: Optional[str] = None
+    relevance_score: Optional[float] = 0.5
+    ai_summary: Optional[str] = None
+
+    class Config:
+        orm_mode = True

@@ -1,9 +1,10 @@
 import json
 import google.generativeai as genai
 from core.config import settings
+from services.llm_audit_mock import analyze_audit_collection_mock
 
 _MODEL_NAME = "gemini-2.0-flash"
-APPROVER_DISPLAY_NAME = "Gemini 2.0 Flash"
+APPROVER_DISPLAY_NAME = "Gemini 2.0 Flash" if not settings.USE_MOCK_LLM else "Mock LLM"
 
 
 class LlmAuditError(Exception):
@@ -20,9 +21,12 @@ def _require_api_key():
 
 def analyze_audit_collection(collected_data: dict) -> dict:
     """
-    Sends a blog's collected comments/contexts/sources to Gemini and asks it
+    Sends a blog's collected comments/contexts/sources to an LLM and asks it
     to assess overall soundness/verifiability and recommend which pending
     sources look legitimate enough to auto-approve.
+
+    If USE_MOCK_LLM is True (default in dev), returns mock data.
+    Otherwise sends to Gemini.
 
     Returns a dict shaped like:
     {
@@ -33,6 +37,11 @@ def analyze_audit_collection(collected_data: dict) -> dict:
       "rejected_source_ids": [int, ...],
     }
     """
+    # Use mock LLM in development
+    if settings.USE_MOCK_LLM:
+        return analyze_audit_collection_mock(collected_data)
+
+    # Use real Gemini in production
     _require_api_key()
     genai.configure(api_key=settings.GEMINI_API_KEY)
     model = genai.GenerativeModel(_MODEL_NAME)

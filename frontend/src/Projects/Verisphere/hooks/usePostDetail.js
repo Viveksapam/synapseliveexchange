@@ -39,11 +39,20 @@ export const usePostDetail = (postId, strToken, boolIsLoggedIn) => {
   const analyzeComment = async (numCommentId) => {
     setLoadingCommentsState((prev) => ({ ...prev, [numCommentId]: true }));
     try {
-      const data = await postAnalyzeComment(numCommentId);
+      const data = await postAnalyzeComment(numCommentId, strToken);
       setObjPostState((prev) => ({
         ...prev,
         comments: prev.comments.map((c) =>
-          c.id === numCommentId ? { ...c, strAiAnalysis: data.strAiAnalysis, dictAiMetrics: data.dictAiMetrics } : c
+          c.id === numCommentId
+            ? {
+                ...c,
+                strAiAnalysis: data.ai_summary,
+                dictAiMetrics: {
+                  sentiment: data.sentiment,
+                  relevance_score: data.relevance_score,
+                },
+              }
+            : c
         ),
       }));
     } catch (objErr) {
@@ -67,17 +76,16 @@ export const usePostDetail = (postId, strToken, boolIsLoggedIn) => {
   const analyzePost = async () => {
     setBoolIsAnalyzingPostState(true);
     try {
-      const data = await postAnalyzePost(postId);
+      const data = await postAnalyzePost(postId, strToken);
       setObjPostState((prev) => ({
         ...prev,
-        dictPostAnalysis: data.dictPostAnalysis || {},
-        dictAiMetrics: data.dictAiMetrics || prev.dictAiMetrics,
-        strAiContextGuardrail: data.strAiContextGuardrail || prev.strAiContextGuardrail,
-        comments: prev.comments.map((c) =>
-          data.comment_analyses && data.comment_analyses[c.id]
-            ? { ...c, strAiAnalysis: data.comment_analyses[c.id].strAiAnalysis, dictAiMetrics: data.comment_analyses[c.id].dictAiMetrics }
-            : c
-        ),
+        verifiable: data.verifiable,
+        logical_soundness: data.logical_soundness,
+        ai_summary: data.ai_summary,
+        dictAiMetrics: {
+          verifiable: data.verifiable,
+          logical_soundness: data.logical_soundness,
+        },
       }));
     } catch (objErr) {
       console.error('Failed to analyze post', objErr);

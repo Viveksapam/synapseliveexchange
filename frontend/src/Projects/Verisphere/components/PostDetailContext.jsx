@@ -11,8 +11,7 @@ const PostDetailContext = ({ strAiContextGuardrail, post, onAnalyze, boolIsAnaly
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const objPostAnalysis = post?.dictPostAnalysis;
-  const boolHasPostAnalysis = objPostAnalysis && (objPostAnalysis.author_credibility || objPostAnalysis.claim_breakdown || objPostAnalysis.source_quality || objPostAnalysis.post_metadata);
+  const boolHasPostAnalysis = post?.ai_summary;
 
   return (
     <div className="verisphere-context-guardrail" style={{ marginTop: '2rem' }}>
@@ -32,32 +31,31 @@ const PostDetailContext = ({ strAiContextGuardrail, post, onAnalyze, boolIsAnaly
               {boolIsPostAnalysisExpandedState ? '▼' : '▶'}
             </span>
           </button>
+          {!boolIsPostAnalysisExpandedState && (
+            <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.85rem', color: 'var(--v2-text-muted)' }}>
+              {post.ai_summary?.substring(0, 80)}...
+            </p>
+          )}
           {boolIsPostAnalysisExpandedState && (
             <div style={{ marginTop: '0.8rem', paddingTop: '0.8rem', borderTop: '1px solid var(--glass-border)' }}>
-              {objPostAnalysis.author_credibility && (
-                <div style={{ marginBottom: '0.8rem' }}>
-                  <p style={{ margin: '0.3rem 0', fontSize: '0.85rem', color: 'var(--v2-text-muted)', fontWeight: '500' }}>Author Credibility</p>
-                  <p style={{ margin: '0.3rem 0', fontSize: '0.9rem', color: 'var(--v2-text-main)' }}>{objPostAnalysis.author_credibility}</p>
+              <div style={{ marginBottom: '1rem' }}>
+                <p style={{ margin: '0.3rem 0', fontSize: '0.85rem', color: 'var(--v2-text-muted)', fontWeight: '500' }}>AI Assessment</p>
+                <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: 'var(--v2-text-main)', lineHeight: '1.5' }}>{post.ai_summary}</p>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', fontSize: '0.85rem' }}>
+                <div>
+                  <span style={{ color: 'var(--v2-text-muted)', display: 'block', marginBottom: '0.3rem' }}>Logical Soundness</span>
+                  <span style={{ color: 'var(--v2-text-main)', fontWeight: 'bold', fontSize: '1rem' }}>
+                    {(post.logical_soundness * 100).toFixed(0)}/100
+                  </span>
                 </div>
-              )}
-              {objPostAnalysis.claim_breakdown && (
-                <div style={{ marginBottom: '0.8rem' }}>
-                  <p style={{ margin: '0.3rem 0', fontSize: '0.85rem', color: 'var(--v2-text-muted)', fontWeight: '500' }}>Claim Breakdown</p>
-                  <p style={{ margin: '0.3rem 0', fontSize: '0.9rem', color: 'var(--v2-text-main)' }}>{objPostAnalysis.claim_breakdown}</p>
+                <div>
+                  <span style={{ color: 'var(--v2-text-muted)', display: 'block', marginBottom: '0.3rem' }}>Verifiable</span>
+                  <span style={{ color: 'var(--v2-text-main)', fontWeight: 'bold', fontSize: '1rem', textTransform: 'capitalize' }}>
+                    {post.verifiable}
+                  </span>
                 </div>
-              )}
-              {objPostAnalysis.source_quality && (
-                <div style={{ marginBottom: '0.8rem' }}>
-                  <p style={{ margin: '0.3rem 0', fontSize: '0.85rem', color: 'var(--v2-text-muted)', fontWeight: '500' }}>Source Citations Quality</p>
-                  <p style={{ margin: '0.3rem 0', fontSize: '0.9rem', color: 'var(--v2-text-main)' }}>{objPostAnalysis.source_quality}</p>
-                </div>
-              )}
-              {objPostAnalysis.post_metadata && (
-                <div style={{ marginBottom: '0.8rem' }}>
-                  <p style={{ margin: '0.3rem 0', fontSize: '0.85rem', color: 'var(--v2-text-muted)', fontWeight: '500' }}>Post Metadata</p>
-                  <p style={{ margin: '0.3rem 0', fontSize: '0.9rem', color: 'var(--v2-text-main)' }}>{objPostAnalysis.post_metadata}</p>
-                </div>
-              )}
+              </div>
             </div>
           )}
         </div>
