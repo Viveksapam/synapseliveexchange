@@ -142,10 +142,16 @@ _POST_AUDIT_PROMPT = (
     "  },\n"
     '  "recommended_new_sources": [\n'
     "    {\n"
-    '      "apa_reference": "<full APA 7th-edition reference for the source, e.g. Author, A. A. (Year). Title. Publisher/Journal. https://doi.org/...>",\n'
+    '      "apa_reference": "<full APA 7th-edition reference for source #1, e.g. Author, A. A. (Year). Title. Publisher/Journal. https://doi.org/...>",\n'
     '      "publisher_or_organization": "<e.g. Nature, Cochrane, Reuters, a gov database>",\n'
     '      "url": "<a real, resolvable, readable URL - a DOI or official landing/search page you are confident exists>",\n'
     '      "reason_for_inclusion": "<what specific gap this fills>"\n'
+    "    },\n"
+    "    {\n"
+    '      "apa_reference": "<full APA 7th-edition reference for a DIFFERENT source #2 - this array is REQUIRED to have at least 2 entries, optionally a 3rd>",\n'
+    '      "publisher_or_organization": "<...>",\n'
+    '      "url": "<...>",\n'
+    '      "reason_for_inclusion": "<...>"\n'
     "    }\n"
     "  ]\n"
     "}"

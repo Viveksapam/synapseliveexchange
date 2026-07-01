@@ -4,12 +4,13 @@ import { Link } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 
 const TopNavBar = ({ boolIsLoggedInState, onOpenLogin, handleLogout }) => {
-  const [boolIsDarkModeState, setBoolIsDarkMode] = useState(false);
+  const [boolIsDarkModeState, setBoolIsDarkMode] = useState(true);
   const [boolIsMobileMenuOpenState, setBoolIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const savedMode = localStorage.getItem('ath-dark-mode');
-    const isDark = savedMode === 'true' || false;
+    // Default to dark mode unless the visitor has explicitly chosen light before.
+    const isDark = savedMode !== null ? savedMode === 'true' : true;
     setBoolIsDarkMode(isDark);
     applyDarkMode(isDark);
   }, []);
