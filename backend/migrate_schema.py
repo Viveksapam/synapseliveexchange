@@ -10,8 +10,10 @@ def migrate():
                 ALTER TABLE blog_blogcommentmodel
                 ADD COLUMN parent_comment_id INTEGER REFERENCES blog_blogcommentmodel(id) ON DELETE CASCADE
             """))
+            conn.commit()
             print("✓ Added parent_comment_id")
         except Exception as e:
+            conn.rollback()
             if "already exists" in str(e):
                 print("✓ parent_comment_id already exists")
             else:
@@ -28,8 +30,10 @@ def migrate():
                     ai_summary TEXT
                 )
             """))
+            conn.commit()
             print("✓ Created blog_commentanalysismodel")
         except Exception as e:
+            conn.rollback()
             print(f"✗ Error creating blog_commentanalysismodel: {e}")
 
         try:
@@ -46,8 +50,10 @@ def migrate():
                 )
             """))
             conn.execute(text("CREATE INDEX IF NOT EXISTS blog_blogcontextmodel_blog_id_idx ON blog_blogcontextmodel(blog_id)"))
+            conn.commit()
             print("✓ Created blog_blogcontextmodel")
         except Exception as e:
+            conn.rollback()
             print(f"✗ Error creating blog_blogcontextmodel: {e}")
 
         try:
@@ -91,7 +97,9 @@ def migrate():
                 """))
 
                 print("✓ Updated blog_blogsourcemodel")
+            conn.commit()
         except Exception as e:
+            conn.rollback()
             print(f"✗ Error updating blog_blogsourcemodel: {e}")
 
         try:
@@ -113,16 +121,20 @@ def migrate():
                 )
             """))
             conn.execute(text("CREATE INDEX IF NOT EXISTS blog_auditcollectionmodel_blog_id_idx ON blog_auditcollectionmodel(blog_id)"))
+            conn.commit()
             print("✓ Created blog_auditcollectionmodel")
         except Exception as e:
+            conn.rollback()
             print(f"✗ Error creating blog_auditcollectionmodel: {e}")
 
         try:
             # 6. Add index to parent_comment_id if not exists
             print("Creating index for parent_comment_id...")
             conn.execute(text("CREATE INDEX IF NOT EXISTS blog_blogcommentmodel_parent_comment_id_idx ON blog_blogcommentmodel(parent_comment_id)"))
+            conn.commit()
             print("✓ Created parent_comment_id index")
         except Exception as e:
+            conn.rollback()
             print(f"✗ Error creating index: {e}")
 
         try:
@@ -137,7 +149,9 @@ def migrate():
                     ADD COLUMN "strDescription" TEXT
                 """))
                 print("✓ Added strDescription")
+            conn.commit()
         except Exception as e:
+            conn.rollback()
             print(f"✗ Error adding strDescription: {e}")
 
         try:
@@ -151,11 +165,12 @@ def migrate():
                     ADD COLUMN review_status VARCHAR(20) NOT NULL DEFAULT 'pending'
                 """))
                 print("✓ Added review_status")
+            conn.commit()
         except Exception as e:
+            conn.rollback()
             print(f"✗ Error adding review_status: {e}")
 
-        conn.commit()
-        print("\n✅ Migration completed successfully!")
+        print("\n✅ Migration finished (see ✗ lines above for any steps that failed).")
 
 if __name__ == "__main__":
     migrate()
