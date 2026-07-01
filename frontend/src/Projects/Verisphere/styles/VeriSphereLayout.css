@@ -16,9 +16,8 @@
 
 .verisphere-post-card {
   display: flex;
-  background: transparent;
+  background: var(--glass-bg, rgba(15, 15, 20, 0.4));
   border: none;
-  border-bottom: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
   border-radius: 0;
   padding: 20px 4px;
   gap: 1rem;
@@ -27,12 +26,8 @@
   color: var(--v2-text-main, #ffffff);
 }
 
-.verisphere-post-card:last-child {
-  border-bottom: none;
-}
-
 .verisphere-post-card:hover {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .verisphere-post-content {
