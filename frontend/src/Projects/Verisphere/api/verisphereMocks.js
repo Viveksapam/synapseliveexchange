@@ -64,6 +64,7 @@ const blogPostShape = (blog) => ({
   strMediaUrl: blog.strMediaUrl || null,
   dictAiMetrics: { verifiable: blog.verifiable || 'yes', logical_soundness: blog.logical_soundness || 0.99 },
   sources: [],
+  sources_count: blog.sources_count || 0,
   ai_summary: blog.ai_summary || blog.strSummary,
   boolIsFeatured: blog.boolIsFeatured || false,
 });

@@ -96,6 +96,7 @@ class BlogResponse(BaseModel):
     strCommunityName: Optional[str] = 'General'
     numUpvotes: Optional[int] = 0
     comments_count: Optional[int] = 0
+    sources_count: Optional[int] = 0
     verifiable: Optional[str] = 'yes'
     logical_soundness: Optional[float] = 0.99
     ai_summary: Optional[str] = None

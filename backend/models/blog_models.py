@@ -54,6 +54,23 @@ class BlogModel(Base):
     def ai_summary(self):
         return self.ai_analysis.ai_summary if self.ai_analysis else None
 
+    @property
+    def sources_count(self):
+        # Total sources across all contexts, regardless of review_status -
+        # Community Sources only shows approved ones, but the feed count
+        # reflects everything submitted.
+        from sqlalchemy.orm import object_session
+        from models.blog_models import BlogContextModel, BlogSourceModel
+        session = object_session(self)
+        if not session:
+            return 0
+        return (
+            session.query(BlogSourceModel)
+            .join(BlogContextModel, BlogSourceModel.context_id == BlogContextModel.id)
+            .filter(BlogContextModel.blog_id == self.id)
+            .count()
+        )
+
 class BlogAIAnalysisModel(Base):
     __tablename__ = "blog_blogaianalysismodel"
 
