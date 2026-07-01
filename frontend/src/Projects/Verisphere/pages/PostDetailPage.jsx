@@ -35,7 +35,10 @@ const PostDetailPage = ({ authHook }) => {
     if (!strNewSourceTitleState.trim() || !strNewSourceUrlState.trim()) return;
     setBoolIsSubmittingSourceState(true);
     try {
-      await post.submitSource({ strTitle: strNewSourceTitleState, strUrl: strNewSourceUrlState, strDescription: strNewSourceDescState });
+      await post.submitSource({
+        strTitle: strNewSourceTitleState, strUrl: strNewSourceUrlState, strDescription: strNewSourceDescState,
+        strAuthor: objUserState?.username,
+      });
       setStrNewSourceTitleState(''); setStrNewSourceUrlState(''); setStrNewSourceDescState('');
       setBoolIsAddingSourceState(false);
     } catch (objErr) { alert(objErr.message || 'Failed to submit source.'); }
