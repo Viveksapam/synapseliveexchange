@@ -11,8 +11,8 @@ const PostDetailSources = ({ post, sourceForm, onSourceSubmit, onToggleAdd }) =>
 
   return (
     <div className="verisphere-community-sources" style={{
-      marginTop: '1.5rem', marginBottom: '1.5rem', padding: '1rem',
-      border: '1px solid var(--glass-border)', borderRadius: '8px', backgroundColor: 'var(--glass-bg)',
+      marginTop: '1.5rem', marginBottom: '1.5rem', padding: '1rem 0',
+      borderTop: '1px solid var(--glass-border)', borderBottom: '1px solid var(--glass-border)',
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
         <h4 style={{ margin: 0, color: 'var(--v2-text-main)' }}>
