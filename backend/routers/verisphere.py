@@ -312,7 +312,7 @@ def delete_comment_analysis(comment_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Analysis not found")
     return {"message": "Analysis deleted successfully"}
 
-@router.post("/blogs/{blog_id}/analysis/")
+@router.post("/blogs/{blog_id}/analysis/", response_model=BlogResponse)
 def analyze_blog(blog_id: int, db: Session = Depends(get_db), current_user: UserModel = Depends(get_current_admin_user)):
     """Trigger audit/analysis of a blog post and return updated blog with analysis."""
     blog = crud_blog.get_blog_by_id(db, blog_id)
@@ -343,5 +343,4 @@ def analyze_blog(blog_id: int, db: Session = Depends(get_db), current_user: User
     )
 
     # Return updated blog with analysis
-    updated_blog = crud_blog.get_blog_by_id(db, blog_id)
-    return BlogResponse.from_orm(updated_blog)
+    return crud_blog.get_blog_by_id(db, blog_id)
