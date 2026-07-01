@@ -1,8 +1,10 @@
+import json
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from database import get_db
 from crud import crud_blog, crud_portfolio
+from services import llm_audit
 from schemas.blog_schemas import BlogResponse, BlogCommentResponse, BlogCommentCreate, BlogSourceResponse, BlogSourceCreate, CommentAnalysisResponse, CommentAnalysisCreate, BlogContextResponse, BlogContextCreate, BlogAuditCollectionResponse
 from pydantic import BaseModel as PydanticBaseModel
 
@@ -193,6 +195,30 @@ def collect_audit_data(blog_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Failed to create collection")
     return collection
 
+@router.post("/blogs/{blog_id}/audit/run/", response_model=BlogAuditCollectionResponse)
+def run_blog_audit(blog_id: int, db: Session = Depends(get_db), current_user: UserModel = Depends(get_current_admin_user)):
+    """Collect a blog's data, send it to Gemini, store the result, and
+    auto-approve any pending sources the model recommends (approved_by="ai")."""
+    blog = crud_blog.get_blog_by_id(db, blog_id)
+    if not blog:
+        raise HTTPException(status_code=404, detail="Blog not found")
+
+    collection = crud_blog.create_audit_collection(db, blog_id)
+    if not collection:
+        raise HTTPException(status_code=400, detail="Failed to create collection")
+
+    try:
+        llm_result = llm_audit.analyze_audit_collection(json.loads(collection.collected_data))
+    except llm_audit.LlmAuditError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+
+    collection = crud_blog.update_audit_collection_response(db, collection.id, llm_result)
+
+    for source_id in llm_result.get("approved_source_ids", []):
+        crud_blog.approve_blog_source(db, source_id, approved_by="ai")
+
+    return collection
+
 @router.get("/audit/collections/{collection_id}/", response_model=BlogAuditCollectionResponse)
 def get_audit_collection(collection_id: int, db: Session = Depends(get_db)):
     collection = crud_blog.get_audit_collection(db, collection_id)
@@ -209,15 +235,16 @@ def get_blog_audit_collections(blog_id: int, db: Session = Depends(get_db)):
 
 @router.post("/audit/collections/{collection_id}/llm-response/")
 def set_llm_response(collection_id: int, llm_response: dict, db: Session = Depends(get_db)):
-    # TODO: source review currently only moves from 'pending' to 'approved' via
-    # the moderator-only POST /sources/{id}/approve/ endpoint below. Once an AI
-    # reviewer is wired up to consume BlogAuditCollectionModel.source_ids and
-    # call back here, this handler should also read llm_response for any
-    # sources it approved and call crud_blog.approve_blog_source(db, source_id,
-    # approved_by="ai") for each, so sources can clear review without a human.
+    """For a manually-supplied llm_response (e.g. an external caller that ran
+    its own model). POST /blogs/{blog_id}/audit/run/ is the endpoint that
+    actually calls Gemini itself; this one just records + applies whatever
+    response is handed to it, in the same shape llm_audit.analyze_audit_collection
+    returns."""
     collection = crud_blog.update_audit_collection_response(db, collection_id, llm_response)
     if not collection:
         raise HTTPException(status_code=404, detail="Collection not found")
+    for source_id in llm_response.get("approved_source_ids", []):
+        crud_blog.approve_blog_source(db, source_id, approved_by="ai")
     return {"message": "LLM response stored", "status": collection.status}
 
 @router.get("/blogs/{blog_id}/comments/{comment_id}/replies/", response_model=List[BlogCommentResponse])

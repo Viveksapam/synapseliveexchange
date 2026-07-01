@@ -410,11 +410,9 @@ def update_blog_source(db: Session, source_id: int, title: str = None, url: str 
     return None
 
 def approve_blog_source(db: Session, source_id: int, approved_by: str = "moderator"):
-    # approved_by is 'moderator' for the admin Approve button below.
-    # TODO: once an AI review pipeline exists (see BlogAuditCollectionModel /
-    # audit/collect endpoints), it should call this same function with
-    # approved_by="ai" after a submitted source passes review, instead of
-    # requiring a moderator to act on every submission.
+    # approved_by is "moderator" from the admin Approve button, or "ai" when
+    # called from POST /blogs/{blog_id}/audit/run/ (see services/llm_audit.py)
+    # after Gemini recommends approving a pending source.
     from models.blog_models import BlogSourceModel
     source = db.query(BlogSourceModel).filter(BlogSourceModel.id == source_id).first()
     if source:
