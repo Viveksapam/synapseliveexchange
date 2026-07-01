@@ -10,7 +10,8 @@ import '../styles/VeriSphere.css';
 function CommunityPage({ authHook }) {
     const { id } = useParams();
     const fallbackAuth = useAuth();
-    const { boolIsLoggedInState, strTokenState } = authHook || fallbackAuth;
+    const objAuthHook = authHook || fallbackAuth;
+    const { boolIsLoggedInState, strTokenState } = objAuthHook;
     const [objCommunityState, setObjCommunityState] = useState(null);
     const [arrPostsState, setArrPostsState] = useState([]);
     const [boolIsLoadingState, setBoolIsLoadingState] = useState(true);
@@ -140,7 +141,7 @@ function CommunityPage({ authHook }) {
                     ) : (
                         <div className="verisphere-post-list">
                             {arrPostsState.map(objPost => (
-                                <PostCard key={objPost.id} objPost={objPost} />
+                                <PostCard key={objPost.id} objPost={objPost} authHook={objAuthHook} />
                             ))}
                         </div>
                     )}
