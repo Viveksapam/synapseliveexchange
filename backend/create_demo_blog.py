@@ -5,7 +5,7 @@ Create a demo blog post about climate change and employment laws.
 from datetime import date
 from sqlalchemy.orm import Session
 from database import SessionLocal
-from models.blog_models import BlogModel, BlogCommentModel, CommunityModel
+from models.blog_models import BlogModel, BlogCommentModel, CommunityModel, BlogContextModel, BlogSourceModel
 
 db: Session = SessionLocal()
 
@@ -91,6 +91,87 @@ reply = BlogCommentModel(
 db.add(reply)
 db.commit()
 print(f"✅ Added reply comment")
+
+# Create contexts and sources
+sources_data = [
+    {
+        "context": "Research & Studies",
+        "sources": [
+            {
+                "strTitle": "International Renewable Energy Agency (IRENA) Global Employment Report",
+                "strUrl": "https://www.irena.org/publications/2023-jan/renewable-energy-and-jobs-annual-review-2023",
+                "strDescription": "Comprehensive analysis of renewable energy employment trends globally with sector-specific breakdowns",
+                "strAuthor": "IRENA"
+            },
+            {
+                "strTitle": "World Economic Forum - The Future of Jobs Report",
+                "strUrl": "https://www.weforum.org/publications/future-of-jobs-report-2023",
+                "strDescription": "Employment impact analysis of climate transition and green technology adoption",
+                "strAuthor": "WEF"
+            }
+        ]
+    },
+    {
+        "context": "Policy & Government",
+        "sources": [
+            {
+                "strTitle": "U.S. Environmental Protection Agency - Green Jobs Report",
+                "strUrl": "https://www.epa.gov/environmental-economics/green-economy",
+                "strDescription": "Official EPA statistics on employment in environmental and green sectors",
+                "strAuthor": "EPA"
+            },
+            {
+                "strTitle": "European Commission - Just Transition Mechanism",
+                "strUrl": "https://ec.europa.eu/info/business-economy-euro/banking-and-finance/sustainable-finance/sustainable-finance-taxonomy_en",
+                "strDescription": "EU framework for supporting workers and communities in climate transition",
+                "strAuthor": "European Commission"
+            }
+        ]
+    },
+    {
+        "context": "Economic Analysis",
+        "sources": [
+            {
+                "strTitle": "BloombergNEF - Renewable Energy Job Creation Analysis",
+                "strUrl": "https://www.bnef.com",
+                "strDescription": "Investment-focused analysis of job creation in clean energy sectors",
+                "strAuthor": "BloombergNEF"
+            },
+            {
+                "strTitle": "International Labour Organization - Skills for Green Jobs",
+                "strUrl": "https://www.ilo.org/global/topics/green-jobs/lang--en/index.htm",
+                "strDescription": "Worker training and skills gap analysis in transition to green economy",
+                "strAuthor": "ILO"
+            }
+        ]
+    }
+]
+
+for context_data in sources_data:
+    # Create context
+    context = BlogContextModel(
+        blog_id=blog.id,
+        strTitle=context_data["context"],
+        strDescription=f"Sources related to {context_data['context'].lower()}"
+    )
+    db.add(context)
+    db.commit()
+    db.refresh(context)
+
+    # Create sources for this context
+    for source_data in context_data["sources"]:
+        source = BlogSourceModel(
+            context_id=context.id,
+            strTitle=source_data["strTitle"],
+            strUrl=source_data["strUrl"],
+            strDescription=source_data["strDescription"],
+            strAuthor=source_data["strAuthor"],
+            review_status="pending"  # Sources start as pending approval
+        )
+        db.add(source)
+    db.commit()
+
+print(f"✅ Added {sum(len(c['sources']) for c in sources_data)} sources in {len(sources_data)} contexts")
 
 print("\n" + "="*70)
 print("DEMO BLOG CREATED SUCCESSFULLY")
