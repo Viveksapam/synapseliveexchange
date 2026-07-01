@@ -6,25 +6,12 @@ import { useReactions } from '../hooks/useReactions';
 import MediaEmbed from './MediaEmbed';
 import PostCardReactions from './PostCardReactions';
 
-const getVerifiableColor = (strVerifiable) => {
-  if (!strVerifiable) return '#30363d';
-  const v = strVerifiable.toLowerCase();
-  if (v === 'yes') return '#2ea043';
-  if (v === 'partial') return '#d29922';
-  if (v === 'no') return '#f85149';
-  return '#8b949e';
-};
-
 const PostCard = ({ objPost, authHook }) => {
   const navigate = useNavigate();
-  const objMetrics = objPost.dictAiMetrics;
-  const boolIsAnalyzed = objMetrics && objMetrics.logical_soundness !== undefined;
   const { objUserState, strTokenState, boolIsLoggedInState } = authHook || {};
   const boolIsAdmin = !!(objUserState && (objUserState.is_superuser || objUserState.is_staff));
   const [boolIsFeaturedState, setBoolIsFeaturedState] = useState(objPost.boolIsFeatured);
   const reactions = useReactions(objPost.id, boolIsLoggedInState);
-
-  const strScoreColor = getVerifiableColor(boolIsAnalyzed ? objMetrics.verifiable : null);
 
   const handleCardClick = (e) => {
     if (e.target.closest('a') || e.target.closest('button') || e.target.closest('iframe')) return;
@@ -49,12 +36,6 @@ const PostCard = ({ objPost, authHook }) => {
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }} title="Engagement (Views)">
           <span className="verisphere-vote-count" style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{objPost.numUpvotes}</span>
           <span className="verisphere-vote-label" style={{ fontSize: '0.65rem', color: 'var(--v2-text-muted)', display: 'block', textAlign: 'center', marginTop: '2px' }}>Engagement</span>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', borderTop: '1px solid var(--glass-border)', paddingTop: '1rem', width: '100%' }}>
-          <div className="ai-score-badge" style={{ minWidth: '40px', height: '40px', padding: '0 8px', borderRadius: '4px', border: `1px solid ${strScoreColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.8rem', color: boolIsAnalyzed ? 'var(--v2-text-main)' : 'var(--v2-text-muted)', backgroundColor: boolIsAnalyzed ? `${strScoreColor}20` : 'var(--glass-bg)' }}>
-            {boolIsAnalyzed ? (objMetrics.verifiable ? objMetrics.verifiable.toUpperCase() : '?') : '?'}
-          </div>
-          <span style={{ fontSize: '0.65rem', color: 'var(--v2-text-muted)', display: 'block', textAlign: 'center', marginTop: '6px', textTransform: 'uppercase', letterSpacing: '1px' }}>Verifiable</span>
         </div>
       </div>
 

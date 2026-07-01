@@ -323,6 +323,33 @@ def migrate():
             conn.rollback()
             print(f"✗ Error widening strTitle: {e}")
 
+        # Drop the fields we decided to remove entirely: soundness/verifiable
+        # were a single misleadingly-authoritative number/verdict for posts
+        # (replaced by the sub-score rubric + prose summary); sentiment/
+        # relevance_score were a similar false-precision pattern for comments
+        # (replaced by pure-prose ai_summary).
+        for table_name, col_name in [
+            ("blog_blogaianalysismodel", "verifiable"),
+            ("blog_blogaianalysismodel", "logical_soundness"),
+            ("blog_commentanalysismodel", "sentiment"),
+            ("blog_commentanalysismodel", "relevance_score"),
+        ]:
+            try:
+                print(f"Dropping {col_name} from {table_name}...")
+                result = conn.execute(text(
+                    "SELECT column_name FROM information_schema.columns "
+                    f"WHERE table_name='{table_name}' AND column_name='{col_name}'"
+                ))
+                if not result.fetchone():
+                    print(f"✓ {col_name} already gone")
+                else:
+                    conn.execute(text(f'ALTER TABLE {table_name} DROP COLUMN "{col_name}"'))
+                    print(f"✓ Dropped {col_name}")
+                conn.commit()
+            except Exception as e:
+                conn.rollback()
+                print(f"✗ Error dropping {col_name}: {e}")
+
         print("\n✅ Migration finished (see ✗ lines above for any steps that failed).")
 
 if __name__ == "__main__":

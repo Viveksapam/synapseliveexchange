@@ -85,23 +85,9 @@ const PostDetailContext = ({ strAiContextGuardrail, post, onAnalyze, boolIsAnaly
                   Analyzed {strAnalyzedAt}
                 </p>
               )}
-              <div style={{ marginBottom: '1rem' }}>
+              <div style={{ marginBottom: arrSubScores.length ? '1.2rem' : 0 }}>
                 <p style={{ margin: '0.3rem 0', fontSize: '0.85rem', color: 'var(--v2-text-muted)', fontWeight: '500' }}>AI Assessment</p>
                 <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: 'var(--v2-text-main)', lineHeight: '1.5' }}>{post.ai_summary}</p>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', fontSize: '0.85rem', marginBottom: arrSubScores.length ? '1.2rem' : 0 }}>
-                <div>
-                  <span style={{ color: 'var(--v2-text-muted)', display: 'block', marginBottom: '0.3rem' }}>Logical Soundness</span>
-                  <span style={{ color: 'var(--v2-text-main)', fontWeight: 'bold', fontSize: '1rem' }}>
-                    {(post.logical_soundness * 100).toFixed(0)}/100
-                  </span>
-                </div>
-                <div>
-                  <span style={{ color: 'var(--v2-text-muted)', display: 'block', marginBottom: '0.3rem' }}>Verifiable</span>
-                  <span style={{ color: 'var(--v2-text-main)', fontWeight: 'bold', fontSize: '1rem', textTransform: 'capitalize' }}>
-                    {post.verifiable}
-                  </span>
-                </div>
               </div>
 
               {arrSubScores.length > 0 && (
@@ -173,7 +159,7 @@ const PostDetailContext = ({ strAiContextGuardrail, post, onAnalyze, boolIsAnaly
                   opacity: boolIsAnalyzing ? 0.6 : 1,
                 }}
               >
-                {boolIsAnalyzing ? '⊙ Analyzing...' : 'Analyze Post & Discussion'}
+                {boolIsAnalyzing ? '⊙ Analyzing...' : 'Analyze Post'}
               </button>
             )}
           </div>

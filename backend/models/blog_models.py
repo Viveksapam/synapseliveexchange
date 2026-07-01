@@ -43,14 +43,6 @@ class BlogModel(Base):
         return self.community.strName if self.community else 'General'
 
     @property
-    def verifiable(self):
-        return self.ai_analysis.verifiable if self.ai_analysis else 'yes'
-
-    @property
-    def logical_soundness(self):
-        return self.ai_analysis.logical_soundness if self.ai_analysis else 0.99
-
-    @property
     def ai_summary(self):
         return self.ai_analysis.ai_summary if self.ai_analysis else None
 
@@ -94,8 +86,6 @@ class BlogAIAnalysisModel(Base):
     __tablename__ = "blog_blogaianalysismodel"
 
     blog_id = Column(Integer, ForeignKey("blog_blogmodel.id", ondelete="CASCADE"), primary_key=True)
-    verifiable = Column(String(50), default='yes')
-    logical_soundness = Column(Float, default=0.99)
     ai_summary = Column(Text, nullable=True)
     # The epistemic frame for the discussion: established ground truth + where
     # this thread is at risk of drifting from it. Distinct from ai_summary,
@@ -132,8 +122,6 @@ class BlogCommentModel(Base):
         if not self.analysis:
             return None
         return {
-            'sentiment': self.analysis.sentiment,
-            'relevance_score': self.analysis.relevance_score,
             'analyzed_at': self.analysis.analyzed_at.isoformat() if self.analysis.analyzed_at else None,
         }
 
@@ -141,8 +129,6 @@ class CommentAnalysisModel(Base):
     __tablename__ = "blog_commentanalysismodel"
 
     comment_id = Column(Integer, ForeignKey("blog_blogcommentmodel.id", ondelete="CASCADE"), primary_key=True)
-    sentiment = Column(String(50), nullable=True)
-    relevance_score = Column(Float, default=0.5)
     ai_summary = Column(Text, nullable=True)
     # When this comment analysis was last (re)generated.
     analyzed_at = Column(DateTime, nullable=True)

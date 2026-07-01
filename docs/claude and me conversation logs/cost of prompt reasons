@@ -1,0 +1,103 @@
+Let me get real current pricing before answering #6 — no point guessing.
+
+That's a huge finding — Flash and Flash-Lite aren't close in price (up to **22x** apart). Let me confirm exactly which real model `gemini-flash-latest` resolves to right now, since that determines which price bracket we're actually in:
+
+That's the smoking gun. Let me check the "-latest" lite alias too, to see if a pinned model name is safer than trusting an alias that silently jumped to the priciest tier:
+
+Let's confirm quality holds up on the cheap tier with one real test using the actual comment-batch prompt:
+
+One more check — does the cheap tier still produce good real-world citations for post analysis (the one task that actually needs broader knowledge)?
+
+Let me also check current Neon free-tier limits to answer the storage question with real numbers rather than my training-data assumption:
+
+All researched. Here are the answers — still no code touched.
+
+## 1. Verifiable / Soundness — confirmed, will remove entirely
+Frontend (feed badge, detail header, detail panel), backend prompt fields, sync logic, and the `blog.verifiable`/`blog.logical_soundness` properties — all gone. Gemini won't be asked for these numbers at all. Feed card keeps only the engagement count.
+
+## 2. Confirmed: yes, it was a loop, and it was the dominant cost driver
+Before my last round of fixes, `analyzePost()` called `postAnalyzeComment()` **once per comment**, sequentially. And because of the bug we found (comment analysis reusing the full ~4,633-char post-audit prompt instead of a lightweight one), **each of those per-comment calls cost roughly the same as a full post analysis** — not a fraction of it. For a post with 10 comments, that's 11 calls at ~full-audit cost each, not 1 call + 10 cheap ones.
+
+Given the real cost-per-call numbers below, an 11-call session on the model you were actually using lines up almost exactly with your ₹50 spike. The batched version (already implemented) is 1 call regardless of comment count. My recommendation matches yours: run it once as-is (one batched call, no loop, all comments) and observe — if quality justifies the cost, keep it; if not, we cut it. Agreed.
+
+## 3. Audit-log table — not a storage risk
+Neon's free tier is **0.5 GB per project** ([neon.com/pricing](https://neon.com/pricing)). Your current rows: 50 + 141 = 191 rows, each a few KB (`collected_data` + `llm_response` text) — call it under 1 MB total right now. Even at 1,000x today's volume you're nowhere near 500 MB. Storage is not the constraint.
+
+Given that, the case for upsert-by-id isn't "save space," it's "nothing reads the history anyway, so accumulating it just makes DBeaver confusing" (which is literally how this conversation started). Your call — keep as a log (harmless either way) or upsert. I lean upsert for cleanliness, not necessity.
+
+## 4. Clearing up the token confusion
+`prompt_token_count: 1368` does **not** mean 1,368 separate requests — it was **one** API call. A "token" is a chunk of text (roughly ¾ of a word), not a message. So `prompt_token_count=1368` means the single input (your prompt + the post's data) was ~1,368 tokens long (~5,000 characters), and `candidates_token_count=1142` means the single JSON response Gemini sent back was ~1,142 tokens long (~4,200 characters). One request in, one response out — just a big one.
+
+## 5. Pure prose — confirmed, will implement
+Drop `sentiment`/`relevance_score` from the comment schema entirely, free-text `ai_summary` only. `CommentBody.jsx`'s badges go away, replaced with just the sentence(s).
+
+## 6. Model choice — this is the big one. You were right to worry.
+
+`gemini-flash-latest` is an alias, and **I confirmed via the API's own `model_version` field that it currently resolves to `gemini-3.5-flash`** — the newest and most expensive model in the entire Flash lineup:
+
+| Model | Input $/1M | Output $/1M | Hidden "thinking" tokens on a trivial call |
+|---|---|---|---|
+| **gemini-3.5-flash** (what we're using) | $1.50 | $9.00 | 84 tokens for `"Say OK"` |
+| gemini-2.5-flash | $0.30 | $2.50 | 34 tokens |
+| gemini-3.1-flash-lite (`gemini-flash-lite-latest`) | $0.25 | $1.50 | **0 tokens** |
+| gemini-2.5-flash-lite | $0.10 | $0.40 | **0 tokens** |
+
+I ran the *exact same real prompt* (comment batch and full post audit) through both `gemini-flash-latest` and `gemini-flash-lite-latest` to check if quality actually holds up on the cheap tier:
+
+- **Comment batch**: identical prompt, 409 input tokens both. Lite: 149 output tokens, **0 hidden thinking**, total 558. Current: 155 output tokens + **717 hidden thinking tokens**, total 1,281. Output quality was word-for-word comparable — same scores, equally specific summaries.
+- **Post audit citations**: lite tier still returned real, legitimate citations (EDPB consent guidelines, Nissenbaum's *Privacy in Context*) — same quality bar as before.
+
+Real cost per call at published rates: **current model ≈ $0.0085/call, lite ≈ $0.00033/call — roughly 26x more expensive for no measurable quality difference**, because `gemini-3.5-flash` burns hundreds of invisible "thinking" tokens by default even on tasks this simple.
+
+**Recommendation: switch `_MODEL_NAME` from `"gemini-flash-latest"` to `"gemini-flash-lite-latest"`** for everything (comments and post analysis both — I tested both and quality held up on both). This alone is likely a bigger cost lever than every other fix combined this session.
+
+---
+
+**Ready to implement, pending your go-ahead, in this order:**
+1. Switch model to `gemini-flash-lite-latest`.
+2. Strip verifiable/soundness everywhere (UI + backend + prompt).
+3. Comment schema → pure prose, drop numeric fields.
+4. Expand comment-batch context (parent tree + blog text + sources + guardrail) since it's cheap in one batched call.
+5. Leave the "Analyze" button scope as-is (still one post call + one batched comment call) and observe real cost on your next real analysis — decide after that whether to cut comments from the flow.
+6. Audit-log tables: your call — say the word on upsert vs. keep-as-log.
+
+Say go and I'll implement 1-4 now; 5 is a wait-and-see; 6 just needs your pick.
+
+
+Good — let me get you real numbers instead of estimates for all three scenarios. I need 3 more small calls to isolate model-only vs code-only vs both.
+
+Real measurements, not estimates. All 4 combinations tested directly against the actual API. Here's the breakdown for a realistic session: 1 post analysis + 10 comments (matching your actual "chickens" post, which really does have 10 comments).
+
+## Real token costs per call
+
+| Call type | Model served | prompt | total | Cost |
+|---|---|---|---|---|
+| Post analysis | gemini-3.5-flash | 1368 | 5882 | $0.0427 |
+| Post analysis | gemini-3.1-flash-lite | 1332 | 2160 | $0.0016 |
+| **Old-style** single comment (heavy prompt reused — the bug) | gemini-3.5-flash | 1394 | 3711 | $0.0229 **each** |
+| **Old-style** single comment (heavy prompt reused) | gemini-3.1-flash-lite | 1394 | 2226 | $0.0016 **each** |
+| **New batch**, all 10 comments in one call | gemini-3.5-flash | 695 | 1533 | $0.0086 **total** |
+| **New batch**, all 10 comments in one call | gemini-3.1-flash-lite | 695 | 1278 | $0.0010 **total** |
+
+*(Standard-tier pricing: gemini-3.5-flash $1.50/$9.00 per 1M input/output; gemini-3.1-flash-lite $0.25/$1.50. FX ≈ ₹87.5/$, approximate.)*
+
+## The three scenarios for one full "Analyze Post & Discussion" session (10 comments)
+
+| Scenario | Math | Total cost | vs. baseline |
+|---|---|---|---|
+| **Baseline** (old model + old loop code) | 1 post + 10×old-comment, both on 3.5-flash | $0.2721 → **≈₹23.8** | — |
+| **Model only** (keep loop code, switch to lite) | 1 post + 10×old-comment, both on lite | $0.0175 → **≈₹1.53** | **93.6% cheaper (≈15.5x)** |
+| **Code only** (batch+lightweight, keep 3.5-flash) | 1 post + 1 batch-of-10, both on 3.5-flash | $0.0513 → **≈₹4.49** | **81.2% cheaper (≈5.3x)** |
+| **Both** (batch+lightweight + lite model) | 1 post + 1 batch-of-10, both on lite | $0.0026 → **≈₹0.23** | **99.0% cheaper (≈104x)** |
+
+*(Your reported ₹50 across a session likely reflects several retries during our debugging — blog 1004 alone has 18 stored audit rows from that session, not one clean run. The ₹23.8 baseline above is for a single clean attempt.)*
+
+## Why they compound instead of just adding
+
+- **Model-only** fixes the *per-token rate* and kills the hidden "thinking" overhead (gemini-3.5-flash burns ~600-2,300 invisible tokens per call that the lite tier simply doesn't spend) — this alone gets ~94% of the win.
+- **Code-only** fixes the *call count* (1 request instead of 11) but each of those calls still pays gemini-3.5-flash's expensive per-token rate and thinking tax.
+- **Both together**: fewer calls *and* each call is ~26x cheaper per token — that's why it's not 94%+81% (impossible), it's multiplicative: ~15.5x × ~6.7x ≈ ~104x.
+
+So: **model-only already gets you 93.6% of the savings**, but stacking the code fix on top takes you from "15x cheaper" to "104x cheaper" for the same clicked action. Your instinct is confirmed — flash-lite is the move, and doing both is clearly worth it.
+
+Ready to implement everything from the last message (model switch, strip verifiable/soundness, pure-prose comments, richer batch context, keep the observe-then-decide plan on comments-in-flow) — and I'll write up this whole cost analysis plus the model/prompt learnings into the docs afterward as you asked. Say go.

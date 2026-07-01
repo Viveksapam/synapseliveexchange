@@ -8,7 +8,8 @@ import '../styles/VeriSphere.css';
 const PostCommentsPage = ({ authHook }) => {
   const { id } = useParams();
   const fallbackAuth = useAuth();
-  const { strTokenState, boolIsLoggedInState } = authHook || fallbackAuth;
+  const { strTokenState, boolIsLoggedInState, objUserState } = authHook || fallbackAuth;
+  const boolIsAdmin = !!(objUserState && (objUserState.is_superuser || objUserState.is_staff));
   const post = usePostDetail(id, strTokenState, boolIsLoggedInState);
 
   const [strNewCommentState, setStrNewCommentState] = useState('');
@@ -51,13 +52,29 @@ const PostCommentsPage = ({ authHook }) => {
       backdropFilter: 'blur(20px)',
       fontSize: '0.95rem', lineHeight: '1.6',
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.2rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '1.2rem', flexWrap: 'wrap' }}>
         <Link
           to={`/verisphere/post/${id}`}
           style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--v2-text-main)' }}
         >
           ←
         </Link>
+        {boolIsAdmin && (
+          <button
+            onClick={post.analyzeAllComments}
+            disabled={post.boolIsAnalyzingCommentsState}
+            className="verisphere-btn-primary"
+            style={{
+              fontSize: '0.85rem', padding: '6px 10px', background: 'rgba(79, 163, 255, 0.1)',
+              color: post.boolIsAnalyzingCommentsState ? 'var(--v2-text-muted)' : 'var(--v2-accent-secondary)',
+              border: `1.5px solid ${post.boolIsAnalyzingCommentsState ? 'var(--glass-border)' : 'var(--v2-accent-secondary)'}`,
+              borderRadius: '6px', cursor: post.boolIsAnalyzingCommentsState ? 'not-allowed' : 'pointer',
+              opacity: post.boolIsAnalyzingCommentsState ? 0.6 : 1,
+            }}
+          >
+            {post.boolIsAnalyzingCommentsState ? '⊙ Analyzing comments...' : 'Analyze All Comments'}
+          </button>
+        )}
       </div>
 
       <PostDetailComments

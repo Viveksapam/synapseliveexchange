@@ -82,18 +82,14 @@ def get_comment_analysis(db: Session, comment_id: int):
     from models.blog_models import CommentAnalysisModel
     return db.query(CommentAnalysisModel).filter(CommentAnalysisModel.comment_id == comment_id).first()
 
-def create_or_update_comment_analysis(db: Session, comment_id: int, sentiment: str = None, relevance_score: float = None, ai_summary: str = None):
+def create_or_update_comment_analysis(db: Session, comment_id: int, ai_summary: str = None):
     from models.blog_models import CommentAnalysisModel
     analysis = db.query(CommentAnalysisModel).filter(CommentAnalysisModel.comment_id == comment_id).first()
     if analysis:
-        if sentiment:
-            analysis.sentiment = sentiment
-        if relevance_score is not None:
-            analysis.relevance_score = relevance_score
         if ai_summary:
             analysis.ai_summary = ai_summary
     else:
-        analysis = CommentAnalysisModel(comment_id=comment_id, sentiment=sentiment, relevance_score=relevance_score or 0.5, ai_summary=ai_summary)
+        analysis = CommentAnalysisModel(comment_id=comment_id, ai_summary=ai_summary)
         db.add(analysis)
     db.commit()
     db.refresh(analysis)
@@ -156,17 +152,12 @@ def create_audit_collection(db: Session, blog_id: int):
             for context in contexts
             for s in get_context_sources(db, context.id)
         ],
-        "comments": [
-            {
-                "id": c.id,
-                "blog_id": c.blog_id,
-                "parent_comment_id": c.parent_comment_id,
-                "strAuthor": c.strAuthor,
-                "strContent": c.strContent,
-                "datePosted": str(c.datePosted)
-            }
-            for c in comments
-        ]
+        # A count, not the full comment text: the post-audit prompt judges the
+        # post's own claim/sources, never reasons about individual comments,
+        # so sending their full content here was pure wasted input tokens.
+        # Comments get their own dedicated (and much cheaper) analysis path -
+        # see analyze_comment_audit / analyze_comment_batch.
+        "comment_count": len(comments),
     }
 
     comment_ids = [c.id for c in comments]
@@ -208,8 +199,6 @@ def sync_audit_to_blog_analysis(db: Session, blog_id: int, llm_response: dict):
     if not blog:
         return None
 
-    logical_soundness = llm_response.get("logical_soundness", 0.5)
-    verifiable = llm_response.get("verifiable", "partial")
     summary = llm_response.get("summary", "")
     context_guardrail = llm_response.get("ai_context_guardrail", "")
     detail = llm_response.get("analysis_detail")
@@ -218,8 +207,6 @@ def sync_audit_to_blog_analysis(db: Session, blog_id: int, llm_response: dict):
     now = datetime.datetime.utcnow()
     analysis = db.query(BlogAIAnalysisModel).filter(BlogAIAnalysisModel.blog_id == blog_id).first()
     if analysis:
-        analysis.logical_soundness = logical_soundness
-        analysis.verifiable = verifiable
         analysis.ai_summary = summary
         analysis.ai_context_guardrail = context_guardrail
         analysis.analysis_detail = detail_json
@@ -227,8 +214,6 @@ def sync_audit_to_blog_analysis(db: Session, blog_id: int, llm_response: dict):
     else:
         analysis = BlogAIAnalysisModel(
             blog_id=blog_id,
-            logical_soundness=logical_soundness,
-            verifiable=verifiable,
             ai_summary=summary,
             ai_context_guardrail=context_guardrail,
             analysis_detail=detail_json,
@@ -277,8 +262,71 @@ def get_blog_audit_collections(db: Session, blog_id: int):
     from models.blog_models import BlogAuditCollectionModel
     return db.query(BlogAuditCollectionModel).filter(BlogAuditCollectionModel.blog_id == blog_id).all()
 
+# Defensive ceiling on how much comment text we'll ever hand to the LLM in one
+# field. Comments are normally short; this only bites on an outlier and keeps
+# a single pathological comment from blowing up token cost.
+_MAX_COMMENT_CHARS = 2000
+_MAX_PARENT_CONTEXT_CHARS = 500
+
+
+def _blog_context_for_comment_analysis(db: Session, blog):
+    """Full context a comment should be judged against: the post's own text,
+    its approved community sources (link + title), and its context guardrail
+    - so 'is this comment on-topic and does it engage what's already
+    established' can actually be judged, not guessed from title/summary alone."""
+    return {
+        "strTitle": blog.strTitle,
+        "strSummary": blog.strSummary,
+        "strContent": blog.strContent,
+        "ai_summary": blog.ai_summary,
+        "ai_context_guardrail": blog.ai_context_guardrail,
+        "sources": [
+            {"strTitle": s.strTitle, "strUrl": s.strUrl}
+            for s in get_blog_sources(db, blog.id, status="approved")
+        ],
+    }
+
+
+def get_all_blog_comments_flat(db: Session, blog_id: int):
+    """All comments for a blog - top-level AND nested replies - as one flat
+    list. Replies carry the same blog_id as their post, so this is one query."""
+    return db.query(BlogCommentModel).filter(BlogCommentModel.blog_id == blog_id).all()
+
+
+def get_comments_needing_analysis(db: Session, blog_id: int):
+    """Comments on this blog that don't yet have a CommentAnalysisModel row.
+    Skips anything already analyzed so re-running comment analysis doesn't
+    re-spend on comments that haven't changed since last time."""
+    from models.blog_models import CommentAnalysisModel
+    return (
+        db.query(BlogCommentModel)
+        .outerjoin(CommentAnalysisModel, CommentAnalysisModel.comment_id == BlogCommentModel.id)
+        .filter(BlogCommentModel.blog_id == blog_id, CommentAnalysisModel.comment_id.is_(None))
+        .all()
+    )
+
+
+def _ancestor_chain(comment, by_id: dict):
+    """Walk parent_comment_id links (root first) using an in-memory id->comment
+    map, so a whole thread's ancestor chains cost zero extra DB queries."""
+    chain = []
+    current = comment
+    while current and current.parent_comment_id:
+        parent = by_id.get(current.parent_comment_id)
+        if not parent:
+            break
+        chain.insert(0, {
+            "id": parent.id,
+            "strAuthor": parent.strAuthor,
+            "strContent": (parent.strContent or "")[:_MAX_PARENT_CONTEXT_CHARS],
+        })
+        current = parent
+    return chain
+
+
 def create_comment_audit_collection(db: Session, comment_id: int):
-    """Collect comment context for analysis: parent chain, blog post, comment itself, guardrails."""
+    """Collect full context for a single comment: its ancestor tree, the
+    post's actual text/sources/guardrail, and the comment itself."""
     from models.blog_models import CommentAuditCollectionModel
 
     comment = db.query(BlogCommentModel).filter(BlogCommentModel.id == comment_id).first()
@@ -289,37 +337,15 @@ def create_comment_audit_collection(db: Session, comment_id: int):
     if not blog:
         return None
 
-    # Build parent comment chain (traverse up to root)
-    parent_chain = []
-    current = comment
-    while current:
-        parent_chain.insert(0, {
-            "id": current.id,
-            "strAuthor": current.strAuthor,
-            "strContent": current.strContent,
-            "datePosted": str(current.datePosted)
-        })
-        if current.parent_comment_id:
-            current = db.query(BlogCommentModel).filter(BlogCommentModel.id == current.parent_comment_id).first()
-        else:
-            current = None
+    by_id = {c.id: c for c in get_all_blog_comments_flat(db, comment.blog_id)}
 
     collected_data = {
-        "blog": {
-            "id": blog.id,
-            "strTitle": blog.strTitle,
-            "strSummary": blog.strSummary,
-            "strContent": blog.strContent,
-            "strAuthorUsername": blog.strAuthorUsername,
-            "strCommunityName": blog.strCommunityName,
-            "ai_summary": blog.ai_summary,
-            "verifiable": blog.verifiable,
-        },
-        "comment_chain": parent_chain,
+        "blog": _blog_context_for_comment_analysis(db, blog),
+        "comment_chain": _ancestor_chain(comment, by_id),
         "target_comment": {
             "id": comment.id,
             "strAuthor": comment.strAuthor,
-            "strContent": comment.strContent,
+            "strContent": (comment.strContent or "")[:_MAX_COMMENT_CHARS],
             "datePosted": str(comment.datePosted)
         }
     }
@@ -334,6 +360,35 @@ def create_comment_audit_collection(db: Session, comment_id: int):
     db.commit()
     db.refresh(collection)
     return collection
+
+
+def build_comment_batch_payload(db: Session, blog_id: int):
+    """Payload for analyze_comment_batch: shared blog context (text, sources,
+    guardrail) once, plus every comment that still needs analysis, each with
+    its full ancestor tree if it's a reply. Returns None if there's nothing to
+    analyze (no Gemini call needed)."""
+    blog = get_blog_by_id(db, blog_id)
+    if not blog:
+        return None
+
+    pending = get_comments_needing_analysis(db, blog_id)
+    blog_context = _blog_context_for_comment_analysis(db, blog)
+    if not pending:
+        return {"blog": blog_context, "comments": []}
+
+    by_id = {c.id: c for c in get_all_blog_comments_flat(db, blog_id)}
+    comments_payload = [
+        {
+            "id": c.id,
+            "strAuthor": c.strAuthor,
+            "strContent": (c.strContent or "")[:_MAX_COMMENT_CHARS],
+            "parent_chain": _ancestor_chain(c, by_id),
+        }
+        for c in pending
+    ]
+
+    return {"blog": blog_context, "comments": comments_payload}
+
 
 def get_comment_audit_collection(db: Session, collection_id: int):
     from models.blog_models import CommentAuditCollectionModel
@@ -355,23 +410,16 @@ def sync_comment_audit_to_analysis(db: Session, comment_id: int, llm_response: d
     """Sync LLM comment analysis results to CommentAnalysisModel."""
     from models.blog_models import CommentAnalysisModel
 
-    sentiment = llm_response.get("sentiment", None)
-    relevance_score = llm_response.get("relevance_score", 0.5)
     ai_summary = llm_response.get("ai_summary", "")
 
     now = datetime.datetime.utcnow()
     analysis = db.query(CommentAnalysisModel).filter(CommentAnalysisModel.comment_id == comment_id).first()
     if analysis:
-        if sentiment:
-            analysis.sentiment = sentiment
-        analysis.relevance_score = relevance_score
         analysis.ai_summary = ai_summary
         analysis.analyzed_at = now
     else:
         analysis = CommentAnalysisModel(
             comment_id=comment_id,
-            sentiment=sentiment,
-            relevance_score=relevance_score,
             ai_summary=ai_summary,
             analyzed_at=now,
         )

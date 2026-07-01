@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   fetchPostDetail, postCreateSource, postCreateComment, postAnalyzeComment, deleteComment, postAnalyzePost,
-  fetchApprovedSources,
+  fetchApprovedSources, postAnalyzeCommentsBatch,
 } from '../api/verisphereApi';
 
 // Ensures a phase stays visible for at least `numMs`, even if the underlying
@@ -20,13 +20,14 @@ const collectCommentIds = (comments = []) =>
   comments.flatMap((c) => [c.id, ...collectCommentIds(c.replies)]);
 
 // Recursively apply an analysis result to the matching comment anywhere in the tree.
+// Pure prose only now - no sentiment/relevance_score fields.
 const applyCommentAnalysis = (comments = [], numCommentId, data) =>
   comments.map((c) => {
     if (c.id === numCommentId) {
       return {
         ...c,
         strAiAnalysis: data.ai_summary,
-        dictAiMetrics: { sentiment: data.sentiment, relevance_score: data.relevance_score, analyzed_at: data.analyzed_at },
+        dictAiMetrics: { analyzed_at: data.analyzed_at },
       };
     }
     return c.replies?.length
@@ -40,6 +41,7 @@ export const usePostDetail = (postId, strToken, boolIsLoggedIn) => {
   const [loadingCommentsState, setLoadingCommentsState] = useState({});
   const [boolIsAnalyzingPostState, setBoolIsAnalyzingPostState] = useState(false);
   const [strAnalysisPhaseState, setStrAnalysisPhaseState] = useState(null);
+  const [boolIsAnalyzingCommentsState, setBoolIsAnalyzingCommentsState] = useState(false);
 
   const loadPost = useCallback(async () => {
     try {
@@ -84,6 +86,32 @@ export const usePostDetail = (postId, strToken, boolIsLoggedIn) => {
     }
   };
 
+  // Analyzes every not-yet-analyzed comment on this post in ONE request,
+  // deliberately kept SEPARATE from analyzePost() - the post's claim/sources
+  // audit and the discussion's comment audit are two independent actions now,
+  // triggered independently (e.g. from the comments page).
+  const analyzeAllComments = async () => {
+    const arrCommentIds = collectCommentIds(objPostState?.comments);
+    if (arrCommentIds.length === 0) return;
+    setBoolIsAnalyzingCommentsState(true);
+    try {
+      const batchResult = await postAnalyzeCommentsBatch(postId, strToken);
+      setObjPostState((prev) => {
+        if (!prev) return prev;
+        let comments = prev.comments;
+        for (const item of batchResult.analyzed || []) {
+          comments = applyCommentAnalysis(comments, item.comment_id, item);
+        }
+        return { ...prev, comments };
+      });
+    } catch (objErr) {
+      console.error('Failed to analyze comments', objErr);
+      alert(objErr.message || 'Failed to analyze comments. Please try again.');
+    } finally {
+      setBoolIsAnalyzingCommentsState(false);
+    }
+  };
+
   const handleDeleteComment = async (numCommentId) => {
     if (!window.confirm('Are you sure you want to delete this comment?')) return;
     try {
@@ -95,45 +123,31 @@ export const usePostDetail = (postId, strToken, boolIsLoggedIn) => {
     }
   };
 
+  // Analyzes ONLY the post's claim + its community sources - no comments.
+  // See analyzeAllComments() for the separate, decoupled discussion analysis.
   const analyzePost = async () => {
     setBoolIsAnalyzingPostState(true);
     setStrAnalysisPhaseState('post');
     try {
-      // Step 1: Analyze the post
       const data = await withMinDuration(() => postAnalyzePost(postId, strToken), 600);
       setObjPostState((prev) => ({
         ...prev,
-        verifiable: data.verifiable,
-        logical_soundness: data.logical_soundness,
         ai_summary: data.ai_summary,
         ai_context_guardrail: data.ai_context_guardrail,
         analysis_detail: data.analysis_detail,
         analyzed_at: data.analyzed_at,
-        dictAiMetrics: {
-          verifiable: data.verifiable,
-          logical_soundness: data.logical_soundness,
-        },
       }));
 
-      // Step 2: Analyze comments in the thread
-      setStrAnalysisPhaseState('comments');
-      const arrCommentIds = collectCommentIds(objPostState?.comments);
-      await withMinDuration(async () => {
-        for (const numCommentId of arrCommentIds) {
-          await analyzeComment(numCommentId);
-        }
-      }, 600);
-
-      // Step 3: Refresh approved sources (Synapse AI auto-approves its recommendations)
+      // Refresh approved sources (Synapse AI auto-approves its recommendations)
       setStrAnalysisPhaseState('sources');
       const arrSources = await withMinDuration(() => fetchApprovedSources(postId), 600);
       setObjPostState((prev) => (prev ? { ...prev, sources: arrSources } : prev));
 
-      // Step 4: Reload the full post to capture all updates (analysis, new sources, etc.)
+      // Reload the full post to capture all updates (analysis, new sources, etc.)
       setStrAnalysisPhaseState('reload');
       await withMinDuration(() => loadPost(), 600);
 
-      // Step 5: Briefly show 100% complete before closing the overlay.
+      // Briefly show 100% complete before closing the overlay.
       setStrAnalysisPhaseState('done');
       await new Promise((resolve) => setTimeout(resolve, 900));
     } catch (objErr) {
@@ -147,7 +161,8 @@ export const usePostDetail = (postId, strToken, boolIsLoggedIn) => {
 
   return {
     objPostState, boolIsLoadingState, loadingCommentsState, boolIsAnalyzingPostState, strAnalysisPhaseState,
-    submitComment, submitSource, analyzeComment, analyzePost, handleDeleteComment,
+    boolIsAnalyzingCommentsState,
+    submitComment, submitSource, analyzeComment, analyzeAllComments, analyzePost, handleDeleteComment,
     refetch: loadPost,
   };
 };

@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import CommentThread from './CommentThread';
-import { getScoreColor } from './PostDetailHeader';
 
 const PostDetailComments = ({ post, boolIsLoggedIn, commentForm, replyState, onAnalyzeComment, loadingComments }) => {
   const {
@@ -24,7 +23,6 @@ const PostDetailComments = ({ post, boolIsLoggedIn, commentForm, replyState, onA
               level={0}
               handleAnalyzeComment={onAnalyzeComment}
               loadingCommentsState={loadingComments}
-              getScoreColor={getScoreColor}
               {...replyState}
             />
           ))}

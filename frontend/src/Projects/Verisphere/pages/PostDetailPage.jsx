@@ -48,7 +48,10 @@ const PostDetailPage = ({ authHook }) => {
 
   return (
     <>
-      <AnalysisLoadingOverlay boolIsVisible={post.boolIsAnalyzingPostState} strPhase={post.strAnalysisPhaseState} />
+      <AnalysisLoadingOverlay
+        boolIsVisible={post.boolIsAnalyzingPostState}
+        strPhase={post.strAnalysisPhaseState}
+      />
       <div className="verisphere-post-detail" style={{
       maxWidth: 'none', margin: '2rem auto', padding: '2rem 1rem',
       background: 'var(--glass-bg)', borderRadius: '16px',

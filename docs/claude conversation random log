@@ -1,0 +1,36 @@
+Good catch on the cost — and I found something important digging into why comment analysis was poor: **it's not just a data-volume problem, there's an actual bug.** Let me show you exactly what's being sent right now, then the fix ideas.
+
+Now I have the full picture. Here's exactly what's happening.
+
+## The actual bug behind "poor comment analysis"
+
+The mock (`analyze_audit_collection_mock`) correctly branches between post-level and comment-level logic based on the payload shape. **The real Gemini path never does this branch at all** — [llm_audit.py:76-78](backend/services/llm_audit.py):
+
+```python
+prompt = _POST_AUDIT_PROMPT + f"\n\nDATA:\n{json.dumps(collected_data)}"
+```
+
+Every single call — whether it's a full post audit or a one-line comment — gets the **same ~700-word academic rubric** asking for sub-scores, fallacy detection with quotes, steelman, verification pathway, source evaluation, and 2-3 APA-cited external sources. For a comment, that's nonsensical: Gemini has to force-fit a comment into a "claim audit" framework, invent fake sub-scores/fallacies/sources for a sentence that doesn't warrant any of that, and burn a huge number of **output tokens** doing it.
+
+Then it gets worse: `_flatten_audit_response()` — the function that converts Gemini's JSON into what gets saved — **never extracts `sentiment` or `relevance_score` at all**. So even if Gemini's raw response happened to say something sensible about the comment, that signal is silently discarded, and `CommentAnalysisModel` falls back to `sentiment=None, relevance_score=0.5` defaults. This is why comment analysis reads as poor — it's not actually being asked the right question, and even the by-product signal gets thrown away.
+
+## What's being sent per request, today
+
+| Call | Prompt | Payload |
+|---|---|---|
+| **Post analysis** (1×) | Full ~700-word audit rubric | Blog title/content/summary + all contexts + all sources + **all comments verbatim** (never read by the prompt — dead weight) |
+| **Comment analysis** (1× **per comment**) | Same ~700-word audit rubric (wrong tool) | Blog title/content/summary/ai_summary + full parent chain + target comment |
+
+Your instinct is right on the money — cut what's shared. Ranked by impact:
+
+1. **Give comment analysis its own lightweight prompt** (fixes quality *and* is the single biggest cost lever). A ~10-line prompt asking only for `sentiment`, `relevance_score`, `ai_summary` needs a fraction of the output tokens the current one forces — no sub-scores, no fabricated sources, no steelman. This alone should cut per-comment cost by 70-90%.
+
+2. **Batch all comments into one Gemini call instead of N.** Right now, analyzing a post with 5 comments = 6 separate Gemini requests, each paying the full prompt overhead again. One request with all comments + one shared instruction, returning an array, replaces N round-trips with 1 — this is probably your biggest total-cost fix for multi-comment posts.
+
+3. **Skip re-analyzing comments that already have a recent, unchanged analysis.** Right now every "Analyze Post & Discussion" click re-analyzes *every* comment from scratch, even ones analyzed seconds ago — pure repeat spend if you click twice.
+
+4. **Strip the unused `comments` array from the post-level payload** — the audit prompt never references it, so it's just wasted input tokens on every post analysis.
+
+5. **Cap comment content length** sent per comment as a defensive ceiling (minor, but free).
+
+Want me to implement #1 and #2 together? That's the combination that fixes both the quality problem and the bulk of the cost, and it's a contained change (new lightweight comment prompt + batch endpoint) — I'd rather confirm before touching the request/response shape since it changes how comment analysis is triggered.

@@ -11,18 +11,10 @@ class BlogCommentCreate(BlogCommentBase):
     pass
 
 class CommentAnalysisBase(BaseModel):
-    sentiment: Optional[str] = None
-    relevance_score: Optional[float] = 0.5
     ai_summary: Optional[str] = None
 
 class CommentAnalysisCreate(CommentAnalysisBase):
     pass
-
-class CommentAnalysisResponse(CommentAnalysisBase):
-    comment_id: int
-
-    class Config:
-        orm_mode = True
 
 class BlogCommentResponse(BlogCommentBase):
     id: int
@@ -101,8 +93,6 @@ class BlogResponse(BaseModel):
     numUpvotes: Optional[int] = 0
     comments_count: Optional[int] = 0
     sources_count: Optional[int] = 0
-    verifiable: Optional[str] = 'yes'
-    logical_soundness: Optional[float] = 0.99
     ai_summary: Optional[str] = None
     ai_context_guardrail: Optional[str] = None
     analysis_detail: Optional[Any] = None
@@ -118,8 +108,6 @@ class BlogResponse(BaseModel):
 
 class CommentAnalysisResponse(BaseModel):
     comment_id: int
-    sentiment: Optional[str] = None
-    relevance_score: Optional[float] = 0.5
     ai_summary: Optional[str] = None
     analyzed_at: Optional[datetime] = None
 

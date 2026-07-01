@@ -72,28 +72,6 @@ const CommentBody = ({ comment, loadingCommentsState, onAnalyze, onStartReply, o
                     {comment.strAiAnalysis}
                   </p>
                 )}
-                {objMetrics && (objMetrics.sentiment || objMetrics.relevance_score !== undefined) && (
-                  <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(88, 166, 255, 0.1)' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '0.75rem', fontSize: '0.8rem' }}>
-                      {objMetrics.sentiment && (
-                        <div>
-                          <span style={{ color: 'var(--v2-text-muted)', display: 'block', marginBottom: '0.2rem' }}>Sentiment</span>
-                          <span style={{ color: 'var(--v2-text-main)', fontWeight: 'bold', textTransform: 'capitalize' }}>
-                            {objMetrics.sentiment}
-                          </span>
-                        </div>
-                      )}
-                      {objMetrics.relevance_score !== undefined && (
-                        <div>
-                          <span style={{ color: 'var(--v2-text-muted)', display: 'block', marginBottom: '0.2rem' }}>Relevance</span>
-                          <span style={{ color: 'var(--v2-text-main)', fontWeight: 'bold' }}>
-                            {(objMetrics.relevance_score * 100).toFixed(0)}%
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
               </div>
             )}
           </div>

@@ -107,8 +107,23 @@ def analyze_audit_collection_mock(collected_data: dict) -> dict:
         "comment_chain" in collected_data and "target_comment" in collected_data
     )
     if is_comment_analysis:
-        return _analyze_comment_mock(collected_data)
+        return analyze_comment_mock(collected_data)
     return _analyze_post_mock(collected_data)
+
+
+def analyze_comment_batch_mock(batch_data: dict) -> dict:
+    """Mock batch comment audit: same strict judgment as analyze_comment_mock,
+    applied to every comment in one pass, no per-comment Gemini round-trip."""
+    blog = batch_data.get("blog", {})
+    results = []
+    for c in batch_data.get("comments", []):
+        single = analyze_comment_mock({
+            "blog": blog,
+            "comment_chain": c.get("parent_chain", []),
+            "target_comment": {"id": c.get("id"), "strContent": c.get("strContent", "")},
+        })
+        results.append({"comment_id": c.get("id"), **single})
+    return {"results": results}
 
 
 def _topic_keywords(blog: dict) -> set:
@@ -118,11 +133,13 @@ def _topic_keywords(blog: dict) -> set:
     return {w for w in re.findall(r"[a-z]{4,}", text) if w not in _STOPWORDS}
 
 
-def _analyze_comment_mock(collected_data: dict) -> dict:
-    """Relevance here is STRICT: it measures how much the comment materially
-    contributes to VERIFYING OR REFUTING the post's claim - not how agreeable,
-    friendly, or well-written it is. Opinion, praise, and anecdote score low by
-    design; only on-topic, evidence-bearing engagement scores high."""
+def analyze_comment_mock(collected_data: dict) -> dict:
+    """Judgment here is STRICT: does the comment materially help VERIFY OR
+    REFUTE the post's claim - not how agreeable, friendly, or well-written it
+    is. Opinion, praise, and anecdote get called out as such; only on-topic,
+    evidence-bearing engagement is credited as contributing. Internally still
+    scores the same signals as before for a calibrated judgment, but the
+    output is pure prose - no exposed numeric/categorical fields."""
     comment = collected_data.get("target_comment", {})
     raw_content = comment.get("strContent") or ""
     content = raw_content.lower()
@@ -138,82 +155,54 @@ def _analyze_comment_mock(collected_data: dict) -> dict:
     # A comment that cites more evidence than it name-drops pseudo terms is
     # almost certainly critiquing them, not asserting them - don't penalize it.
     effective_pseudo = pseudo if evidence < pseudo else 0
-    absolutes = _count_markers(content, _ABSOLUTES)
     is_pure_agreement = (
         evidence == 0
         and any(w in content for w in ["great", "love", "fantastic", "me too", "thanks", "awesome", "+1", "so true", "this!"])
     )
-
     if any(w in content for w in ["disagree", "wrong", "incorrect", "however", "but ", "actually"]):
-        sentiment = "critical" if evidence == 0 else "constructive"
+        tone = "critical" if evidence == 0 else "constructive"
     elif any(w in content for w in ["great", "agree", "confirm", "fantastic", "solved", "love"]):
-        sentiment = "supportive"
+        tone = "supportive"
     else:
-        sentiment = "neutral"
-
-    # Strict, additive scoring from a low floor.
-    relevance = 0.10
-    if on_topic >= 1:
-        relevance += 0.12
-    if on_topic >= 3:
-        relevance += 0.06
-    relevance += min(0.30, evidence * 0.15)
-    if len(content) > 120:
-        relevance += 0.08
-    if chain_len > 2:
-        relevance += 0.05
-    relevance -= 0.20 * effective_pseudo
-    relevance -= 0.05 * absolutes
-    if len(content) < 40:
-        relevance -= 0.10
-
-    # Hard caps that keep the metric honest about verification value.
-    if evidence == 0:
-        relevance = min(relevance, 0.45)   # no evidence => cannot be highly relevant
-    if on_topic == 0:
-        relevance = min(relevance, 0.30)   # doesn't engage the claim at all
-    if is_pure_agreement:
-        relevance = min(relevance, 0.20)   # praise is not verification
-
-    relevance = round(max(0.05, min(0.90, relevance)), 2)
+        tone = "neutral"
 
     if evidence and on_topic and not effective_pseudo:
         summary = (
-            f"This {sentiment} comment engages the specific claim ({on_topic} shared "
-            f"term(s) with the post) and cites checkable specifics ({evidence} evidence "
-            f"marker(s)), so it materially bears on verification - relevance {int(relevance * 100)}%."
+            f"This {tone} comment engages the specific claim directly and cites "
+            f"checkable specifics ({evidence} evidence marker(s)), so it "
+            "materially helps verify or refute it."
         )
     elif effective_pseudo:
         summary = (
-            f"This {sentiment} comment leans on assertion or absolutist phrasing rather "
-            f"than evidence, so it does little to verify the claim. Relevance is held low "
-            f"({int(relevance * 100)}%) despite its confident tone."
+            f"This {tone} comment leans on assertion or absolutist phrasing rather "
+            "than evidence, so despite its confident tone it does little to "
+            "actually verify the claim."
         )
     elif is_pure_agreement:
         summary = (
-            f"This is agreement/praise, not verification. It offers no evidence and does "
-            f"not test the claim, so relevance is capped low ({int(relevance * 100)}%) "
-            "regardless of sentiment."
+            "This is agreement or praise, not verification - it offers no "
+            "evidence and doesn't test the claim either way."
         )
     elif on_topic == 0:
         summary = (
-            f"This {sentiment} comment does not engage the post's actual claim (no shared "
-            f"terminology), so its relevance to verification is minimal ({int(relevance * 100)}%)."
+            f"This {tone} comment doesn't engage the post's actual claim - it "
+            "doesn't share any terminology with it, so it contributes little "
+            "to verification."
+        )
+    elif chain_len > 2:
+        summary = (
+            f"A {tone} reply, on-topic but anecdotal - it references the "
+            "subject within the thread but cites no evidence, so it adds "
+            "context without strengthening or weakening the claim."
         )
     else:
         summary = (
-            f"A {sentiment}, on-topic but anecdotal comment: it references the subject but "
-            f"cites no evidence, so it adds context without strengthening or weakening the "
-            f"claim. Relevance {int(relevance * 100)}%."
+            f"A {tone}, on-topic but anecdotal comment - it references the "
+            "subject but cites no evidence, so it adds context without "
+            "strengthening or weakening the claim."
         )
 
-    return {
-        "sentiment": sentiment,
-        "relevance_score": relevance,
-        "ai_summary": summary,
-        "approved_source_ids": [],
-        "rejected_source_ids": [],
-    }
+    return {"ai_summary": summary}
 
 
 def _analyze_post_mock(collected_data: dict) -> dict:
@@ -223,7 +212,9 @@ def _analyze_post_mock(collected_data: dict) -> dict:
     summary_text = (blog.get("strSummary") or "").lower()
     haystack = f"{title.lower()} {content} {summary_text}"
 
-    comments = collected_data.get("comments", [])
+    # Post-level payload sends a count, not full comment text (dead weight -
+    # the audit prompt never reasons about individual comments).
+    comment_count = collected_data.get("comment_count", 0)
     sources = collected_data.get("sources", [])
 
     evidence = _count_markers(haystack, _EVIDENCE_MARKERS)
@@ -305,11 +296,6 @@ def _analyze_post_mock(collected_data: dict) -> dict:
         },
     }
 
-    aggregate = round(
-        (clarity + premise + inference + src_reliability + fallacy_freedom) / 500.0, 2
-    )
-    verifiable = "yes" if aggregate > 0.7 else "partial" if aggregate > 0.45 else "no"
-
     steelman = (
         f'The strongest charitable reading of "{title}" is that the author has '
         "noticed a genuine pattern and is reaching for an explanatory framework; "
@@ -324,9 +310,8 @@ def _analyze_post_mock(collected_data: dict) -> dict:
             f"and falsifiability. Its premises rest on assertion rather than the "
             f"peer-reviewed evidence the claim would require, and {len(detected_fallacies)} "
             "fallacy pattern(s) were detected in the reasoning. Reader engagement "
-            "and reactions carry no evidentiary weight and were disregarded. The "
-            f"aggregate soundness of {int(aggregate * 100)}/100 reflects a claim "
-            "that is confidently stated but not currently supportable."
+            "and reactions carry no evidentiary weight and were disregarded. Overall, "
+            "this is a claim that is confidently stated but not currently supportable."
         )
     else:
         summary = (
@@ -335,7 +320,7 @@ def _analyze_post_mock(collected_data: dict) -> dict:
             f"It scores {_band(premise)} on premise support and {_band(inference)} "
             "on inferential validity. The reasoning is broadly coherent, though the "
             "sources should still be checked for relevance to the exact claim rather "
-            f"than the general topic. Aggregate soundness: {int(aggregate * 100)}/100."
+            "than the general topic."
         )
 
     verification_pathway = (
@@ -364,8 +349,6 @@ def _analyze_post_mock(collected_data: dict) -> dict:
     topic_hint = title if len(title) < 60 else title[:57]
 
     return {
-        "logical_soundness": aggregate,
-        "verifiable": verifiable,
         "summary": summary,
         "ai_context_guardrail": context_guardrail,
         "analysis_detail": {

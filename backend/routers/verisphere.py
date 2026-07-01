@@ -279,7 +279,7 @@ def get_comment_analysis(comment_id: int, db: Session = Depends(get_db)):
 
 @router.post("/comments/{comment_id}/analysis/", response_model=CommentAnalysisResponse)
 def create_comment_analysis(comment_id: int, analysis: CommentAnalysisCreate, db: Session = Depends(get_db)):
-    return crud_blog.create_or_update_comment_analysis(db, comment_id, analysis.sentiment, analysis.relevance_score, analysis.ai_summary)
+    return crud_blog.create_or_update_comment_analysis(db, comment_id, analysis.ai_summary)
 
 @router.post("/comments/{comment_id}/analyze/", response_model=CommentAnalysisResponse)
 def analyze_comment_endpoint(comment_id: int, db: Session = Depends(get_db), current_user: UserModel = Depends(get_current_admin_user)):
@@ -294,7 +294,7 @@ def analyze_comment_endpoint(comment_id: int, db: Session = Depends(get_db), cur
         raise HTTPException(status_code=400, detail="Failed to create collection")
 
     try:
-        llm_result = llm_audit.analyze_audit_collection(json.loads(collection.collected_data))
+        llm_result = llm_audit.analyze_comment_audit(json.loads(collection.collected_data))
     except llm_audit.LlmAuditError as e:
         raise HTTPException(status_code=503, detail=str(e))
 
@@ -311,6 +311,40 @@ def delete_comment_analysis(comment_id: int, db: Session = Depends(get_db)):
     if not success:
         raise HTTPException(status_code=404, detail="Analysis not found")
     return {"message": "Analysis deleted successfully"}
+
+@router.post("/blogs/{blog_id}/comments/analyze-batch/")
+def analyze_comments_batch(blog_id: int, db: Session = Depends(get_db), current_user: UserModel = Depends(get_current_admin_user)):
+    """Analyze every not-yet-analyzed comment on this blog in ONE Gemini call
+    instead of one call per comment - see analyze_comment_batch. Comments that
+    already have an analysis are skipped, so re-running this doesn't re-spend
+    on unchanged comments. Returns {"analyzed": []} with no Gemini call at all
+    if everything is already analyzed."""
+    blog = crud_blog.get_blog_by_id(db, blog_id)
+    if not blog:
+        raise HTTPException(status_code=404, detail="Blog not found")
+
+    batch = crud_blog.build_comment_batch_payload(db, blog_id)
+    if not batch or not batch["comments"]:
+        return {"analyzed": []}
+
+    try:
+        llm_result = llm_audit.analyze_comment_batch(batch)
+    except llm_audit.LlmAuditError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+
+    analyzed = []
+    for item in llm_result.get("results", []):
+        comment_id = item.get("comment_id")
+        if comment_id is None:
+            continue
+        analysis = crud_blog.sync_comment_audit_to_analysis(db, comment_id, item)
+        analyzed.append({
+            "comment_id": comment_id,
+            "ai_summary": analysis.ai_summary,
+            "analyzed_at": analysis.analyzed_at.isoformat() if analysis.analyzed_at else None,
+        })
+
+    return {"analyzed": analyzed}
 
 @router.post("/blogs/{blog_id}/analysis/", response_model=BlogResponse)
 def analyze_blog(blog_id: int, db: Session = Depends(get_db), current_user: UserModel = Depends(get_current_admin_user)):

@@ -62,11 +62,6 @@ const blogPostShape = (blog) => ({
   numUpvotes: blog.numUpvotes || 0,
   comments_count: blog.comments_count || 0,
   strMediaUrl: blog.strMediaUrl || null,
-  dictAiMetrics: { verifiable: blog.verifiable || 'yes', logical_soundness: blog.logical_soundness ?? 0.99 },
-  // Top-level analysis fields — PostDetailContext reads these directly, so they
-  // must survive a loadPost() refetch (not just the in-place analyze update).
-  verifiable: blog.verifiable ?? 'yes',
-  logical_soundness: blog.logical_soundness ?? 0.99,
   sources: [],
   sources_count: blog.sources_count || 0,
   ai_summary: blog.ai_summary || blog.strSummary,

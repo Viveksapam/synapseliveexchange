@@ -10,6 +10,28 @@ const blogIdFromString = (idOrString) => {
 
 const noCacheHeaders = { 'Cache-Control': 'no-cache', Pragma: 'no-cache' };
 
+// Real LLM analysis calls can legitimately take 20-30s+; the backend itself
+// caps its Gemini call at 45s (see llm_audit.py), so give the request a bit of
+// headroom beyond that rather than no timeout at all - fetch() never times
+// out on its own, so a hung connection would otherwise freeze the loading
+// overlay indefinitely.
+const ANALYSIS_TIMEOUT_MS = 60000;
+
+const fetchWithTimeout = async (url, options = {}, timeoutMs = ANALYSIS_TIMEOUT_MS) => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } catch (objErr) {
+    if (objErr.name === 'AbortError') {
+      throw new Error(`Request timed out after ${Math.round(timeoutMs / 1000)}s. The server may be slow or unresponsive - try again.`);
+    }
+    throw objErr;
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
 export const fetchCommunities = async () => mockCommunities;
 
 export const fetchCommunityDetail = async (numId) => {
@@ -225,7 +247,7 @@ export const postAnalyzeContext = async () => ({ summary: 'Mock AI analysis of t
 
 export const postAnalyzePost = async (numPostId, strToken) => {
   const numBlogId = blogIdFromString(numPostId);
-  const objResponse = await fetch(`${API_BASE}/verisphere/blogs/${numBlogId}/analysis/`, {
+  const objResponse = await fetchWithTimeout(`${API_BASE}/verisphere/blogs/${numBlogId}/analysis/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...(strToken && { Authorization: `Bearer ${strToken}` }) },
   });
@@ -241,7 +263,7 @@ export const postAnalyzePost = async (numPostId, strToken) => {
 };
 
 export const postAnalyzeComment = async (numCommentId, strToken) => {
-  const objResponse = await fetch(`${API_BASE}/verisphere/comments/${numCommentId}/analyze/`, {
+  const objResponse = await fetchWithTimeout(`${API_BASE}/verisphere/comments/${numCommentId}/analyze/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...(strToken && { Authorization: `Bearer ${strToken}` }) },
   });
@@ -251,6 +273,27 @@ export const postAnalyzeComment = async (numCommentId, strToken) => {
       objResponse.status === 403
         ? 'You need admin access to run an analysis.'
         : `Failed to analyze comment (${objResponse.status}): ${strDetail}`
+    );
+  }
+  return objResponse.json();
+};
+
+// Analyzes every not-yet-analyzed comment on a post in ONE request instead of
+// one request per comment - see analyze_comment_batch on the backend. Already
+// -analyzed comments are skipped server-side, so this is a no-op (and free)
+// if nothing changed since the last run.
+export const postAnalyzeCommentsBatch = async (numPostId, strToken) => {
+  const numBlogId = blogIdFromString(numPostId);
+  const objResponse = await fetchWithTimeout(`${API_BASE}/verisphere/blogs/${numBlogId}/comments/analyze-batch/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...(strToken && { Authorization: `Bearer ${strToken}` }) },
+  });
+  if (!objResponse.ok) {
+    const strDetail = await objResponse.text().catch(() => '');
+    throw new Error(
+      objResponse.status === 403
+        ? 'You need admin access to run an analysis.'
+        : `Failed to analyze comments (${objResponse.status}): ${strDetail}`
     );
   }
   return objResponse.json();

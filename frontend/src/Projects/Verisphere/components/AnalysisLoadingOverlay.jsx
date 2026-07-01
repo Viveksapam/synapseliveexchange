@@ -1,12 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const AnalysisLoadingOverlay = ({ boolIsVisible, strPhase, numProgress }) => {
+const AnalysisLoadingOverlay = ({ boolIsVisible, strPhase, numProgress, strSubLabel }) => {
   if (!boolIsVisible) return null;
 
   const phases = [
     { id: 'post', label: 'Analyzing post...' },
-    { id: 'comments', label: 'Analyzing comments...' },
     { id: 'sources', label: 'Adding recommended sources...' },
     { id: 'reload', label: 'Refreshing data...' },
     { id: 'done', label: 'Analysis complete.' },
@@ -62,10 +61,10 @@ const AnalysisLoadingOverlay = ({ boolIsVisible, strPhase, numProgress }) => {
             {boolIsDone ? '✓' : '⊙'}
           </div>
           <h3 style={{ margin: '0 0 0.5rem', color: 'var(--v2-text-main)', fontSize: '1.1rem' }}>
-            Analyzing Post & Discussion
+            Analyzing Post
           </h3>
           <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', color: 'var(--v2-text-muted)' }}>
-            {phases[currentPhaseIndex]?.label || 'Processing...'}
+            {strSubLabel || phases[currentPhaseIndex]?.label || 'Processing...'}
           </p>
         </div>
 
@@ -128,8 +127,9 @@ const AnalysisLoadingOverlay = ({ boolIsVisible, strPhase, numProgress }) => {
 
 AnalysisLoadingOverlay.propTypes = {
   boolIsVisible: PropTypes.bool.isRequired,
-  strPhase: PropTypes.oneOf(['post', 'comments', 'sources', 'reload', 'done']),
+  strPhase: PropTypes.oneOf(['post', 'sources', 'reload', 'done']),
   numProgress: PropTypes.number,
+  strSubLabel: PropTypes.string,
 };
 
 export default AnalysisLoadingOverlay;
