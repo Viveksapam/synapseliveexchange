@@ -183,7 +183,9 @@ class BlogSourceModel(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     context_id = Column(Integer, ForeignKey("blog_blogcontextmodel.id", ondelete="CASCADE"), index=True)
-    strTitle = Column(String(255))
+    # Text, not String(255): AI-recommended sources store a full APA reference
+    # here (author, year, title, publisher, URL), which routinely exceeds 255 chars.
+    strTitle = Column(Text)
     strUrl = Column(String(500))
     strDescription = Column(Text, nullable=True)
     strAuthor = Column(String(255), nullable=True)

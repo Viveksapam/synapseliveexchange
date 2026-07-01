@@ -304,6 +304,25 @@ def migrate():
                 conn.rollback()
                 print(f"✗ Error adding {col_name}: {e}")
 
+        try:
+            print("Widening blog_blogsourcemodel.strTitle to TEXT...")
+            result = conn.execute(text(
+                "SELECT data_type FROM information_schema.columns "
+                "WHERE table_name='blog_blogsourcemodel' AND column_name='strTitle'"
+            ))
+            row = result.fetchone()
+            if row and row[0] == 'text':
+                print("✓ strTitle already TEXT")
+            else:
+                conn.execute(text(
+                    'ALTER TABLE blog_blogsourcemodel ALTER COLUMN "strTitle" TYPE TEXT'
+                ))
+                print("✓ Widened strTitle to TEXT")
+            conn.commit()
+        except Exception as e:
+            conn.rollback()
+            print(f"✗ Error widening strTitle: {e}")
+
         print("\n✅ Migration finished (see ✗ lines above for any steps that failed).")
 
 if __name__ == "__main__":
