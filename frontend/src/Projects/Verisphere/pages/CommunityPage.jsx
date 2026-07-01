@@ -7,9 +7,10 @@ import CommunityList from '../components/CommunityList';
 import CreatePostForm from '../components/CreatePostForm';
 import '../styles/VeriSphere.css';
 
-function CommunityPage() {
+function CommunityPage({ authHook }) {
     const { id } = useParams();
-    const { boolIsLoggedInState, strTokenState } = useAuth();
+    const fallbackAuth = useAuth();
+    const { boolIsLoggedInState, strTokenState } = authHook || fallbackAuth;
     const [objCommunityState, setObjCommunityState] = useState(null);
     const [arrPostsState, setArrPostsState] = useState([]);
     const [boolIsLoadingState, setBoolIsLoadingState] = useState(true);

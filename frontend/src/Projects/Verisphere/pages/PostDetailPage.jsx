@@ -9,9 +9,10 @@ import PostDetailContext from '../components/PostDetailContext';
 import { countAllComments } from '../utils/commentCounter';
 import '../styles/VeriSphere.css';
 
-const PostDetailPage = () => {
+const PostDetailPage = ({ authHook }) => {
   const { id } = useParams();
-  const { strTokenState, boolIsLoggedInState } = useAuth();
+  const fallbackAuth = useAuth();
+  const { strTokenState, boolIsLoggedInState } = authHook || fallbackAuth;
   const reactions = useReactions(id);
   const post = usePostDetail(id, strTokenState, boolIsLoggedInState);
   const [numWindowWidth, setNumWindowWidth] = React.useState(window.innerWidth);

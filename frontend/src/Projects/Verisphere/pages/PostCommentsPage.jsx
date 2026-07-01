@@ -5,9 +5,10 @@ import { usePostDetail } from '../hooks/usePostDetail';
 import PostDetailComments from '../components/PostDetailComments';
 import '../styles/VeriSphere.css';
 
-const PostCommentsPage = () => {
+const PostCommentsPage = ({ authHook }) => {
   const { id } = useParams();
-  const { strTokenState, boolIsLoggedInState } = useAuth();
+  const fallbackAuth = useAuth();
+  const { strTokenState, boolIsLoggedInState } = authHook || fallbackAuth;
   const post = usePostDetail(id, strTokenState, boolIsLoggedInState);
 
   const [strNewCommentState, setStrNewCommentState] = useState('');
