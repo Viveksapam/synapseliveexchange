@@ -20,7 +20,7 @@ const CommentBody = ({ comment, loadingCommentsState, onAnalyze, onStartReply, o
         </div>
       )}
 
-      <p className="verisphere-comment-text" style={{ fontSize: '0.95rem', lineHeight: '1.5', color: 'var(--v2-text-main)', marginBottom: '0.8rem', marginTop: 0 }}>
+      <p className="verisphere-comment-text" style={{ fontSize: '0.875rem', lineHeight: '1.4', color: 'var(--v2-text-main)', marginBottom: '0.6rem', marginTop: 0 }}>
         {comment.strContent}
       </p>
 
