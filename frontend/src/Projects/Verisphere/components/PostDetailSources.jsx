@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import SourceReviewTable from './SourceReviewTable';
 
+const APPROVAL_LABELS = { moderator: 'Moderator approved', ai: 'AI approved' };
+
 const PostDetailSources = ({ postId, post, sourceForm, onSourceSubmit, onToggleAdd, boolIsAdmin, strToken, onSourceApproved }) => {
   const {
     boolIsAddingSourceState, strNewSourceTitleState, setStrNewSourceTitleState,
@@ -66,10 +68,15 @@ const PostDetailSources = ({ postId, post, sourceForm, onSourceSubmit, onToggleA
       {arrSources.length > 0 ? (
         <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
           {arrSources.map((objSource) => (
-            <li key={objSource.id}>
+            <li key={objSource.id} style={{ display: 'flex', alignItems: 'baseline', gap: '0.4rem', flexWrap: 'wrap' }}>
               <a href={objSource.strUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.9rem', color: 'var(--v2-text-main)', textDecoration: 'none' }}>
                 {objSource.strTitle}
               </a>
+              {APPROVAL_LABELS[objSource.approved_by] && (
+                <span style={{ fontSize: '0.7rem', color: 'var(--v2-text-muted)' }}>
+                  · {APPROVAL_LABELS[objSource.approved_by]}
+                </span>
+              )}
             </li>
           ))}
         </ul>
