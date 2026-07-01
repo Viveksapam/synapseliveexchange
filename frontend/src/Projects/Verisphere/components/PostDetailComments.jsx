@@ -16,7 +16,7 @@ const PostDetailComments = ({ post, boolIsLoggedIn, commentForm, replyState, onA
       {arrComments.length === 0 ? (
         <p className="verisphere-empty-comments">No arguments presented yet.</p>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
           {arrComments.map((objComment) => (
             <CommentThread
               key={objComment.id}
