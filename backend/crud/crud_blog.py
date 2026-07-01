@@ -287,8 +287,13 @@ def toggle_reaction(db: Session, blog_id: int, user_id: int, emoji: str):
     ).first()
     
     if existing:
-        db.delete(existing)
-        db.commit()
+        try:
+            db.delete(existing)
+            db.commit()
+        except Exception:
+            db.rollback()
+            from fastapi import HTTPException
+            raise HTTPException(status_code=500, detail="Failed to remove reaction")
         return {"status": "removed"}
     else:
         count = db.query(PostReactionModel).filter(
