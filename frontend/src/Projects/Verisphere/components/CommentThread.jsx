@@ -23,31 +23,33 @@ const CommentThread = ({
   };
 
   return (
-    <div className="verisphere-comment-thread" style={{ display: 'flex', flexDirection: 'column', marginTop: level === 0 ? '1rem' : '0', position: 'relative', overflow: 'hidden' }}>
-      <div
-        onClick={(e) => { e.stopPropagation(); setBoolIsCollapsedState((p) => !p); }}
-        style={{ position: 'absolute', left: 0, top: '-0.5rem', width: '3px', minWidth: '3px', height: 'calc(100% + 0.5rem)', display: 'flex', justifyContent: 'center', cursor: 'pointer', opacity: boolIsCollapsedState ? 0.5 : 1, transition: 'opacity 0.2s' }}
-        className="thread-line-container"
-        title={boolIsCollapsedState ? 'Expand thread' : 'Collapse thread'}
-      >
-        <div style={{ width: '1px', height: '100%', backgroundColor: 'var(--glass-border)', borderRadius: '1px 1px 0 0' }} className="thread-line" />
-      </div>
+    <div className={`verisphere-comment-thread ${level === 0 ? 'is-root' : 'is-reply'}`} style={{ display: 'flex', flexDirection: 'column', position: 'relative' }}>
+      {level > 0 && (
+        <div
+          onClick={(e) => { e.stopPropagation(); setBoolIsCollapsedState((p) => !p); }}
+          style={{ position: 'absolute', left: 0, top: 0, width: '10px', minWidth: '10px', height: '100%', display: 'flex', justifyContent: 'center', cursor: 'pointer', opacity: boolIsCollapsedState ? 0.5 : 1, transition: 'opacity 0.2s' }}
+          className="thread-line-container"
+          title={boolIsCollapsedState ? 'Expand thread' : 'Collapse thread'}
+        >
+          <div className="thread-line" />
+        </div>
+      )}
 
-      <div style={{ display: 'flex', paddingLeft: '7px' }}>
-        <div style={{ flex: 1, padding: '0.5rem 0', background: 'transparent', opacity: boolIsCollapsedState ? 0.7 : 1, transition: 'opacity 0.2s' }}>
-          <div className="verisphere-comment-header" style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+      <div style={{ display: 'flex', paddingLeft: level === 0 ? 0 : '10px' }}>
+        <div style={{ flex: 1, opacity: boolIsCollapsedState ? 0.7 : 1, transition: 'opacity 0.2s' }}>
+          <div className="verisphere-comment-header" style={{ display: 'flex', alignItems: 'baseline', marginBottom: '0.25rem', flexWrap: 'wrap', gap: '0.35rem' }}>
             {boolIsCollapsedState && (
               <button
                 onClick={(e) => { e.stopPropagation(); setBoolIsCollapsedState(false); }}
-                style={{ background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', borderRadius: '4px', color: 'var(--v2-text-muted)', cursor: 'pointer', fontSize: '0.8rem', padding: '2px 6px', marginRight: '4px', fontFamily: 'monospace' }}
+                style={{ background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', borderRadius: '4px', color: 'var(--v2-text-muted)', cursor: 'pointer', fontSize: '0.75rem', padding: '2px 6px', marginRight: '4px', fontFamily: 'monospace' }}
               >
                 [+]
               </button>
             )}
-            <strong style={{ fontSize: '0.95rem', color: 'var(--v2-text-main)' }}>
+            <strong style={{ fontSize: '0.8125rem', color: 'var(--v2-text-main)' }}>
               {comment.strAuthorUsername || comment.strAuthor || 'Anonymous'}
             </strong>
-            <span className="verisphere-date" style={{ color: 'var(--v2-text-muted)', fontSize: '0.8rem' }}>
+            <span className="verisphere-date" style={{ color: 'var(--v2-text-muted)', fontSize: '0.75rem' }}>
               • {comment.created_at ? new Date(comment.created_at).toLocaleDateString() : 'Date unavailable'}
             </span>
           </div>
@@ -76,7 +78,7 @@ const CommentThread = ({
       </div>
 
       {!boolIsCollapsedState && comment.replies && comment.replies.length > 0 && (
-        <div style={{ paddingLeft: '12px' }}>
+        <div style={{ paddingLeft: '14px', marginTop: '0.6rem' }}>
           {comment.replies.map((objReply) => (
             <CommentThread
               key={objReply.id}
