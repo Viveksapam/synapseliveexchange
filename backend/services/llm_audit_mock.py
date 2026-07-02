@@ -6,6 +6,7 @@ The heuristics here are deliberately simple but content-aware: they read the
 post/comment text for evidence markers vs. pseudo-scientific / absolutist
 markers and produce a calibrated, prose assessment rather than raw stats.
 """
+import json
 import re
 from urllib.parse import quote_plus
 
@@ -330,27 +331,25 @@ def _analyze_post_mock(collected_data: dict) -> dict:
         "replications reach the same result."
     )
 
-    context_guardrail = (
-        f'Established ground truth: there is no accepted body of evidence supporting '
-        f'the specific mechanism proposed here, and the burden of proof rests with '
-        f'the claimant. This discussion is at risk of drifting when virality or '
-        f'reaction counts are treated as confirmation, when absolutist language '
-        f'({absolutes} instance(s) detected) substitutes for measurement, or when '
-        f'sources on the general topic are cited as if they settled the exact claim. '
-        f'Hold the thread to falsifiable statements and primary evidence.'
-        if pseudo else
-        f'Established ground truth: the claim is the kind of statement that can be '
-        f'checked against primary evidence, so the discussion should stay anchored '
-        f'to what the cited sources actually measured. Watch for scope drift — '
-        f'generalizing beyond what the evidence covers — and for sources being '
-        f'treated as more authoritative or more on-point than they are.'
-    )
+    context_guardrail = {
+        "breadcrumb": ["Claim Review", "Evidence Check", "Fallacy Scan" if pseudo else "Source Fit"],
+        "in_scope": (
+            "Whether the mechanism has falsifiable, primary evidence"
+            if pseudo else
+            "Whether cited sources actually measure this exact claim"
+        ),
+        "out_of_scope": (
+            "Reaction counts as proof, absolutist framing, general-topic sources"
+            if pseudo else
+            "Generalizing past evidence scope, treating adjacent sources as decisive"
+        ),
+    }
 
     topic_hint = title if len(title) < 60 else title[:57]
 
     return {
         "summary": summary,
-        "ai_context_guardrail": context_guardrail,
+        "ai_context_guardrail": json.dumps(context_guardrail),
         "analysis_detail": {
             "sub_scores": sub_scores,
             "detected_fallacies": detected_fallacies,

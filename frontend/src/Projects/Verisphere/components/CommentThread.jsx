@@ -7,7 +7,7 @@ const CommentThread = ({
   comment, level = 0, handleAnalyzeComment, loadingCommentsState,
   setReplyingToState, setReplyModeState, setStrReplyContentState,
   replyingToState, strReplyContentState, handleReplySubmit, boolIsSubmittingReplyState,
-  handleDeleteComment,
+  handleDeleteComment, boolIsAdmin,
 }) => {
   const [boolIsCollapsedState, setBoolIsCollapsedState] = useState(false);
 
@@ -50,7 +50,7 @@ const CommentThread = ({
               {comment.strAuthorUsername || comment.strAuthor || 'Anonymous'}
             </strong>
             <span className="verisphere-date" style={{ color: 'var(--v2-text-muted)', fontSize: '0.75rem' }}>
-              • {comment.created_at ? new Date(comment.created_at).toLocaleDateString() : 'Date unavailable'}
+              • {comment.datePosted ? new Date(comment.datePosted).toLocaleDateString() : 'Date unavailable'}
             </span>
           </div>
 
@@ -61,6 +61,7 @@ const CommentThread = ({
               onAnalyze={handleAnalyzeComment}
               onStartReply={handleStartReply}
               onDelete={handleDeleteComment}
+              boolIsAdmin={boolIsAdmin}
             />
           )}
 
@@ -94,6 +95,7 @@ const CommentThread = ({
               handleReplySubmit={handleReplySubmit}
               boolIsSubmittingReplyState={boolIsSubmittingReplyState}
               handleDeleteComment={handleDeleteComment}
+              boolIsAdmin={boolIsAdmin}
             />
           ))}
         </div>
@@ -114,6 +116,7 @@ CommentThread.propTypes = {
   strReplyContentState: PropTypes.string.isRequired,
   handleReplySubmit: PropTypes.func.isRequired,
   boolIsSubmittingReplyState: PropTypes.bool.isRequired,
+  boolIsAdmin: PropTypes.bool,
 };
 
 export default CommentThread;
