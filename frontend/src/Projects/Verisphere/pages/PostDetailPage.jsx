@@ -53,7 +53,7 @@ const PostDetailPage = ({ authHook }) => {
         strPhase={post.strAnalysisPhaseState}
       />
       <div className="verisphere-post-detail" style={{
-      maxWidth: 'none', margin: '1rem auto', padding: '2rem 1rem',
+      maxWidth: 'none', margin: '0.3rem auto', padding: '2rem 1rem',
       background: 'var(--glass-bg)', borderRadius: '16px',
       backdropFilter: 'blur(20px)',
       fontSize: '0.95rem',
