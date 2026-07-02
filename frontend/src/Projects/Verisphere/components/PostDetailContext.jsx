@@ -10,6 +10,21 @@ const SUB_SCORE_LABELS = {
   fallacy_bias_freedom: 'Fallacy & Bias Freedom',
 };
 
+// ai_context_guardrail is stored as a JSON string encoding
+// {breadcrumb: [...], in_scope: "...", out_of_scope: "..."}. Older rows may
+// still hold the legacy plain-prose guardrail, so fall back to rendering it
+// as-is when it isn't valid JSON in that shape.
+const parseGuardrail = (strRaw) => {
+  if (!strRaw) return null;
+  try {
+    const objParsed = JSON.parse(strRaw);
+    if (objParsed && Array.isArray(objParsed.breadcrumb)) return objParsed;
+  } catch {
+    // legacy plain-string guardrail - handled by the caller's fallback
+  }
+  return null;
+};
+
 const scoreColor = (score) => {
   if (score <= 20) return '#ef4444';
   if (score <= 40) return '#f59e0b';
@@ -49,6 +64,7 @@ const PostDetailContext = ({ strAiContextGuardrail, post, onAnalyze, boolIsAnaly
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const objGuardrail = parseGuardrail(strAiContextGuardrail);
   const boolHasPostAnalysis = post?.ai_summary;
   const objDetail = post?.analysis_detail || null;
   const arrSubScores = objDetail?.sub_scores ? Object.entries(objDetail.sub_scores) : [];
@@ -164,9 +180,37 @@ const PostDetailContext = ({ strAiContextGuardrail, post, onAnalyze, boolIsAnaly
             )}
           </div>
         </div>
-        <p style={{ color: 'var(--v2-text-main)', lineHeight: '1.6', margin: 0, fontSize: '0.95rem' }}>
-          {strAiContextGuardrail || 'This discussion operates within objectively verified context parameters. Factual baseline and historical precedents are being actively monitored to prevent conversational drift and fallacious premises.'}
-        </p>
+        {objGuardrail ? (
+          <div>
+            <p style={{ margin: '0 0 0.6rem', fontSize: '0.8rem', fontWeight: 600, letterSpacing: '0.02em', color: 'var(--v2-text-muted)' }}>
+              {objGuardrail.breadcrumb.join(' · ')}
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              {objGuardrail.in_scope && (
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.82rem',
+                  padding: '4px 10px', borderRadius: '999px', background: 'rgba(34, 197, 94, 0.12)',
+                  color: 'var(--v2-text-main)', border: '1px solid rgba(34, 197, 94, 0.35)',
+                }}>
+                  ✅ {objGuardrail.in_scope}
+                </span>
+              )}
+              {objGuardrail.out_of_scope && (
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.82rem',
+                  padding: '4px 10px', borderRadius: '999px', background: 'rgba(239, 68, 68, 0.1)',
+                  color: 'var(--v2-text-main)', border: '1px solid rgba(239, 68, 68, 0.3)',
+                }}>
+                  🚫 {objGuardrail.out_of_scope}
+                </span>
+              )}
+            </div>
+          </div>
+        ) : (
+          <p style={{ color: 'var(--v2-text-main)', lineHeight: '1.6', margin: 0, fontSize: '0.95rem' }}>
+            {strAiContextGuardrail || 'This discussion operates within objectively verified context parameters. Factual baseline and historical precedents are being actively monitored to prevent conversational drift and fallacious premises.'}
+          </p>
+        )}
       </div>
     </div>
   );

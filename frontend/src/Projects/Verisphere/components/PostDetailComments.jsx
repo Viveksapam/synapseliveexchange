@@ -2,7 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import CommentThread from './CommentThread';
 
-const PostDetailComments = ({ post, boolIsLoggedIn, commentForm, replyState, onAnalyzeComment, loadingComments }) => {
+const PostDetailComments = ({
+  post, boolIsLoggedIn, boolIsAdmin, commentForm, replyState, onAnalyzeComment, loadingComments,
+  onAnalyzeAllComments, boolIsAnalyzingComments,
+}) => {
   const {
     strNewCommentState, setStrNewCommentState,
     boolIsSubmittingState, onCommentSubmit,
@@ -23,9 +26,29 @@ const PostDetailComments = ({ post, boolIsLoggedIn, commentForm, replyState, onA
               level={0}
               handleAnalyzeComment={onAnalyzeComment}
               loadingCommentsState={loadingComments}
+              boolIsAdmin={boolIsAdmin}
               {...replyState}
             />
           ))}
+        </div>
+      )}
+
+      {boolIsAdmin && arrComments.length > 0 && (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+          <button
+            onClick={onAnalyzeAllComments}
+            disabled={boolIsAnalyzingComments}
+            className="verisphere-btn-primary"
+            style={{
+              fontSize: '0.85rem', padding: '6px 10px', background: 'rgba(79, 163, 255, 0.1)',
+              color: boolIsAnalyzingComments ? 'var(--v2-text-muted)' : 'var(--v2-accent-secondary)',
+              border: `1.5px solid ${boolIsAnalyzingComments ? 'var(--glass-border)' : 'var(--v2-accent-secondary)'}`,
+              borderRadius: '6px', cursor: boolIsAnalyzingComments ? 'not-allowed' : 'pointer',
+              opacity: boolIsAnalyzingComments ? 0.6 : 1,
+            }}
+          >
+            {boolIsAnalyzingComments ? '⊙ Analyzing comments...' : 'Analyze All Comments'}
+          </button>
         </div>
       )}
 
@@ -63,10 +86,13 @@ const PostDetailComments = ({ post, boolIsLoggedIn, commentForm, replyState, onA
 PostDetailComments.propTypes = {
   post: PropTypes.object.isRequired,
   boolIsLoggedIn: PropTypes.bool.isRequired,
+  boolIsAdmin: PropTypes.bool,
   commentForm: PropTypes.object.isRequired,
   replyState: PropTypes.object.isRequired,
   onAnalyzeComment: PropTypes.func.isRequired,
   loadingComments: PropTypes.object.isRequired,
+  onAnalyzeAllComments: PropTypes.func,
+  boolIsAnalyzingComments: PropTypes.bool,
 };
 
 export default PostDetailComments;

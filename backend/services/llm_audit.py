@@ -292,7 +292,11 @@ _POST_AUDIT_PROMPT = (
     "- The summary must be entailed by the sub-scores; do not contradict them.\n"
     "- Popularity, reactions, and author identity are NOT evidence. Ignore them.\n"
     "- Judge the argument, not the person. No moralizing.\n"
-    "- Where your knowledge is uncertain or past your cutoff, say so explicitly.\n\n"
+    "- Where your knowledge is uncertain or past your cutoff, say so explicitly.\n"
+    "- context_guardrail is a scannable scope-fence, not analysis prose: exactly 3 "
+    "breadcrumb nodes (macro -> sub -> specific scope), each <=3 words; in_scope and "
+    "out_of_scope are each a single <=8-word phrase (not a full sentence); no filler "
+    'words ("the", "regarding", "discussions on"); do not restate the summary.\n\n'
     "Return ONLY this JSON (no prose, no markdown fences):\n"
     "{\n"
     '  "sub_scores": {\n'
@@ -307,9 +311,11 @@ _POST_AUDIT_PROMPT = (
     "  ],\n"
     '  "steelman": "<strongest charitable version of the claim>",\n'
     '  "summary": "<3-5 sentence audit: claim type, key weaknesses/strengths>",\n'
-    '  "context_guardrail": "<the established ground truth on this topic and where '
-    "THIS discussion is at risk of drifting from it - the epistemic frame, "
-    'distinct from the summary>",\n'
+    '  "context_guardrail": {\n'
+    '    "breadcrumb": ["<macro category>", "<sub-category>", "<specific scope>"],\n'
+    '    "in_scope": "<phrase, not a sentence, naming what stays on-topic>",\n'
+    '    "out_of_scope": "<phrase, not a sentence, naming adjacent topics to avoid>"\n'
+    "  },\n"
     '  "verification_pathway": "<specific evidence/data/experiment that would confirm or falsify>",\n'
     '  "source_evaluation": {\n'
     '    "approved_source_ids": [<real, on-topic, claim-relevant source ids>],\n'
@@ -355,11 +361,15 @@ def _flatten_audit_response(raw: dict) -> dict:
     """Collapse the rich audit object the model returns into the flat shape the
     crud/router layer consumes, while preserving the decomposed detail under
     'analysis_detail' and 'ai_context_guardrail' for the UI. No overall
-    soundness/verifiable field - see _POST_AUDIT_PROMPT for why."""
+    soundness/verifiable field - see _POST_AUDIT_PROMPT for why.
+
+    ai_context_guardrail is stored as a JSON string encoding
+    {"breadcrumb": [...], "in_scope": "...", "out_of_scope": "..."} - the Text
+    column doesn't change shape, only its contents (see BlogModel.ai_context_guardrail)."""
     source_eval = raw.get("source_evaluation") or {}
     return {
         "summary": raw.get("summary", ""),
-        "ai_context_guardrail": raw.get("context_guardrail", ""),
+        "ai_context_guardrail": json.dumps(raw.get("context_guardrail") or {}),
         "analysis_detail": {
             "sub_scores": raw.get("sub_scores", {}),
             "detected_fallacies": raw.get("detected_fallacies", []),

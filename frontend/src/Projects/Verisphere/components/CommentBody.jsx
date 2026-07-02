@@ -5,7 +5,7 @@ import { formatAnalyzedAt } from '../utils/formatAnalyzedAt';
 const reasoningBox = (strBg) => ({ background: strBg, padding: '0.6rem 0.8rem', borderRadius: '6px' });
 const labelStyle = { fontSize: '0.7rem', color: 'var(--v2-text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '4px', letterSpacing: '1px' };
 
-const CommentBody = ({ comment, loadingCommentsState, onAnalyze, onStartReply, onDelete }) => {
+const CommentBody = ({ comment, loadingCommentsState, onAnalyze, onStartReply, onDelete, boolIsAdmin }) => {
   const [boolIsAnalysisExpandedState, setBoolIsAnalysisExpandedState] = useState(false);
   const objMetrics = comment.dictAiMetrics;
   const arrFallacies = objMetrics?.logical_errors || [];
@@ -77,7 +77,7 @@ const CommentBody = ({ comment, loadingCommentsState, onAnalyze, onStartReply, o
           </div>
         )}
         <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.2rem' }}>
-          {!comment.strAiAnalysis && (
+          {!comment.strAiAnalysis && boolIsAdmin && (
             <button
               onClick={() => onAnalyze(comment.id)}
               disabled={loadingCommentsState[comment.id]}
@@ -115,6 +115,7 @@ CommentBody.propTypes = {
   onAnalyze: PropTypes.func.isRequired,
   onStartReply: PropTypes.func.isRequired,
   onDelete: PropTypes.func,
+  boolIsAdmin: PropTypes.bool,
 };
 
 export default CommentBody;
