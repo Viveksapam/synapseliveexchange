@@ -59,12 +59,6 @@ const PostDetailPage = ({ authHook }) => {
       fontSize: '0.95rem',
       lineHeight: '1.6',
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem' }}>
-        <Link to="/verisphere/feed" className="verisphere-back-link inline-block" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--v2-text-main)', transition: 'transform 0.2s' }}>
-          ←
-        </Link>
-      </div>
-
       <PostDetailHeader post={post.objPostState} reactions={reactions} />
 
       <PostDetailSources

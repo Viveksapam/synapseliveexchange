@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
 import { usePostDetail } from '../hooks/usePostDetail';
 import PostDetailComments from '../components/PostDetailComments';
@@ -52,15 +52,6 @@ const PostCommentsPage = ({ authHook }) => {
       backdropFilter: 'blur(20px)',
       fontSize: '0.95rem', lineHeight: '1.6',
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1.2rem' }}>
-        <Link
-          to={`/verisphere/post/${id}`}
-          style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--v2-text-main)' }}
-        >
-          ←
-        </Link>
-      </div>
-
       <PostDetailComments
         post={post.objPostState}
         boolIsLoggedIn={boolIsLoggedInState}
